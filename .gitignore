@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+
+# Never commit a real one. .env.example is the committed copy.
+.env
+.env.local
+.env.*.local
+
+*.log
+.DS_Store
+.vite
