@@ -39,15 +39,28 @@ export function Requests() {
     void fetchRequests();
   }, []);
 
-  const handleApprove = async (id: string, name: string) => {
-    if (!confirm(`Approve access request for ${name}?`)) return;
+  const handleApprove = async (id: string, name: string, email: string) => {
+    const password = prompt(
+      `Set account password for ${name} (${email}):`,
+      "college123"
+    );
+    if (password === null) return;
+    if (!password.trim()) {
+      alert("Password cannot be empty.");
+      return;
+    }
     try {
       setProcessingId(id);
-      await api.post<{ approved: boolean }>(`/api/v1/admin/access-requests/${id}/approve`);
+      await api.post<{ approved: boolean }>(
+        `/api/v1/admin/access-requests/${id}/approve`,
+        { password: password.trim() }
+      );
       setRequests((prev) =>
         prev.map((r) => (r.id === id ? { ...r, status: "APPROVED" } : r))
       );
-      alert(`Approved access request for ${name}. Activation invite link has been generated!`);
+      alert(
+        `Approved access request for ${name}!\nAccount activated with Email: ${email} and Password: ${password.trim()}`
+      );
     } catch (err) {
       alert(err instanceof ApiError ? err.message : "Failed to approve request");
     } finally {
@@ -182,7 +195,7 @@ export function Requests() {
                       <button
                         type="button"
                         disabled={processingId === req.id}
-                        onClick={() => void handleApprove(req.id, req.name)}
+                        onClick={() => void handleApprove(req.id, req.name, req.email)}
                         className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-night transition hover:bg-emerald-400 disabled:opacity-50 shadow-md"
                       >
                         {processingId === req.id ? "Processing..." : "Accept (Approve)"}
