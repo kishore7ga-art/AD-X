@@ -14,8 +14,11 @@ const raw = import.meta.env.VITE_API_BASE_URL?.trim();
 
 if (!raw) {
   throw new Error(
-    "VITE_API_BASE_URL is not set. Copy .env.example to .env — for a local " +
-      "backend that is http://localhost:4000",
+    "VITE_API_BASE_URL was not set when this bundle was built. Vite reads " +
+      "VITE_* at build time, so setting it on the deployment only helps if the " +
+      "build can see it — `.env.production` is the committed default, and a " +
+      "build that reached this message did not have either. Locally: copy " +
+      ".env.example to .env (http://localhost:4000).",
   );
 }
 
