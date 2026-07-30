@@ -41,6 +41,7 @@ export function Shell({
             <nav className="flex items-center gap-5 text-xs">
               <Tab to="/templates">Templates</Tab>
               <Tab to="/users">Users</Tab>
+              <Tab to="/requests">Requests</Tab>
             </nav>
             {admin ? (
               <div className="flex items-center gap-3 text-xs text-chalk-dim/60">

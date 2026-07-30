@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/auth/AuthContext";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { Login } from "@/pages/Login";
+import { Requests } from "@/pages/Requests";
 import { TemplateEdit } from "@/pages/TemplateEdit";
 import { Templates } from "@/pages/Templates";
 import { Users } from "@/pages/Users";
@@ -39,6 +40,14 @@ export function App() {
             element={
               <ProtectedRoute>
                 <Users />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/requests"
+            element={
+              <ProtectedRoute>
+                <Requests />
               </ProtectedRoute>
             }
           />
