@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { Login } from "@/pages/Login";
 import { TemplateEdit } from "@/pages/TemplateEdit";
 import { Templates } from "@/pages/Templates";
+import { Users } from "@/pages/Users";
 
 /**
  * The panel's routes.
@@ -30,6 +31,14 @@ export function App() {
             element={
               <ProtectedRoute>
                 <Templates />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <Users />
               </ProtectedRoute>
             }
           />

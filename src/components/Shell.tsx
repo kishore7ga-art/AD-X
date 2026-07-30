@@ -38,8 +38,9 @@ export function Shell({
               built and a Requests tab belongs here, but linking to a route that
               renders nothing is worse than not offering it yet.
             */}
-            <nav className="flex gap-4 text-xs">
+            <nav className="flex items-center gap-5 text-xs">
               <Tab to="/templates">Templates</Tab>
+              <Tab to="/users">Users</Tab>
             </nav>
             {admin ? (
               <div className="flex items-center gap-3 text-xs text-chalk-dim/60">
