@@ -7,6 +7,11 @@ import { useAuth } from "@/auth/AuthContext";
 /**
  * Super Admin sign-in, ported from xite-F's `AdminLoginForm`.
  *
+ * Password only. The email is still the account's identity in the database, but
+ * it is not a credential to type — the backend finds the account from the
+ * password. Which also means the password is the whole credential, so the
+ * endpoint's rate limit and `admin.mjs enrol` are what stand behind it.
+ *
  * The progressive second factor is the part worth preserving exactly. The code
  * field appears only once the backend asks for it: an account that has not enrolled
  * should not be shown a box it cannot fill, and one that has should not be told
@@ -22,7 +27,6 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [needsToken, setNeedsToken] = useState(false);
@@ -41,7 +45,7 @@ export function Login() {
     setPending(true);
 
     try {
-      await signIn({ email, password, ...(token ? { token } : {}) });
+      await signIn({ password, ...(token ? { token } : {}) });
       navigate(destination, { replace: true });
     } catch (cause) {
       const message =
@@ -98,23 +102,13 @@ export function Login() {
         )}
 
         <form onSubmit={submit} className="mt-9 space-y-5">
-          <Field label="Email">
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              autoComplete="username"
-              required
-              className={INPUT}
-            />
-          </Field>
-
           <Field label="Password">
             <input
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
+              autoFocus
               required
               className={INPUT}
             />

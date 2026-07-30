@@ -33,11 +33,7 @@ type AuthState = {
   /** `undefined` while resolving, `null` for signed out. */
   admin: Admin | null | undefined;
   setup: Setup | null;
-  signIn: (input: {
-    email: string;
-    password: string;
-    token?: string;
-  }) => Promise<void>;
+  signIn: (input: { password: string; token?: string }) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -81,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(
-    async (input: { email: string; password: string; token?: string }) => {
+    async (input: { password: string; token?: string }) => {
       const { admin: signedIn } = await api.post<{ admin: Admin }>(
         "/api/v1/admin/auth/login",
         input,
