@@ -52,7 +52,8 @@ async function request<T>(
      * the connectivity screen this app opened with says where to look.
      */
     throw new ApiError(
-      "Could not reach the API. It may be down, or this origin may not be in CORS_ORIGINS.",
+      `Could not reach ${API_BASE}. It may be down, or CORS_ORIGINS on the API ` +
+        `must list this origin exactly: ${window.location.origin}`,
       0,
     );
   }
