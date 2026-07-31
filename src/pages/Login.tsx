@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { ApiError } from "@/api/client";
@@ -32,6 +32,21 @@ export function Login() {
   const [needsToken, setNeedsToken] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (retryCountdown === null || retryCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setRetryCountdown((prev) => (prev && prev > 1 ? prev - 1 : null));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [retryCountdown]);
+
+  const formatCountdown = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
 
   // Already in. Bounce rather than offer a form that would be a no-op.
   if (admin) return <Navigate to="/templates" replace />;
@@ -51,7 +66,15 @@ export function Login() {
       const message =
         cause instanceof ApiError ? cause.message : "Sign-in failed";
 
-      if (message.includes("6-digit")) {
+      const isRateLimit =
+        (cause instanceof ApiError && cause.status === 429) ||
+        message.toLowerCase().includes("too many") ||
+        message.toLowerCase().includes("429");
+
+      if (isRateLimit) {
+        setRetryCountdown(300);
+        setError("Too many login attempts. Please try again in 5:00 minutes.");
+      } else if (message.includes("6-digit")) {
         setNeedsToken(true);
         setError("Enter the code from your authenticator app.");
       } else {
@@ -137,16 +160,22 @@ export function Login() {
               role="alert"
               className="rounded-lg border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-300"
             >
-              {error}
+              {retryCountdown
+                ? `Too many login attempts. Please try again in ${formatCountdown(retryCountdown)} minutes.`
+                : error}
             </p>
           ) : null}
 
           <button
             type="submit"
-            disabled={pending}
+            disabled={pending || retryCountdown !== null}
             className="w-full rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-night transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {pending ? "Checking…" : "Sign in"}
+            {pending
+              ? "Checking…"
+              : retryCountdown
+                ? `Try again in ${formatCountdown(retryCountdown)}`
+                : "Sign in"}
           </button>
         </form>
       </div>
