@@ -8,47 +8,131 @@ import { Shell } from "@/components/Shell";
 /**
  * Every template in the database, drafts and archived included.
  *
- * Three states in the status column, not two. The guide shows Published/Draft, but
- * `isPublished` and `archivedAt` are separate axes in this schema — draft means
- * "being built", archived means "was offered and withdrawn" — and collapsing them
- * would file a withdrawn template under unfinished.
- *
- * The counts beside each row are the ones that decide whether it can be deleted at
- * all. `sections` cascades from `templates` and `college_sections` cascades from
- * `sections`, so deleting a template in use destroys the content of every college
- * on it. `deletable` is computed by the API, which is the only side that can see
- * that cascade.
+ * Allows admins to view all templates, edit composition, delete unused templates
+ * permanently, archive templates in use, or create new templates that instantly
+ * appear in the gallery and editor page once published.
  */
 export function Templates() {
   const [templates, setTemplates] = useState<TemplateRow[] | null>(null);
   const [stats, setStats] = useState<TemplateStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  // Add Template Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newThumbnailUrl, setNewThumbnailUrl] = useState("");
+  const [newIsPublished, setNewIsPublished] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+
+  const fetchTemplates = async () => {
+    try {
+      const [list, counts] = await Promise.all([
+        api.get<{ templates: TemplateRow[] }>("/api/v1/admin/templates"),
+        api.get<TemplateStats>("/api/v1/admin/templates/stats"),
+      ]);
+      setTemplates(list.templates);
+      setStats(counts);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not load");
+    }
+  };
 
   useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const [list, counts] = await Promise.all([
-          api.get<{ templates: TemplateRow[] }>("/api/v1/admin/templates"),
-          api.get<TemplateStats>("/api/v1/admin/templates/stats"),
-        ]);
-        if (cancelled) return;
-        setTemplates(list.templates);
-        setStats(counts);
-      } catch (cause) {
-        if (cancelled) return;
-        setError(cause instanceof Error ? cause.message : "Could not load");
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    void fetchTemplates();
   }, []);
+
+  const handleDelete = async (template: TemplateRow) => {
+    setError(null);
+    if (template.deletable) {
+      if (
+        !window.confirm(
+          `Delete "${template.name}" permanently from the database? It is unused, so it will be removed completely and will never show in the editor page.`,
+        )
+      ) {
+        return;
+      }
+      setBusyId(template.id);
+      try {
+        await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
+        await fetchTemplates();
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "Failed to delete template");
+      } finally {
+        setBusyId(null);
+      }
+    } else {
+      if (
+        !window.confirm(
+          `"${template.name}" is currently used by ${template.colleges} college(s). Archive and unpublish it so it no longer appears in the editor page or gallery?`,
+        )
+      ) {
+        return;
+      }
+      setBusyId(template.id);
+      try {
+        await api.del(`/api/v1/admin/templates/${template.id}`);
+        await fetchTemplates();
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "Failed to archive template");
+      } finally {
+        setBusyId(null);
+      }
+    }
+  };
+
+  const handleCreateTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim()) {
+      setModalError("Template name is required");
+      return;
+    }
+    setModalError(null);
+    setIsCreating(true);
+
+    try {
+      await api.post("/api/v1/admin/templates", {
+        name: newName.trim(),
+        description: newDescription.trim() || undefined,
+        thumbnailUrl: newThumbnailUrl.trim() || undefined,
+        isPublished: newIsPublished,
+      });
+
+      setNewName("");
+      setNewDescription("");
+      setNewThumbnailUrl("");
+      setNewIsPublished(true);
+      setShowAddModal(false);
+      await fetchTemplates();
+    } catch (cause) {
+      setModalError(
+        cause instanceof Error ? cause.message : "Failed to create template",
+      );
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <Shell title="Templates">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-chalk">Design Templates</h1>
+          <p className="text-xs text-chalk-dim/60 mt-1">
+            Manage templates. Published templates are offered in the frontend editor page.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowAddModal(true)}
+          className="rounded-full bg-accent px-5 py-2 text-xs font-semibold text-night transition-opacity hover:opacity-90"
+        >
+          + Add Template
+        </button>
+      </div>
+
       {stats ? (
         <div className="grid gap-4 sm:grid-cols-4">
           <Stat label="Templates" value={stats.templates.total} />
@@ -78,7 +162,7 @@ export function Templates() {
       {error ? (
         <p
           role="alert"
-          className="mt-8 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-300"
+          className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-300"
         >
           {error}
         </p>
@@ -97,7 +181,7 @@ export function Templates() {
                 <th className="px-5 py-3 font-semibold">Status</th>
                 <th className="px-5 py-3 font-semibold">Composition</th>
                 <th className="px-5 py-3 font-semibold">In use</th>
-                <th className="px-5 py-3 font-semibold" />
+                <th className="px-5 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-night-line">
@@ -142,24 +226,121 @@ export function Templates() {
                       <span className="text-chalk-dim/50">unused</span>
                     )}
                   </td>
-                  <td className="px-5 py-4">
-                    {/*
-                      Edit rather than Delete. Archiving and deleting both live on
-                      the edit screen, next to the counts that decide which of the
-                      two is even possible — a Delete button in a list row is one
-                      click away from a cascade, with none of that context beside it.
-                    */}
-                    <Link
-                      to={`/templates/${template.id}`}
-                      className="text-accent underline-offset-2 hover:underline"
-                    >
-                      Edit
-                    </Link>
+                  <td className="px-5 py-4 text-right">
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        to={`/templates/${template.id}`}
+                        className="text-accent underline-offset-2 hover:underline"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={busyId === template.id}
+                        onClick={() => void handleDelete(template)}
+                        className="text-xs font-medium text-red-400 hover:text-red-300 disabled:opacity-50"
+                        title={
+                          template.deletable
+                            ? "Delete template permanently"
+                            : "Archive template (in use)"
+                        }
+                      >
+                        {busyId === template.id
+                          ? "Removing…"
+                          : template.deletable
+                            ? "Delete"
+                            : "Archive"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      ) : null}
+
+      {/* Modal for adding a new template */}
+      {showAddModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-xl border border-night-line bg-night-raised p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-chalk mb-4">Add New Template</h2>
+            {modalError ? (
+              <p className="mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-300">
+                {modalError}
+              </p>
+            ) : null}
+            <form onSubmit={(e) => void handleCreateTemplate(e)} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
+                  Template Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Zenith Medical"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="w-full rounded-lg border border-night-line bg-night px-3 py-2 text-sm text-chalk focus:border-accent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Clean layout designed for medical institutes"
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  className="w-full rounded-lg border border-night-line bg-night px-3 py-2 text-sm text-chalk focus:border-accent outline-none resize-y"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
+                  Thumbnail URL (optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://..."
+                  value={newThumbnailUrl}
+                  onChange={(e) => setNewThumbnailUrl(e.target.value)}
+                  className="w-full rounded-lg border border-night-line bg-night px-3 py-2 text-sm text-chalk focus:border-accent outline-none"
+                />
+              </div>
+
+              <label className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  checked={newIsPublished}
+                  onChange={(e) => setNewIsPublished(e.target.checked)}
+                  className="size-4 accent-accent"
+                />
+                <span className="text-xs text-chalk">
+                  Publish immediately (visible in frontend editor page)
+                </span>
+              </label>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-night-line">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="rounded-full border border-night-line px-4 py-2 text-xs font-semibold text-chalk-dim hover:text-chalk"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="rounded-full bg-accent px-5 py-2 text-xs font-semibold text-night hover:opacity-90 disabled:opacity-50"
+                >
+                  {isCreating ? "Creating…" : "Create Template"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       ) : null}
     </Shell>
