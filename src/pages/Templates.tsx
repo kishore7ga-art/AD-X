@@ -46,40 +46,48 @@ export function Templates() {
 
   const handleDelete = async (template: TemplateRow) => {
     setError(null);
-    if (template.deletable) {
-      if (
-        !window.confirm(
-          `Delete "${template.name}" permanently from the database? It is unused, so it will be removed completely and will never show in the editor page.`,
-        )
-      ) {
-        return;
-      }
-      setBusyId(template.id);
-      try {
-        await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
-        await fetchTemplates();
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Failed to delete template");
-      } finally {
-        setBusyId(null);
-      }
-    } else {
-      if (
-        !window.confirm(
-          `"${template.name}" is currently used by ${template.colleges} college(s). Archive and unpublish it so it no longer appears in the editor page or gallery?`,
-        )
-      ) {
-        return;
-      }
-      setBusyId(template.id);
-      try {
-        await api.del(`/api/v1/admin/templates/${template.id}`);
-        await fetchTemplates();
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : "Failed to archive template");
-      } finally {
-        setBusyId(null);
-      }
+    const inUseMsg =
+      template.colleges > 0
+        ? ` (${template.colleges} college(s) are using this. It will be removed from all live colleges and the database permanently.)`
+        : "";
+    if (
+      !window.confirm(
+        `Permanently delete "${template.name}" from the live database for ALL users?${inUseMsg}`,
+      )
+    ) {
+      return;
+    }
+    setBusyId(template.id);
+    try {
+      await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
+      await fetchTemplates();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Failed to delete template",
+      );
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleArchive = async (template: TemplateRow) => {
+    setError(null);
+    const actionName = template.archivedAt ? "Restore" : "Archive";
+    if (!window.confirm(`${actionName} template "${template.name}"?`)) {
+      return;
+    }
+    setBusyId(template.id);
+    try {
+      await api.del(`/api/v1/admin/templates/${template.id}`);
+      await fetchTemplates();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : `Failed to ${actionName.toLowerCase()} template`,
+      );
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -237,19 +245,24 @@ export function Templates() {
                       <button
                         type="button"
                         disabled={busyId === template.id}
-                        onClick={() => void handleDelete(template)}
-                        className="text-xs font-medium text-red-400 hover:text-red-300 disabled:opacity-50"
+                        onClick={() => void handleArchive(template)}
+                        className="text-xs font-medium text-chalk-dim hover:text-chalk disabled:opacity-50"
                         title={
-                          template.deletable
-                            ? "Delete template permanently"
-                            : "Archive template (in use)"
+                          template.archivedAt
+                            ? "Restore template to gallery"
+                            : "Archive template"
                         }
                       >
-                        {busyId === template.id
-                          ? "Removing…"
-                          : template.deletable
-                            ? "Delete"
-                            : "Archive"}
+                        {template.archivedAt ? "Restore" : "Archive"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyId === template.id}
+                        onClick={() => void handleDelete(template)}
+                        className="text-xs font-medium text-red-400 hover:text-red-300 disabled:opacity-50"
+                        title="Permanently delete template across all users and database"
+                      >
+                        {busyId === template.id ? "Deleting…" : "Delete"}
                       </button>
                     </div>
                   </td>
