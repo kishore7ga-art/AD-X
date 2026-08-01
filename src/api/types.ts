@@ -42,6 +42,7 @@ export type TemplateRow = {
   name: string;
   description: string | null;
   thumbnailUrl: string | null;
+  code?: string | null;
   isPublished: boolean;
   /** ISO string, or null for a template still on offer. */
   archivedAt: string | null;

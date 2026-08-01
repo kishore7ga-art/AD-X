@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { api } from "@/api/client";
+import { API_BASE } from "@/env";
 import type { TemplateRow, TemplateStats } from "@/api/types";
 import { Shell } from "@/components/Shell";
 
@@ -24,6 +25,8 @@ export function Templates() {
   const [newDescription, setNewDescription] = useState("");
   const [newThumbnailUrl, setNewThumbnailUrl] = useState("");
   const [newIsPublished, setNewIsPublished] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
 
@@ -91,6 +94,66 @@ export function Templates() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setSelectedFile(null);
+      setFilePreview(null);
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setModalError("File size exceeds 2MB limit.");
+      e.target.value = "";
+      setSelectedFile(null);
+      setFilePreview(null);
+      return;
+    }
+
+    const allowedExtensions = [
+      ".html",
+      ".htm",
+      ".blade.php",
+      ".jsx",
+      ".vue",
+      ".txt",
+      ".php",
+      ".js",
+      ".tsx",
+      ".ts",
+      ".css",
+    ];
+    const filename = file.name.toLowerCase();
+    const isValidExt = allowedExtensions.some((ext) => filename.endsWith(ext));
+    if (!isValidExt) {
+      setModalError(
+        "Invalid file type. Allowed: .html, .blade.php, .jsx, .vue, .txt",
+      );
+      e.target.value = "";
+      setSelectedFile(null);
+      setFilePreview(null);
+      return;
+    }
+
+    setModalError(null);
+    setSelectedFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      setFilePreview(text ?? null);
+    };
+    reader.onerror = () => {
+      setModalError("Failed to read selected file.");
+    };
+    reader.readAsText(file);
+  };
+
+  const handleClearFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+  };
+
   const handleCreateTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) {
@@ -101,17 +164,45 @@ export function Templates() {
     setIsCreating(true);
 
     try {
-      await api.post("/api/v1/admin/templates", {
-        name: newName.trim(),
-        description: newDescription.trim() || undefined,
-        thumbnailUrl: newThumbnailUrl.trim() || undefined,
-        isPublished: newIsPublished,
-      });
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("name", newName.trim());
+        if (newDescription.trim()) {
+          formData.append("description", newDescription.trim());
+        }
+        if (newThumbnailUrl.trim()) {
+          formData.append("thumbnailUrl", newThumbnailUrl.trim());
+        }
+        formData.append("isPublished", String(newIsPublished));
+        formData.append("file", selectedFile);
+
+        const response = await fetch(`${API_BASE}/api/v1/admin/templates`, {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as {
+            error?: string;
+          } | null;
+          throw new Error(payload?.error ?? `Request failed (${response.status})`);
+        }
+      } else {
+        await api.post("/api/v1/admin/templates", {
+          name: newName.trim(),
+          description: newDescription.trim() || undefined,
+          thumbnailUrl: newThumbnailUrl.trim() || undefined,
+          isPublished: newIsPublished,
+        });
+      }
 
       setNewName("");
       setNewDescription("");
       setNewThumbnailUrl("");
       setNewIsPublished(true);
+      setSelectedFile(null);
+      setFilePreview(null);
       setShowAddModal(false);
       await fetchTemplates();
     } catch (cause) {
@@ -322,6 +413,52 @@ export function Templates() {
                   onChange={(e) => setNewThumbnailUrl(e.target.value)}
                   className="w-full rounded-lg border border-night-line bg-night px-3 py-2 text-sm text-chalk focus:border-accent outline-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
+                  Template Code File (.html, .blade.php, .jsx, .vue)
+                </label>
+                <input
+                  type="file"
+                  accept=".html,.htm,.blade.php,.jsx,.vue,.txt,.php,.js,.tsx,.ts,.css"
+                  onChange={handleFileChange}
+                  className="w-full text-xs text-chalk-dim file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-xs file:font-semibold file:text-night hover:file:opacity-90 cursor-pointer"
+                />
+                {selectedFile ? (
+                  <div className="mt-2 rounded-lg border border-night-line bg-night p-3">
+                    <div className="flex items-center justify-between">
+                      <span
+                        className="text-xs font-medium text-accent truncate max-w-[220px]"
+                        title={selectedFile.name}
+                      >
+                        📄 {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleClearFile}
+                        className="ml-2 text-[10px] text-red-400 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    {filePreview !== null ? (
+                      <div className="mt-2">
+                        <span className="block text-[10px] uppercase tracking-wider text-chalk-dim/60 mb-1">
+                          Code Preview:
+                        </span>
+                        <pre className="max-h-28 overflow-y-auto rounded bg-black/40 p-2 font-mono text-[11px] text-chalk-dim whitespace-pre-wrap break-all border border-night-line/50">
+                          {filePreview.slice(0, 400)}
+                          {filePreview.length > 400 ? "\n... (truncated preview)" : ""}
+                        </pre>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  <p className="mt-1 text-[11px] text-chalk-dim/50">
+                    Upload a code file containing the template layout (max 2MB).
+                  </p>
+                )}
               </div>
 
               <label className="flex items-center gap-2 pt-1">
