@@ -82,7 +82,12 @@ export function Templates() {
   const [newDescription, setNewDescription] = useState("");
   const [newThumbnailUrl, setNewThumbnailUrl] = useState("");
   const [newIsPublished, setNewIsPublished] = useState(true);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Folder & File Upload State
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [fileContents, setFileContents] = useState<Record<string, string>>({});
+  const [selectedPrimaryFile, setSelectedPrimaryFile] = useState<string>("all");
+  const [folderName, setFolderName] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
 
   // Workbench Testing State
@@ -159,19 +164,13 @@ export function Templates() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      setSelectedFile(null);
+  const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) {
+      setSelectedFiles([]);
+      setFileContents({});
       setFilePreview(null);
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      setModalError("File size exceeds 2MB limit.");
-      e.target.value = "";
-      setSelectedFile(null);
-      setFilePreview(null);
+      setFolderName(null);
       return;
     }
 
@@ -188,35 +187,83 @@ export function Templates() {
       ".ts",
       ".css",
     ];
-    const filename = file.name.toLowerCase();
-    const isValidExt = allowedExtensions.some((ext) => filename.endsWith(ext));
-    if (!isValidExt) {
-      setModalError(
-        "Invalid file type. Allowed: .html, .blade.php, .jsx, .vue, .txt",
-      );
-      e.target.value = "";
-      setSelectedFile(null);
+
+    const filesArray = Array.from(fileList).filter((f) => {
+      const filename = f.name.toLowerCase();
+      return allowedExtensions.some((ext) => filename.endsWith(ext));
+    });
+
+    if (filesArray.length === 0) {
+      setModalError("No valid template code files found in selected upload.");
+      setSelectedFiles([]);
+      setFileContents({});
       setFilePreview(null);
+      setFolderName(null);
       return;
     }
 
-    setModalError(null);
-    setSelectedFile(file);
+    const totalSize = filesArray.reduce((acc, f) => acc + f.size, 0);
+    if (totalSize > 10 * 1024 * 1024) {
+      setModalError("Total upload size exceeds 10MB limit.");
+      setSelectedFiles([]);
+      setFileContents({});
+      setFilePreview(null);
+      setFolderName(null);
+      return;
+    }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      setFilePreview(text ?? null);
-    };
-    reader.onerror = () => {
-      setModalError("Failed to read selected file.");
-    };
-    reader.readAsText(file);
+    const firstPath = filesArray[0]!.webkitRelativePath || filesArray[0]!.name;
+    const derivedFolderName = firstPath.includes("/")
+      ? (firstPath.split("/")[0] ?? "Uploaded Folder")
+      : "Uploaded Folder";
+    setFolderName(derivedFolderName);
+
+    const contentsMap: Record<string, string> = {};
+    await Promise.all(
+      filesArray.map(
+        (file) =>
+          new Promise<void>((resolve) => {
+            const reader = new FileReader();
+            const key = file.webkitRelativePath || file.name;
+            reader.onload = (event) => {
+              contentsMap[key] = (event.target?.result as string) || "";
+              resolve();
+            };
+            reader.onerror = () => resolve();
+            reader.readAsText(file);
+          }),
+      ),
+    );
+
+    setModalError(null);
+    setSelectedFiles(filesArray);
+    setFileContents(contentsMap);
+    setSelectedPrimaryFile("all");
+
+    const stitched = Object.entries(contentsMap)
+      .map(([path, text]) => `<!-- File: ${path} -->\n${text}`)
+      .join("\n\n");
+    setFilePreview(stitched);
   };
 
-  const handleClearFile = () => {
-    setSelectedFile(null);
+  const handlePrimaryFileChange = (pathKey: string) => {
+    setSelectedPrimaryFile(pathKey);
+    if (pathKey === "all") {
+      const stitched = Object.entries(fileContents)
+        .map(([path, text]) => `<!-- File: ${path} -->\n${text}`)
+        .join("\n\n");
+      setFilePreview(stitched);
+    } else {
+      setFilePreview(fileContents[pathKey] ?? "");
+    }
+  };
+
+  const handleClearFiles = () => {
+    setSelectedFiles([]);
+    setFileContents({});
     setFilePreview(null);
+    setFolderName(null);
+    setSelectedPrimaryFile("all");
   };
 
   const handleCreateTemplate = async (e: React.FormEvent) => {
@@ -229,7 +276,7 @@ export function Templates() {
     setIsCreating(true);
 
     try {
-      if (selectedFile) {
+      if (selectedFiles.length > 0) {
         const formData = new FormData();
         formData.append("name", newName.trim());
         if (newDescription.trim()) {
@@ -239,7 +286,10 @@ export function Templates() {
           formData.append("thumbnailUrl", newThumbnailUrl.trim());
         }
         formData.append("isPublished", String(newIsPublished));
-        formData.append("file", selectedFile);
+
+        selectedFiles.forEach((file) => {
+          formData.append("files", file, file.webkitRelativePath || file.name);
+        });
 
         const response = await fetch(`${API_BASE}/api/v1/admin/templates`, {
           method: "POST",
@@ -266,8 +316,10 @@ export function Templates() {
       setNewDescription("");
       setNewThumbnailUrl("");
       setNewIsPublished(true);
-      setSelectedFile(null);
+      setSelectedFiles([]);
+      setFileContents({});
       setFilePreview(null);
+      setFolderName(null);
       setShowAddModal(false);
       await fetchTemplates();
     } catch (cause) {
@@ -441,14 +493,14 @@ export function Templates() {
               <div>
                 <h2 className="text-sm font-bold text-chalk flex items-center gap-2">
                   Template Studio Workbench
-                  {selectedFile ? (
+                  {selectedFiles.length > 0 ? (
                     <span className="rounded-full bg-accent/20 border border-accent/40 px-2.5 py-0.5 text-[10px] font-mono text-accent">
-                      {selectedFile.name}
+                      📁 {folderName || `${selectedFiles.length} file(s)`}
                     </span>
                   ) : null}
                 </h2>
                 <p className="text-[11px] text-chalk-dim/60">
-                  Upload layout code, test responsiveness & theme color palettes in real-time.
+                  Upload layout code folder, test responsiveness & theme color palettes in real-time.
                 </p>
               </div>
             </div>
@@ -523,8 +575,7 @@ export function Templates() {
                 type="button"
                 onClick={() => {
                   setShowAddModal(false);
-                  setSelectedFile(null);
-                  setFilePreview(null);
+                  handleClearFiles();
                 }}
                 className="rounded-full border border-night-line px-4 py-1.5 text-xs font-semibold text-chalk-dim hover:text-chalk hover:border-chalk-dim/40"
               >
@@ -713,38 +764,99 @@ export function Templates() {
                   />
                 </div>
 
-                {/* Section Code File Upload Input */}
+                {/* Folder & Multi-File Upload Section */}
                 <div className="rounded-xl border border-night-line bg-night/60 p-4 space-y-3">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-accent">
-                    Section Code File Upload (.html, .blade.php, .jsx, .vue)
-                  </label>
-                  <input
-                    type="file"
-                    accept=".html,.htm,.blade.php,.jsx,.vue,.txt,.php,.js,.tsx,.ts,.css"
-                    onChange={handleFileChange}
-                    className="w-full text-xs text-chalk-dim file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-xs file:font-semibold file:text-night hover:file:opacity-90 cursor-pointer"
-                  />
-                  {selectedFile ? (
-                    <div className="rounded-lg border border-accent/30 bg-accent/10 p-3">
-                      <div className="flex items-center justify-between">
-                        <span
-                          className="text-xs font-semibold text-accent truncate max-w-[200px]"
-                          title={selectedFile.name}
-                        >
-                          📄 {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
-                        </span>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-accent">
+                      Template Folder Upload
+                    </label>
+                    <span className="text-[10px] text-chalk-dim/60">
+                      Upload entire directory or files
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Select Folder Button */}
+                    <label className="flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 cursor-pointer transition-colors text-center">
+                      <span className="text-xl">📁</span>
+                      <span className="mt-1 text-xs font-bold text-accent">Select Folder</span>
+                      <span className="text-[9px] text-chalk-dim/60">Full directory upload</span>
+                      <input
+                        type="file"
+                        // @ts-expect-error - webkitdirectory directory attributes
+                        webkitdirectory=""
+                        directory=""
+                        multiple
+                        onChange={handleFolderChange}
+                        className="hidden"
+                      />
+                    </label>
+
+                    {/* Select Files Button */}
+                    <label className="flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-night-line bg-night hover:bg-night-raised cursor-pointer transition-colors text-center">
+                      <span className="text-xl">📄</span>
+                      <span className="mt-1 text-xs font-bold text-chalk-dim hover:text-chalk">
+                        Select Files
+                      </span>
+                      <span className="text-[9px] text-chalk-dim/60">Multiple code files</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept=".html,.htm,.blade.php,.jsx,.vue,.txt,.php,.js,.tsx,.ts,.css"
+                        onChange={handleFolderChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {selectedFiles.length > 0 ? (
+                    <div className="rounded-lg border border-accent/30 bg-accent/10 p-3 space-y-2">
+                      <div className="flex items-center justify-between border-b border-accent/20 pb-2">
+                        <div>
+                          <span className="text-xs font-bold text-accent block truncate max-w-[190px]">
+                            📁 {folderName || "Uploaded Folder"}
+                          </span>
+                          <span className="text-[10px] text-chalk-dim/70">
+                            {selectedFiles.length} file(s) ·{" "}
+                            {(
+                              selectedFiles.reduce((sum, f) => sum + f.size, 0) / 1024
+                            ).toFixed(1)}{" "}
+                            KB total
+                          </span>
+                        </div>
                         <button
                           type="button"
-                          onClick={handleClearFile}
+                          onClick={handleClearFiles}
                           className="text-[11px] font-medium text-red-400 hover:text-red-300 hover:underline"
                         >
-                          Remove
+                          Clear
                         </button>
                       </div>
+
+                      {/* Primary File Selector */}
+                      {selectedFiles.length > 1 ? (
+                        <div>
+                          <label className="block text-[10px] uppercase font-semibold text-chalk-dim mb-1">
+                            Active Preview File:
+                          </label>
+                          <select
+                            value={selectedPrimaryFile}
+                            onChange={(e) => handlePrimaryFileChange(e.target.value)}
+                            className="w-full rounded bg-night border border-night-line px-2.5 py-1.5 text-xs text-chalk outline-none focus:border-accent"
+                          >
+                            <option value="all">✨ All Files (Stitched Layout)</option>
+                            {Object.keys(fileContents).map((pathKey) => (
+                              <option key={pathKey} value={pathKey}>
+                                📄 {pathKey}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <p className="text-[11px] text-chalk-dim/50 leading-relaxed">
-                      Upload a file containing the page section markup. The file content will be sanitized and saved in the database <code className="text-chalk-dim font-mono">code</code> column.
+                      Select a folder containing your section files, HTML, Blade/JSX/Vue layouts, or CSS. All code files will be parsed and stored.
                     </p>
                   )}
                 </div>
