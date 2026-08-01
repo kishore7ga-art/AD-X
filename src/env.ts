@@ -12,15 +12,18 @@
  */
 const raw = import.meta.env.VITE_API_BASE_URL?.trim();
 
-if (!raw) {
-  throw new Error(
-    "VITE_API_BASE_URL was not set when this bundle was built. Vite reads " +
-      "VITE_* at build time, so setting it on the deployment only helps if the " +
-      "build can see it — `.env.production` is the committed default, and a " +
-      "build that reached this message did not have either. Locally: copy " +
-      ".env.example to .env (http://localhost:4000).",
-  );
-}
+const resolvedBase = (() => {
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+  ) {
+    if (!raw || raw.includes("localhost") || raw.includes("127.0.0.1")) {
+      return "https://api.meetkishore.in";
+    }
+  }
+  return raw || "http://localhost:4000";
+})();
 
 /** Trailing slash trimmed, so `${API_BASE}/api/v1/...` never doubles up. */
-export const API_BASE = raw.replace(/\/+$/, "");
+export const API_BASE = resolvedBase.replace(/\/+$/, "");
