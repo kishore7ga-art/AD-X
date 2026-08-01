@@ -650,6 +650,15 @@ export function Templates() {
                             <head>
                               <meta charset="utf-8">
                               <meta name="viewport" content="width=device-width, initial-scale=1">
+                              <script>
+                                (function() {
+                                  var _warn = console.warn;
+                                  console.warn = function() {
+                                    if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].indexOf('cdn.tailwindcss.com') !== -1) return;
+                                    _warn.apply(console, arguments);
+                                  };
+                                })();
+                              </script>
                               <script src="https://cdn.tailwindcss.com"></script>
                               <style>
                                 body {
@@ -665,7 +674,9 @@ export function Templates() {
                               </style>
                             </head>
                             <body>
-                              ${filePreview}
+                              ${(filePreview ?? "")
+                                .replace(/<script\b[^>]*src=["'](?!https?:\/\/|\/\/)[^"']*["'][^>]*>[\s\S]*?<\/script>/gi, "")
+                                .replace(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["'](?!https?:\/\/|\/\/)[^"']*["'][^>]*>/gi, "")}
                             </body>
                           </html>
                         `}
