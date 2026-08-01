@@ -19,7 +19,7 @@ const resolvedBase = (() => {
     window.location.hostname !== "127.0.0.1"
   ) {
     if (!raw || raw.includes("localhost") || raw.includes("127.0.0.1")) {
-      return "https://api.meetkishore.in";
+      return "https://api.xite.co.in";
     }
   }
   return raw || "http://localhost:4000";
