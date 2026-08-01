@@ -13,13 +13,70 @@ import { Shell } from "@/components/Shell";
  * permanently, archive templates in use, or create new templates that instantly
  * appear in the gallery and editor page once published.
  */
+const STUDIO_PALETTES = [
+  {
+    id: "dark",
+    name: "Midnight Dark",
+    bg: "#0D1117",
+    text: "#F0F6FC",
+    accent: "#38BDF8",
+    cardBg: "#161B22",
+    border: "#30363D",
+  },
+  {
+    id: "emerald",
+    name: "Emerald Gold",
+    bg: "#064E3B",
+    text: "#ECFDF5",
+    accent: "#F59E0B",
+    cardBg: "#022C22",
+    border: "#047857",
+  },
+  {
+    id: "sapphire",
+    name: "Sapphire Blue",
+    bg: "#0F172A",
+    text: "#F8FAFC",
+    accent: "#3B82F6",
+    cardBg: "#1E293B",
+    border: "#334155",
+  },
+  {
+    id: "sunset",
+    name: "Sunset Coral",
+    bg: "#451A03",
+    text: "#FFF7ED",
+    accent: "#F97316",
+    cardBg: "#292524",
+    border: "#78350F",
+  },
+  {
+    id: "light",
+    name: "Minimal Light",
+    bg: "#F8FAFC",
+    text: "#0F172A",
+    accent: "#0EA5E9",
+    cardBg: "#FFFFFF",
+    border: "#E2E8F0",
+  },
+  {
+    id: "cyber",
+    name: "Cyber Neon",
+    bg: "#180828",
+    text: "#F4F4F5",
+    accent: "#E066FF",
+    cardBg: "#280F43",
+    border: "#3B0764",
+  },
+];
+
 export function Templates() {
   const [templates, setTemplates] = useState<TemplateRow[] | null>(null);
   const [stats, setStats] = useState<TemplateStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  // Add Template Modal State
+  // Add Template Modal & Workbench Studio State
   const [showAddModal, setShowAddModal] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -27,8 +84,16 @@ export function Templates() {
   const [newIsPublished, setNewIsPublished] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+
+  // Workbench Testing State
+  const [studioViewport, setStudioViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [studioTab, setStudioTab] = useState<"preview" | "code">("preview");
+  const [selectedPalette, setSelectedPalette] = useState("dark");
   const [isCreating, setIsCreating] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
+
+  const currentPalette =
+    STUDIO_PALETTES.find((p) => p.id === selectedPalette) ?? STUDIO_PALETTES[0]!;
 
   const fetchTemplates = async () => {
     try {
@@ -364,132 +429,342 @@ export function Templates() {
         </div>
       ) : null}
 
-      {/* Modal for adding a new template */}
+      {/* Full-Page Studio Workbench Modal */}
       {showAddModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl border border-night-line bg-night-raised p-6 shadow-2xl">
-            <h2 className="text-lg font-bold text-chalk mb-4">Add New Template</h2>
-            {modalError ? (
-              <p className="mb-4 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-300">
-                {modalError}
-              </p>
-            ) : null}
-            <form onSubmit={(e) => void handleCreateTemplate(e)} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
-                  Template Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Zenith Medical"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="w-full rounded-lg border border-night-line bg-night px-3 py-2 text-sm text-chalk focus:border-accent outline-none"
-                />
+        <div className="fixed inset-0 z-50 flex flex-col bg-[#090D14] text-chalk overflow-hidden animate-in fade-in duration-200">
+          {/* Studio Top Header Bar */}
+          <header className="flex h-16 shrink-0 items-center justify-between border-b border-night-line bg-night-raised px-6">
+            <div className="flex items-center gap-3">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-accent/10 border border-accent/30 text-accent font-bold text-sm">
+                🎨
               </div>
-
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
-                  Description
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="e.g. Clean layout designed for medical institutes"
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  className="w-full rounded-lg border border-night-line bg-night px-3 py-2 text-sm text-chalk focus:border-accent outline-none resize-y"
-                />
+                <h2 className="text-sm font-bold text-chalk flex items-center gap-2">
+                  Template Studio Workbench
+                  {selectedFile ? (
+                    <span className="rounded-full bg-accent/20 border border-accent/40 px-2.5 py-0.5 text-[10px] font-mono text-accent">
+                      {selectedFile.name}
+                    </span>
+                  ) : null}
+                </h2>
+                <p className="text-[11px] text-chalk-dim/60">
+                  Upload layout code, test responsiveness & theme color palettes in real-time.
+                </p>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
-                  Thumbnail URL (optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="https://..."
-                  value={newThumbnailUrl}
-                  onChange={(e) => setNewThumbnailUrl(e.target.value)}
-                  className="w-full rounded-lg border border-night-line bg-night px-3 py-2 text-sm text-chalk focus:border-accent outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1">
-                  Template Code File (.html, .blade.php, .jsx, .vue)
-                </label>
-                <input
-                  type="file"
-                  accept=".html,.htm,.blade.php,.jsx,.vue,.txt,.php,.js,.tsx,.ts,.css"
-                  onChange={handleFileChange}
-                  className="w-full text-xs text-chalk-dim file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-xs file:font-semibold file:text-night hover:file:opacity-90 cursor-pointer"
-                />
-                {selectedFile ? (
-                  <div className="mt-2 rounded-lg border border-night-line bg-night p-3">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className="text-xs font-medium text-accent truncate max-w-[220px]"
-                        title={selectedFile.name}
-                      >
-                        📄 {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleClearFile}
-                        className="ml-2 text-[10px] text-red-400 hover:underline"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    {filePreview !== null ? (
-                      <div className="mt-2">
-                        <span className="block text-[10px] uppercase tracking-wider text-chalk-dim/60 mb-1">
-                          Code Preview:
-                        </span>
-                        <pre className="max-h-28 overflow-y-auto rounded bg-black/40 p-2 font-mono text-[11px] text-chalk-dim whitespace-pre-wrap break-all border border-night-line/50">
-                          {filePreview.slice(0, 400)}
-                          {filePreview.length > 400 ? "\n... (truncated preview)" : ""}
-                        </pre>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : (
-                  <p className="mt-1 text-[11px] text-chalk-dim/50">
-                    Upload a code file containing the template layout (max 2MB).
-                  </p>
-                )}
-              </div>
-
-              <label className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  checked={newIsPublished}
-                  onChange={(e) => setNewIsPublished(e.target.checked)}
-                  className="size-4 accent-accent"
-                />
-                <span className="text-xs text-chalk">
-                  Publish immediately (visible in frontend editor page)
-                </span>
-              </label>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-night-line">
+            {/* Viewport & View Mode Toggles */}
+            <div className="hidden md:flex items-center gap-2 rounded-xl border border-night-line bg-night p-1">
+              <div className="flex items-center gap-1 pr-2 border-r border-night-line">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="rounded-full border border-night-line px-4 py-2 text-xs font-semibold text-chalk-dim hover:text-chalk"
+                  onClick={() => setStudioViewport("desktop")}
+                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+                    studioViewport === "desktop"
+                      ? "bg-accent text-night shadow"
+                      : "text-chalk-dim hover:text-chalk"
+                  }`}
                 >
-                  Cancel
+                  🖥️ Desktop
                 </button>
                 <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="rounded-full bg-accent px-5 py-2 text-xs font-semibold text-night hover:opacity-90 disabled:opacity-50"
+                  type="button"
+                  onClick={() => setStudioViewport("tablet")}
+                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+                    studioViewport === "tablet"
+                      ? "bg-accent text-night shadow"
+                      : "text-chalk-dim hover:text-chalk"
+                  }`}
                 >
-                  {isCreating ? "Creating…" : "Create Template"}
+                  📱 Tablet (768px)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStudioViewport("mobile")}
+                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+                    studioViewport === "mobile"
+                      ? "bg-accent text-night shadow"
+                      : "text-chalk-dim hover:text-chalk"
+                  }`}
+                >
+                  📲 Mobile (375px)
                 </button>
               </div>
-            </form>
+
+              <div className="flex items-center gap-1 pl-1">
+                <button
+                  type="button"
+                  onClick={() => setStudioTab("preview")}
+                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+                    studioTab === "preview"
+                      ? "bg-night-raised text-chalk border border-night-line"
+                      : "text-chalk-dim hover:text-chalk"
+                  }`}
+                >
+                  👁️ Live Render
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStudioTab("code")}
+                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+                    studioTab === "code"
+                      ? "bg-night-raised text-chalk border border-night-line"
+                      : "text-chalk-dim hover:text-chalk"
+                  }`}
+                >
+                  💻 Code Inspector
+                </button>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddModal(false);
+                  setSelectedFile(null);
+                  setFilePreview(null);
+                }}
+                className="rounded-full border border-night-line px-4 py-1.5 text-xs font-semibold text-chalk-dim hover:text-chalk hover:border-chalk-dim/40"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="create-template-form"
+                disabled={isCreating}
+                className="rounded-full bg-accent px-5 py-1.5 text-xs font-bold text-night shadow-lg transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {isCreating ? "Saving Template…" : "✓ Add to Database"}
+              </button>
+            </div>
+          </header>
+
+          {/* Main 2-Column Grid Body */}
+          <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 overflow-hidden">
+            {/* Left Side: Live Preview & Canvas Testing (8 Columns) */}
+            <main className="lg:col-span-8 flex flex-col bg-[#05080E] border-r border-night-line overflow-hidden">
+              {/* Toolbar: Color Palette Switcher */}
+              <div className="flex items-center justify-between border-b border-night-line bg-night/80 px-6 py-2.5 backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-chalk-dim/60 mr-2">
+                    Color Palette Testing:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {STUDIO_PALETTES.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setSelectedPalette(p.id)}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                          selectedPalette === p.id
+                            ? "border-accent bg-accent/15 text-chalk shadow-sm"
+                            : "border-night-line bg-night text-chalk-dim hover:text-chalk"
+                        }`}
+                      >
+                        <span
+                          className="size-2.5 rounded-full border border-white/20"
+                          style={{ backgroundColor: p.accent }}
+                        />
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="text-[11px] font-mono text-chalk-dim/50 hidden sm:block">
+                  Viewport: {studioViewport === "desktop" ? "100%" : studioViewport === "tablet" ? "768px" : "375px"}
+                </div>
+              </div>
+
+              {/* Viewport Canvas Container */}
+              <div className="flex-1 overflow-y-auto p-6 flex justify-center bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
+                <div
+                  className={`transition-all duration-300 h-full flex flex-col ${
+                    studioViewport === "desktop"
+                      ? "w-full"
+                      : studioViewport === "tablet"
+                      ? "w-[768px] shadow-2xl border border-night-line rounded-xl overflow-hidden"
+                      : "w-[375px] shadow-2xl border-4 border-night-line rounded-3xl overflow-hidden"
+                  }`}
+                >
+                  {studioTab === "preview" ? (
+                    filePreview !== null ? (
+                      <iframe
+                        title="Template Section Preview"
+                        srcDoc={`
+                          <!DOCTYPE html>
+                          <html>
+                            <head>
+                              <meta charset="utf-8">
+                              <meta name="viewport" content="width=device-width, initial-scale=1">
+                              <script src="https://cdn.tailwindcss.com"></script>
+                              <style>
+                                body {
+                                  background-color: ${currentPalette.bg};
+                                  color: ${currentPalette.text};
+                                  font-family: system-ui, -apple-system, sans-serif;
+                                  margin: 0;
+                                  padding: 2rem;
+                                }
+                                .card { background-color: ${currentPalette.cardBg}; border-color: ${currentPalette.border}; }
+                                .accent-text { color: ${currentPalette.accent}; }
+                                .accent-bg { background-color: ${currentPalette.accent}; color: ${currentPalette.bg}; }
+                              </style>
+                            </head>
+                            <body>
+                              ${filePreview}
+                            </body>
+                          </html>
+                        `}
+                        className="w-full h-full min-h-[500px] border-0 bg-white rounded-lg shadow-inner"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full min-h-[450px] border-2 border-dashed border-night-line rounded-2xl bg-night/40 p-8 text-center">
+                        <div className="size-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl mb-4 animate-pulse">
+                          📂
+                        </div>
+                        <h3 className="text-base font-bold text-chalk mb-1">
+                          No Code File Uploaded Yet
+                        </h3>
+                        <p className="max-w-md text-xs text-chalk-dim/70 leading-relaxed mb-6">
+                          Select or drag a template code file (<code className="text-accent font-mono">.html</code>, <code className="text-accent font-mono">.blade.php</code>, <code className="text-accent font-mono">.jsx</code>, <code className="text-accent font-mono">.vue</code>) on the right panel to generate real-time live preview.
+                        </p>
+                      </div>
+                    )
+                  ) : (
+                    /* Code Inspector Mode */
+                    <div className="h-full w-full rounded-xl border border-night-line bg-night p-4 overflow-y-auto font-mono text-xs text-chalk-dim">
+                      {filePreview !== null ? (
+                        <pre className="whitespace-pre-wrap break-all leading-relaxed text-emerald-400">
+                          {filePreview}
+                        </pre>
+                      ) : (
+                        <p className="text-chalk-dim/50 italic text-center py-12">
+                          Upload a file to inspect full code markup.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </main>
+
+            {/* Right Side: Metadata Form & File Upload (4 Columns) */}
+            <aside className="lg:col-span-4 bg-night-raised flex flex-col overflow-y-auto p-6 space-y-6">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-chalk-dim/70 mb-1">
+                  Template Information
+                </h3>
+                <p className="text-xs text-chalk-dim/50">
+                  Configure template metadata stored in the database.
+                </p>
+              </div>
+
+              {modalError ? (
+                <p className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs text-red-300">
+                  {modalError}
+                </p>
+              ) : null}
+
+              <form
+                id="create-template-form"
+                onSubmit={(e) => void handleCreateTemplate(e)}
+                className="space-y-5"
+              >
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1.5">
+                    Template Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Zenith Medical"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1.5">
+                    Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="e.g. Clean layout designed for medical institutes"
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none resize-y transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-chalk-dim mb-1.5">
+                    Thumbnail URL (optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://..."
+                    value={newThumbnailUrl}
+                    onChange={(e) => setNewThumbnailUrl(e.target.value)}
+                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none transition-colors"
+                  />
+                </div>
+
+                {/* Section Code File Upload Input */}
+                <div className="rounded-xl border border-night-line bg-night/60 p-4 space-y-3">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-accent">
+                    Section Code File Upload (.html, .blade.php, .jsx, .vue)
+                  </label>
+                  <input
+                    type="file"
+                    accept=".html,.htm,.blade.php,.jsx,.vue,.txt,.php,.js,.tsx,.ts,.css"
+                    onChange={handleFileChange}
+                    className="w-full text-xs text-chalk-dim file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:text-xs file:font-semibold file:text-night hover:file:opacity-90 cursor-pointer"
+                  />
+                  {selectedFile ? (
+                    <div className="rounded-lg border border-accent/30 bg-accent/10 p-3">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className="text-xs font-semibold text-accent truncate max-w-[200px]"
+                          title={selectedFile.name}
+                        >
+                          📄 {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleClearFile}
+                          className="text-[11px] font-medium text-red-400 hover:text-red-300 hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-chalk-dim/50 leading-relaxed">
+                      Upload a file containing the page section markup. The file content will be sanitized and saved in the database <code className="text-chalk-dim font-mono">code</code> column.
+                    </p>
+                  )}
+                </div>
+
+                <label className="flex items-center gap-3 pt-2">
+                  <input
+                    type="checkbox"
+                    checked={newIsPublished}
+                    onChange={(e) => setNewIsPublished(e.target.checked)}
+                    className="size-4 accent-accent rounded"
+                  />
+                  <span className="text-xs font-medium text-chalk">
+                    Publish immediately
+                    <span className="block text-[11px] text-chalk-dim/50">
+                      Visible in frontend gallery and editor page
+                    </span>
+                  </span>
+                </label>
+              </form>
+            </aside>
           </div>
         </div>
       ) : null}
