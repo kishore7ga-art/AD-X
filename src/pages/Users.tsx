@@ -54,6 +54,33 @@ export function Users() {
     }
   };
 
+  const changePassword = async (user: UserItem) => {
+    const newPassword = prompt(
+      `Set new login password for ${user.email}:`,
+      "college123"
+    );
+    if (newPassword === null) return;
+    if (!newPassword.trim()) {
+      alert("Password cannot be empty.");
+      return;
+    }
+
+    try {
+      setUpdatingId(user.id);
+      await api.patch<{ success: boolean }>(`/api/v1/admin/users/${user.id}/password`, {
+        password: newPassword.trim(),
+      });
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, status: "ACTIVE" } : u))
+      );
+      alert(`Password updated & saved for ${user.email}!\nNew Login Password: ${newPassword.trim()}`);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Failed to update password");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   return (
     <Shell title="Users & Accounts">
       <div className="space-y-6">
@@ -61,7 +88,7 @@ export function Users() {
           <div>
             <h2 className="text-lg font-bold text-chalk">Registered College Staff Users</h2>
             <p className="text-xs text-chalk-dim/60">
-              Manage accounts, tenant assignments, and login access.
+              Manage accounts, tenant assignments, set passwords, and manage login access.
             </p>
           </div>
           <button
@@ -119,22 +146,32 @@ export function Users() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        disabled={updatingId === user.id}
-                        onClick={() => void toggleStatus(user)}
-                        className={`rounded-lg border px-3 py-1 text-[11px] font-bold transition disabled:opacity-50 ${
-                          user.status === "ACTIVE"
-                            ? "border-red-500/30 text-red-400 hover:bg-red-500/10"
-                            : "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
-                        }`}
-                      >
-                        {updatingId === user.id
-                          ? "Updating..."
-                          : user.status === "ACTIVE"
-                          ? "Disable Access"
-                          : "Enable Access"}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          disabled={updatingId === user.id}
+                          onClick={() => void changePassword(user)}
+                          className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-bold text-chalk transition hover:bg-accent/20 disabled:opacity-50"
+                        >
+                          🔑 Set Password
+                        </button>
+                        <button
+                          type="button"
+                          disabled={updatingId === user.id}
+                          onClick={() => void toggleStatus(user)}
+                          className={`rounded-lg border px-3 py-1 text-[11px] font-bold transition disabled:opacity-50 ${
+                            user.status === "ACTIVE"
+                              ? "border-red-500/30 text-red-400 hover:bg-red-500/10"
+                              : "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                          }`}
+                        >
+                          {updatingId === user.id
+                            ? "Updating..."
+                            : user.status === "ACTIVE"
+                            ? "Disable"
+                            : "Enable"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
