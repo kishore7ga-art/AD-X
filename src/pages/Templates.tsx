@@ -331,6 +331,32 @@ export function Templates() {
     }
   };
 
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+
+  const handleDeleteAllTemplates = async () => {
+    setError(null);
+    if (
+      !window.confirm(
+        "PERMANENTLY DELETE ALL TEMPLATES from the database? This will remove all template records across all colleges and cannot be undone.",
+      )
+    ) {
+      return;
+    }
+    setIsDeletingAll(true);
+    try {
+      await api.del("/api/v1/admin/templates");
+      await fetchTemplates();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Failed to delete all templates",
+      );
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
   return (
     <Shell title="Templates">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -340,13 +366,25 @@ export function Templates() {
             Manage templates. Published templates are offered in the frontend editor page.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowAddModal(true)}
-          className="rounded-full bg-accent px-5 py-2 text-xs font-semibold text-night transition-opacity hover:opacity-90"
-        >
-          + Add Template
-        </button>
+        <div className="flex items-center gap-3">
+          {templates && templates.length > 0 ? (
+            <button
+              type="button"
+              disabled={isDeletingAll}
+              onClick={() => void handleDeleteAllTemplates()}
+              className="rounded-full border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-all"
+            >
+              {isDeletingAll ? "Deleting All…" : "🗑️ Delete All Templates"}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="rounded-full bg-accent px-5 py-2 text-xs font-semibold text-night transition-opacity hover:opacity-90"
+          >
+            + Add Template
+          </button>
+        </div>
       </div>
 
       {stats ? (
