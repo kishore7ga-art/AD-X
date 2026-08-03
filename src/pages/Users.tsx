@@ -195,89 +195,26 @@ export function Users() {
                       </a>
                       <div className="flex items-center gap-2">
                         <button
+                          disabled={updatingId === user.id}
                           onClick={() => void changePassword(user)}
-                          className="text-xs font-bold text-neutral-300 hover:text-white px-2.5 py-1 bg-neutral-800 rounded-lg cursor-pointer"
+                          className="text-xs font-bold text-neutral-300 hover:text-white px-2.5 py-1 bg-neutral-800 rounded-lg cursor-pointer disabled:opacity-50"
                         >
                           🔑 Password
                         </button>
                         <button
+                          disabled={updatingId === user.id}
                           onClick={() => void toggleStatus(user)}
-                          className={`text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer ${
+                          className={`text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer disabled:opacity-50 ${
                             user.status === "ACTIVE" ? "text-red-400 hover:bg-red-950/40" : "text-emerald-400 hover:bg-emerald-950/40"
                           }`}
                         >
-                          {user.status === "ACTIVE" ? "Disable" : "Enable"}
+                          {updatingId === user.id ? "Updating…" : user.status === "ACTIVE" ? "Disable" : "Enable"}
                         </button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Users Table */}
-            <div className="overflow-x-auto rounded-2xl border border-night-line bg-night-soft">
-              <table className="w-full text-left text-xs">
-                <thead className="border-b border-night-line bg-night/50 text-[10px] uppercase tracking-wider text-chalk-dim/60">
-                  <tr>
-                    <th className="px-4 py-3">User Email</th>
-                    <th className="px-4 py-3">Assigned College</th>
-                    <th className="px-4 py-3">Subdomain</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-night-line/50 font-medium">
-                  {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-night-line/20 transition">
-                      <td className="px-4 py-3 font-semibold text-chalk">{user.email}</td>
-                      <td className="px-4 py-3 text-chalk-dim">{user.college?.name || "—"}</td>
-                      <td className="px-4 py-3 font-mono text-chalk-dim/80">
-                        {user.college?.subdomain || "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                            user.status === "ACTIVE"
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                              : "bg-red-500/10 text-red-400 border border-red-500/20"
-                          }`}
-                        >
-                          {user.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            type="button"
-                            disabled={updatingId === user.id}
-                            onClick={() => void changePassword(user)}
-                            className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-bold text-chalk transition hover:bg-accent/20 disabled:opacity-50"
-                          >
-                            🔑 Set Password
-                          </button>
-                          <button
-                            type="button"
-                            disabled={updatingId === user.id}
-                            onClick={() => void toggleStatus(user)}
-                            className={`rounded-lg border px-3 py-1 text-[11px] font-bold transition disabled:opacity-50 ${
-                              user.status === "ACTIVE"
-                                ? "border-red-500/30 text-red-400 hover:bg-red-500/10"
-                                : "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
-                            }`}
-                          >
-                            {updatingId === user.id
-                              ? "Updating..."
-                              : user.status === "ACTIVE"
-                              ? "Disable"
-                              : "Enable"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         )}
