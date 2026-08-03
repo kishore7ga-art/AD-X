@@ -87,7 +87,6 @@ export function Templates() {
   const [templates, setTemplates] = useState<TemplateRow[] | null>(null);
   const [stats, setStats] = useState<TemplateStats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
 
   // Category Details Popup Modal State
   const [selectedCategoryModal, setSelectedCategoryModal] = useState<{ id: string; name: string; description: string } | null>(null);
@@ -1072,20 +1071,7 @@ export function Templates() {
   );
 }
 
-function Status({ template }: { template: TemplateRow }) {
-  if (template.archivedAt) {
-    return (
-      <span className="rounded-full border border-night-line px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-chalk-dim/60">
-        Archived
-      </span>
-    );
-  }
-  return template.isPublished ? (
-    <span className="text-accent">Published</span>
-  ) : (
-    <span className="text-amber-400">Draft</span>
-  );
-}
+
 
 function Stat({
   label,
