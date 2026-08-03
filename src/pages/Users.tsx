@@ -28,11 +28,11 @@ export function Users() {
       if (data.users && data.users.length > 0) {
         setUsers(data.users);
       } else {
-        // Default accepted college staff accounts
+        // Authenticated Primary User Account
         setUsers([
           {
-            id: "usr-greenfield-01",
-            email: "admin@greenfield.edu.in",
+            id: "usr-kishore-01",
+            email: "kishore7ga@gmail.com",
             status: "ACTIVE",
             createdAt: new Date().toISOString(),
             college: {
@@ -41,42 +41,20 @@ export function Users() {
               subdomain: "greenfield",
             },
           },
-          {
-            id: "usr-mec-02",
-            email: "principal@mec.edu.in",
-            status: "ACTIVE",
-            createdAt: new Date().toISOString(),
-            college: {
-              id: "clg-mec",
-              name: "Madras Engineering College",
-              subdomain: "mec",
-            },
-          },
         ]);
       }
     } catch {
-      // Fallback default accepted user accounts
+      // Authenticated Primary User Account
       setUsers([
         {
-          id: "usr-greenfield-01",
-          email: "admin@greenfield.edu.in",
+          id: "usr-kishore-01",
+          email: "kishore7ga@gmail.com",
           status: "ACTIVE",
           createdAt: new Date().toISOString(),
           college: {
             id: "clg-greenfield",
             name: "Greenfield University",
             subdomain: "greenfield",
-          },
-        },
-        {
-          id: "usr-mec-02",
-          email: "principal@mec.edu.in",
-          status: "ACTIVE",
-          createdAt: new Date().toISOString(),
-          college: {
-            id: "clg-mec",
-            name: "Madras Engineering College",
-            subdomain: "mec",
           },
         },
       ]);
@@ -109,7 +87,7 @@ export function Users() {
   const changePassword = async (user: UserItem) => {
     const newPassword = prompt(
       `Set new login password for ${user.email}:`,
-      "college123"
+      "kishore@7"
     );
     if (newPassword === null) return;
     if (!newPassword.trim()) {
