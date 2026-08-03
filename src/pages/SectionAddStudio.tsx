@@ -23,6 +23,7 @@ export function SectionAddStudio() {
   const state = location.state as { typeId?: string; typeName?: string } | undefined;
 
   const typeName = state?.typeName || "Hero Banner";
+  const typeId = state?.typeId || "hero";
 
   const [variantName, setVariantName] = useState(`${typeName} Variant`);
   const [code, setCode] = useState(DEFAULT_STARTER_CODE);
@@ -53,7 +54,7 @@ export function SectionAddStudio() {
 
     try {
       await api.post("/api/v1/admin/templates", {
-        name: `${typeName} - ${variantName}`,
+        name: `${typeName} [${typeId}] - ${variantName}`,
         description: `Admin uploaded section for ${typeName}`,
         code: code,
         isPublished: true,
