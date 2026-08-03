@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { api } from "@/api/client";
 import { API_BASE } from "@/env";
 import type { TemplateRow, TemplateStats } from "@/api/types";
 import { Shell } from "@/components/Shell";
+import { AddSectionModal } from "@/components/AddSectionModal";
 
 /**
  * Every template in the database, drafts and archived included.
@@ -71,11 +72,14 @@ const STUDIO_PALETTES = [
 ];
 
 export function Templates() {
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState<TemplateRow[] | null>(null);
   const [stats, setStats] = useState<TemplateStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  // Add Section Modal State
+  const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   // Add Template Modal & Workbench Studio State
   const [showAddModal, setShowAddModal] = useState(false);
   const [newName, setNewName] = useState("");
@@ -372,17 +376,17 @@ export function Templates() {
               type="button"
               disabled={isDeletingAll}
               onClick={() => void handleDeleteAllTemplates()}
-              className="rounded-full border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-all"
+              className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-all"
             >
-              {isDeletingAll ? "Deleting All…" : "🗑️ Delete All Templates"}
+              {isDeletingAll ? "Deleting All…" : "🗑️ Delete All Sections"}
             </button>
           ) : null}
           <button
             type="button"
-            onClick={() => setShowAddModal(true)}
-            className="rounded-full bg-accent px-5 py-2 text-xs font-semibold text-night transition-opacity hover:opacity-90"
+            onClick={() => setShowAddSectionModal(true)}
+            className="rounded-xl bg-white px-5 py-2.5 text-xs font-black text-black transition-all hover:bg-neutral-200 cursor-pointer shadow-lg"
           >
-            + Add Template
+            + Add Section
           </button>
         </div>
       </div>
@@ -929,6 +933,17 @@ export function Templates() {
           </div>
         </div>
       ) : null}
+
+      {/* Add Section Type Modal */}
+      <AddSectionModal
+        isOpen={showAddSectionModal}
+        onClose={() => setShowAddSectionModal(false)}
+        onSelectSectionType={(selected: { id: string; name: string }) => {
+          navigate("/sections/new", {
+            state: { typeId: selected.id, typeName: selected.name },
+          });
+        }}
+      />
     </Shell>
   );
 }

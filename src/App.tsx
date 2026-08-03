@@ -4,6 +4,7 @@ import { AuthProvider } from "@/auth/AuthContext";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { Login } from "@/pages/Login";
 import { Requests } from "@/pages/Requests";
+import { SectionAddStudio } from "@/pages/SectionAddStudio";
 import { TemplateEdit } from "@/pages/TemplateEdit";
 import { Templates } from "@/pages/Templates";
 import { Users } from "@/pages/Users";
@@ -48,6 +49,14 @@ export function App() {
             element={
               <ProtectedRoute>
                 <Requests />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sections/new"
+            element={
+              <ProtectedRoute>
+                <SectionAddStudio />
               </ProtectedRoute>
             }
           />
