@@ -537,14 +537,39 @@ export function TemplateEdit() {
                   </div>
                 )
               ) : (
-                <div className="h-full w-full min-h-[480px] rounded-xl border border-night-line bg-night p-4 overflow-y-auto font-mono text-xs text-chalk-dim">
-                  {filePreview ? (
-                    <pre className="whitespace-pre-wrap break-all leading-relaxed text-emerald-400">
-                      {filePreview}
-                    </pre>
-                  ) : (
-                    <p className="text-chalk-dim/50 italic text-center py-12">No code markup present for this template.</p>
-                  )}
+                <div className="h-full w-full min-h-[480px] flex flex-col rounded-xl border border-night-line bg-[#0d1117] overflow-hidden">
+                  {/* Code Editor Header */}
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-night-line bg-night/60">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
+                      <span className="text-[11px] font-mono font-bold text-emerald-400">HTML Code Editor</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-chalk-dim/40 font-mono">
+                        {filePreview ? `${filePreview.length.toLocaleString()} chars` : "0 chars"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (filePreview) {
+                            void navigator.clipboard.writeText(filePreview);
+                          }
+                        }}
+                        className="text-[10px] font-bold text-chalk-dim hover:text-white px-2 py-0.5 rounded bg-night-line/60 hover:bg-night-line transition-colors cursor-pointer"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                  {/* Editable Code Textarea */}
+                  <textarea
+                    value={filePreview ?? ""}
+                    onChange={(e) => setFilePreview(e.target.value)}
+                    spellCheck={false}
+                    placeholder="<!-- Paste or type your HTML section code here... -->"
+                    className="flex-1 w-full min-h-[440px] bg-[#0d1117] text-emerald-400 font-mono text-xs leading-relaxed p-4 resize-none border-0 outline-none focus:outline-none placeholder:text-chalk-dim/30"
+                    style={{ fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace" }}
+                  />
                 </div>
               )}
             </div>
