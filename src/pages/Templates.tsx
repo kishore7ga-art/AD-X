@@ -87,6 +87,7 @@ export function Templates() {
   const [templates, setTemplates] = useState<TemplateRow[] | null>(null);
   const [stats, setStats] = useState<TemplateStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   // Category Details Popup Modal State
   const [selectedCategoryModal, setSelectedCategoryModal] = useState<{ id: string; name: string; description: string } | null>(null);
@@ -625,16 +626,20 @@ export function Templates() {
                           Edit Code
                         </Link>
                         <button
+                          type="button"
+                          disabled={busyId === sec.id}
                           onClick={() => void handleArchive(sec)}
-                          className="text-xs font-bold text-neutral-400 hover:text-white px-3 py-1.5 rounded-lg bg-neutral-800 cursor-pointer"
+                          className="text-xs font-bold text-neutral-400 hover:text-white px-3 py-1.5 rounded-lg bg-neutral-800 cursor-pointer disabled:opacity-50"
                         >
-                          Archive
+                          {busyId === sec.id ? "Processing…" : "Archive"}
                         </button>
                         <button
+                          type="button"
+                          disabled={busyId === sec.id}
                           onClick={() => void handleDelete(sec)}
-                          className="text-xs font-bold text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-800/40 cursor-pointer"
+                          className="text-xs font-bold text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-800/40 cursor-pointer disabled:opacity-50"
                         >
-                          Delete
+                          {busyId === sec.id ? "Deleting…" : "Delete"}
                         </button>
                       </div>
                     </div>
