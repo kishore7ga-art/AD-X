@@ -52,14 +52,12 @@ export function SectionAddStudio() {
     setSaveSuccess(false);
 
     try {
-      // Post template / section details to backend API
-      const formData = new FormData();
-      formData.append("name", `${typeName} - ${variantName}`);
-      formData.append("description", `Admin uploaded section for ${typeName}`);
-      formData.append("code", code);
-      formData.append("isPublished", "true");
-
-      await api.post("/api/v1/admin/templates", formData);
+      await api.post("/api/v1/admin/templates", {
+        name: `${typeName} - ${variantName}`,
+        description: `Admin uploaded section for ${typeName}`,
+        code: code,
+        isPublished: true,
+      });
       setSaveSuccess(true);
       setTimeout(() => {
         navigate("/templates");
