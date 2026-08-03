@@ -71,6 +71,17 @@ const STUDIO_PALETTES = [
   },
 ];
 
+const SECTION_CATEGORIES_GRID = [
+  { id: "hero", name: "Hero Banner", description: "Lead banner & title headline" },
+  { id: "about", name: "About Us", description: "History, vision & mission statement" },
+  { id: "courses", name: "Academics & Courses", description: "Degree programs & department grid" },
+  { id: "faculty", name: "Faculty Roster", description: "Professors & department heads" },
+  { id: "events", name: "Events & News", description: "Upcoming campus events & highlights" },
+  { id: "contact", name: "Contact & Map", description: "Campus address, helpline & map" },
+  { id: "placements", name: "Placements & Careers", description: "Recruiters & placement stats" },
+  { id: "scholarships", name: "Scholarships & Grants", description: "Financial aid & merit awards" },
+];
+
 export function Templates() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<TemplateRow[] | null>(null);
@@ -429,6 +440,94 @@ export function Templates() {
       {templates === null && !error ? (
         <p className="mt-8 text-sm text-chalk-dim/60">Loading…</p>
       ) : null}
+
+      {/* Section Category Status Boxes Grid (Matching Screenshot 3) */}
+      <div className="mt-8 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-black tracking-widest text-neutral-400 uppercase">
+            Section Category Boxes
+          </h2>
+          <span className="text-xs text-neutral-500 font-mono">
+            {templates?.length || 0} Total Admin Sections
+          </span>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+          {SECTION_CATEGORIES_GRID.map((cat) => {
+            const matchingSections = (templates || []).filter((tpl) => {
+              const nameLower = (tpl.name || "").toLowerCase();
+              return (
+                nameLower.includes(`[${cat.id}]`) ||
+                nameLower.includes(cat.id.toLowerCase()) ||
+                nameLower.includes(cat.name.toLowerCase())
+              );
+            });
+
+            const count = matchingSections.length;
+            const isLive = count > 0;
+
+            return (
+              <div
+                key={cat.id}
+                className={`relative rounded-2xl p-5 border transition-all flex flex-col justify-between ${
+                  isLive
+                    ? "bg-[#11161d] border-emerald-500/40 hover:border-emerald-500/70 shadow-lg"
+                    : "bg-[#0d1117] border-neutral-800 hover:border-neutral-700"
+                }`}
+              >
+                {/* Status Indicator Dot (Matching Screenshot 3) */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-mono text-neutral-400 font-bold uppercase tracking-wider">
+                    {cat.id}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        isLive ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500/60"
+                      }`}
+                    />
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-black text-white">{cat.name}</h3>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">{cat.description}</p>
+
+                  {/* List of Section Names inside this Box */}
+                  <div className="mt-3 space-y-1.5 min-h-[48px]">
+                    {matchingSections.length > 0 ? (
+                      matchingSections.map((sec) => (
+                        <div
+                          key={sec.id}
+                          className="text-xs font-mono text-emerald-400 font-bold flex items-center justify-between bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-800/40"
+                        >
+                          <span className="truncate">{sec.name}</span>
+                          <span className="text-[9px] text-emerald-300 font-normal">Active</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[11px] text-neutral-500 italic">No sections added yet</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Quick Add Button */}
+                <div className="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-neutral-400">
+                    {count} {count === 1 ? "Section" : "Sections"}
+                  </span>
+                  <button
+                    onClick={() => navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } })}
+                    className="text-xs font-extrabold text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
+                  >
+                    + Add {cat.name}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {templates ? (
         <div className="mt-8 overflow-x-auto rounded-xl border border-night-line">
