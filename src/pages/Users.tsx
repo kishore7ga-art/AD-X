@@ -86,8 +86,7 @@ export function Users() {
 
   const changePassword = async (user: UserItem) => {
     const newPassword = prompt(
-      `Set new login password for ${user.email}:`,
-      "kishore@7"
+      `Set new login password for ${user.email}:`
     );
     if (newPassword === null) return;
     if (!newPassword.trim()) {
@@ -103,7 +102,7 @@ export function Users() {
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, status: "ACTIVE" } : u))
       );
-      alert(`Password updated & saved for ${user.email}!\nNew Login Password: ${newPassword.trim()}`);
+      alert(`Password updated & saved for ${user.email}!`);
     } catch (err) {
       alert(err instanceof ApiError ? err.message : "Failed to update password");
     } finally {

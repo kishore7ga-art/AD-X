@@ -41,8 +41,7 @@ export function Requests() {
 
   const handleApprove = async (id: string, name: string, email: string) => {
     const password = prompt(
-      `Set account password for ${name} (${email}):`,
-      "college123"
+      `Set account password for ${name} (${email}):`
     );
     if (password === null) return;
     if (!password.trim()) {
@@ -58,9 +57,7 @@ export function Requests() {
       setRequests((prev) =>
         prev.map((r) => (r.id === id ? { ...r, status: "APPROVED" } : r))
       );
-      alert(
-        `Approved access request for ${name}!\nAccount activated with Email: ${email} and Password: ${password.trim()}`
-      );
+      alert(`Approved access request for ${name}! Account activated with Email: ${email}.`);
     } catch (err) {
       alert(err instanceof ApiError ? err.message : "Failed to approve request");
     } finally {
