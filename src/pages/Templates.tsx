@@ -89,6 +89,9 @@ export function Templates() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  // Category Details Popup Modal State
+  const [selectedCategoryModal, setSelectedCategoryModal] = useState<{ id: string; name: string; description: string } | null>(null);
+
   // Add Section Modal State
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   // Add Template Modal & Workbench Studio State
@@ -469,10 +472,11 @@ export function Templates() {
             return (
               <div
                 key={cat.id}
-                className={`relative rounded-2xl p-5 border transition-all flex flex-col justify-between ${
+                onClick={() => setSelectedCategoryModal(cat)}
+                className={`relative rounded-2xl p-5 border transition-all flex flex-col justify-between cursor-pointer group ${
                   isLive
-                    ? "bg-[#11161d] border-emerald-500/40 hover:border-emerald-500/70 shadow-lg"
-                    : "bg-[#0d1117] border-neutral-800 hover:border-neutral-700"
+                    ? "bg-[#11161d] border-emerald-500/40 hover:border-emerald-500/80 shadow-lg hover:scale-[1.02]"
+                    : "bg-[#0d1117] border-neutral-800 hover:border-neutral-700 hover:scale-[1.01]"
                 }`}
               >
                 {/* Status Indicator Dot (Matching Screenshot 3) */}
@@ -490,7 +494,10 @@ export function Templates() {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-black text-white">{cat.name}</h3>
+                  <h3 className="text-sm font-black text-white group-hover:text-emerald-400 transition-colors flex items-center justify-between">
+                    <span>{cat.name}</span>
+                    <span className="text-xs text-neutral-500 font-normal group-hover:translate-x-1 transition-transform">↗</span>
+                  </h3>
                   <p className="text-[11px] text-neutral-500 mt-0.5">{cat.description}</p>
 
                   {/* List of Section Names inside this Box */}
@@ -517,7 +524,10 @@ export function Templates() {
                     {count} {count === 1 ? "Section" : "Sections"}
                   </span>
                   <button
-                    onClick={() => navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
+                    }}
                     className="text-xs font-extrabold text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
                   >
                     + Add {cat.name}
@@ -529,98 +539,113 @@ export function Templates() {
         </div>
       </div>
 
-      {templates ? (
-        <div className="mt-8 overflow-x-auto rounded-xl border border-night-line">
-          <table className="w-full min-w-[860px] text-left text-sm">
-            <thead className="bg-night-raised text-[10px] uppercase tracking-[0.16em] text-chalk-dim/50">
-              <tr>
-                <th className="px-5 py-3 font-semibold">Template</th>
-                <th className="px-5 py-3 font-semibold">Status</th>
-                <th className="px-5 py-3 font-semibold">Composition</th>
-                <th className="px-5 py-3 font-semibold">In use</th>
-                <th className="px-5 py-3 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-night-line">
-              {templates.map((template) => (
-                <tr key={template.id} className="bg-night align-top">
-                  <td className="px-5 py-4">
-                    <span className="block font-semibold text-chalk">
-                      {template.name}
-                    </span>
-                    {template.description ? (
-                      <span className="mt-1 block max-w-[34ch] text-xs leading-relaxed text-chalk-dim/60">
-                        {template.description}
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="px-5 py-4">
-                    <Status template={template} />
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-chalk-dim">
-                      {template.slots.length} section
-                      {template.slots.length === 1 ? "" : "s"}
-                    </span>
-                    <span className="mt-1 block font-mono text-[11px] leading-relaxed text-chalk-dim/45">
-                      {template.slots
-                        .map((slot) => slot.leadComponentKey ?? "—")
-                        .join(", ")}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    {template.colleges ? (
-                      <>
-                        <span className="text-chalk">
-                          {template.colleges} college
-                          {template.colleges === 1 ? "" : "s"}
-                        </span>
-                        <span className="mt-1 block text-xs text-chalk-dim/50">
-                          {template.collegeSections} sections built
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-chalk-dim/50">unused</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-4 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <Link
-                        to={`/templates/${template.id}`}
-                        className="text-accent underline-offset-2 hover:underline"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        type="button"
-                        disabled={busyId === template.id}
-                        onClick={() => void handleArchive(template)}
-                        className="text-xs font-medium text-chalk-dim hover:text-chalk disabled:opacity-50"
-                        title={
-                          template.archivedAt
-                            ? "Restore template to gallery"
-                            : "Archive template"
-                        }
-                      >
-                        {template.archivedAt ? "Restore" : "Archive"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busyId === template.id}
-                        onClick={() => void handleDelete(template)}
-                        className="text-xs font-medium text-red-400 hover:text-red-300 disabled:opacity-50"
-                        title="Permanently delete template across all users and database"
-                      >
-                        {busyId === template.id ? "Deleting…" : "Delete"}
-                      </button>
+      {/* Category Details Modal Popup */}
+      {selectedCategoryModal && (
+        <div
+          onClick={() => setSelectedCategoryModal(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-2xl bg-[#0d1117] rounded-3xl p-6 shadow-2xl space-y-6 border border-neutral-800 text-white cursor-default"
+          >
+            <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+              <div>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-widest bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-800/50">
+                  {selectedCategoryModal.id} CATEGORY
+                </span>
+                <h3 className="text-lg font-extrabold text-white mt-1">
+                  {selectedCategoryModal.name} Sections
+                </h3>
+                <p className="text-xs text-neutral-400 mt-0.5">{selectedCategoryModal.description}</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  const cat = selectedCategoryModal;
+                  setSelectedCategoryModal(null);
+                  navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
+                }}
+                className="rounded-xl bg-white px-4 py-2 text-xs font-black text-black hover:bg-neutral-200 transition-all shadow-md cursor-pointer"
+              >
+                + Add {selectedCategoryModal.name}
+              </button>
+            </div>
+
+            {/* Matching Section List inside Popup */}
+            {(() => {
+              const cat = selectedCategoryModal;
+              const matchingSections = (templates || []).filter((tpl) => {
+                const nameLower = (tpl.name || "").toLowerCase();
+                return (
+                  nameLower.includes(`[${cat.id}]`) ||
+                  nameLower.includes(cat.id.toLowerCase()) ||
+                  nameLower.includes(cat.name.toLowerCase())
+                );
+              });
+
+              if (matchingSections.length === 0) {
+                return (
+                  <div className="py-10 text-center space-y-3">
+                    <p className="text-xs text-neutral-500 italic">No section variants added yet for {cat.name}.</p>
+                    <button
+                      onClick={() => {
+                        setSelectedCategoryModal(null);
+                        navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
+                      }}
+                      className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold cursor-pointer"
+                    >
+                      Upload First {cat.name} Section
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                  {matchingSections.map((sec) => (
+                    <div
+                      key={sec.id}
+                      className="p-4 rounded-2xl bg-[#161b22] border border-neutral-800 hover:border-neutral-700 flex items-center justify-between transition-all"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-extrabold text-white">{sec.name}</span>
+                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/40">
+                            {sec.isPublished ? "Published" : "Draft"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-400 mt-1 font-mono">{sec.description || "Admin uploaded template section"}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={`/workbench/${sec.id}`}
+                          className="text-xs font-bold text-blue-400 hover:text-blue-300 px-3 py-1.5 rounded-lg bg-blue-950/40 border border-blue-800/40"
+                        >
+                          Edit Code
+                        </Link>
+                        <button
+                          onClick={() => void handleArchive(sec)}
+                          className="text-xs font-bold text-neutral-400 hover:text-white px-3 py-1.5 rounded-lg bg-neutral-800 cursor-pointer"
+                        >
+                          Archive
+                        </button>
+                        <button
+                          onClick={() => void handleDelete(sec)}
+                          className="text-xs font-bold text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-800/40 cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
         </div>
-      ) : null}
+      )}
 
       {/* Full-Page Studio Workbench Modal */}
       {showAddModal ? (
