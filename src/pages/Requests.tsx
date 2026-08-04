@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/api/client";
 import { Shell } from "@/components/Shell";
+import { ModalDialog } from "@/components/ModalDialog";
+import type { ModalDialogState } from "@/components/ModalDialog";
 
-export type AccessRequestItem = {
+export type AccessRequest = {
   id: string;
   name: string;
   email: string;
+  collegeName?: string;
+  subdomain?: string;
+  role?: string;
   organization?: string | null;
   message?: string | null;
   status: "PENDING" | "APPROVED" | "REJECTED";
@@ -16,20 +21,35 @@ export type AccessRequestItem = {
 };
 
 export function Requests() {
-  const [requests, setRequests] = useState<AccessRequestItem[]>([]);
+  const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"ALL" | "PENDING" | "APPROVED" | "REJECTED">("ALL");
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
+
+  const showAlert = (title: string, message: string, variant: "success" | "danger" | "info" | "warning" = "info") => {
+    setModalConfig({
+      isOpen: true,
+      type: "alert",
+      variant,
+      title,
+      message,
+      confirmText: "OK",
+      onConfirm: () => setModalConfig(null),
+    });
+  };
 
   const fetchRequests = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.get<{ requests: AccessRequestItem[] }>("/api/v1/admin/access-requests");
-      setRequests(data.requests);
+      const data = await api.get<{ requests: AccessRequest[] }>("/api/v1/admin/access-requests");
+      setRequests(data.requests || []);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to load access requests");
+      const msg = err instanceof ApiError ? err.message : "Failed to load access requests";
+      setError(msg);
+      showAlert("Error Loading Requests", msg, "danger");
     } finally {
       setLoading(false);
     }
@@ -39,45 +59,68 @@ export function Requests() {
     void fetchRequests();
   }, []);
 
-  const handleApprove = async (id: string, name: string, email: string) => {
-    const password = prompt(
-      `Set account password for ${name} (${email}):`
-    );
-    if (password === null) return;
-    if (!password.trim()) {
-      alert("Password cannot be empty.");
-      return;
-    }
-    try {
-      setProcessingId(id);
-      await api.post<{ approved: boolean }>(
-        `/api/v1/admin/access-requests/${id}/approve`,
-        { password: password.trim() }
-      );
-      setRequests((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: "APPROVED" } : r))
-      );
-      alert(`Approved access request for ${name}! Account activated with Email: ${email}.`);
-    } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to approve request");
-    } finally {
-      setProcessingId(null);
-    }
+  const handleApprove = (id: string, name: string, email: string) => {
+    setModalConfig({
+      isOpen: true,
+      type: "prompt",
+      variant: "success",
+      title: `Approve Request for ${name}`,
+      message: `Set initial login password for ${email}:`,
+      placeholder: "e.g. SecretPassword123!",
+      confirmText: "Approve & Activate",
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async (password) => {
+        setModalConfig(null);
+        if (!password || !password.trim()) {
+          showAlert("Invalid Password", "Password cannot be empty.", "warning");
+          return;
+        }
+        try {
+          setProcessingId(id);
+          await api.post<{ approved: boolean }>(
+            `/api/v1/admin/access-requests/${id}/approve`,
+            { password: password.trim() }
+          );
+          setRequests((prev) =>
+            prev.map((r) => (r.id === id ? { ...r, status: "APPROVED" } : r))
+          );
+          showAlert("Access Approved!", `Account activated for ${name} (${email}).`, "success");
+        } catch (err) {
+          showAlert("Approval Failed", err instanceof ApiError ? err.message : "Failed to approve request", "danger");
+        } finally {
+          setProcessingId(null);
+        }
+      },
+    });
   };
 
-  const handleReject = async (id: string, name: string) => {
-    if (!confirm(`Reject access request for ${name}?`)) return;
-    try {
-      setProcessingId(id);
-      await api.post<{ rejected: boolean }>(`/api/v1/admin/access-requests/${id}/reject`);
-      setRequests((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: "REJECTED" } : r))
-      );
-    } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to reject request");
-    } finally {
-      setProcessingId(null);
-    }
+  const handleReject = (id: string, name: string) => {
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "warning",
+      title: `Reject Request for ${name}?`,
+      message: `Are you sure you want to reject the access request for ${name}?`,
+      confirmText: "Reject Request",
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        try {
+          setProcessingId(id);
+          await api.post<{ rejected: boolean }>(`/api/v1/admin/access-requests/${id}/reject`);
+          setRequests((prev) =>
+            prev.map((r) => (r.id === id ? { ...r, status: "REJECTED" } : r))
+          );
+          showAlert("Request Rejected", `Access request for ${name} has been rejected.`, "info");
+        } catch (err) {
+          showAlert("Rejection Failed", err instanceof ApiError ? err.message : "Failed to reject request", "danger");
+        } finally {
+          setProcessingId(null);
+        }
+      },
+    });
   };
 
   const filtered = requests.filter((r) => {
@@ -218,6 +261,8 @@ export function Requests() {
           </div>
         )}
       </div>
+
+      {modalConfig && <ModalDialog {...modalConfig} />}
     </Shell>
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { api, ApiError } from "@/api/client";
+import { ModalDialog } from "@/components/ModalDialog";
+import type { ModalDialogState } from "@/components/ModalDialog";
 
 export type DefaultWebsiteSection = {
   id: string;
@@ -154,19 +156,34 @@ export function DefaultWebsite() {
     setConfig({ ...config, pages: updatedPages });
   }
 
+  const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
+
   function removeSection(index: number) {
     if (!config || !activePage) return;
-    if (!confirm("Are you sure you want to remove this section box from the default website?")) return;
+    const secTitle = activePage.sections[index]?.title || "this section box";
 
-    const sections = activePage.sections.filter((_, idx) => idx !== index);
-    sections.forEach((sec, idx) => {
-      sec.sortOrder = idx;
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "danger",
+      title: `Remove ${secTitle}?`,
+      message: `Are you sure you want to remove "${secTitle}" from the default website configuration?`,
+      confirmText: "Remove Section Box",
+      cancelText: "Keep Section Box",
+      onCancel: () => setModalConfig(null),
+      onConfirm: () => {
+        setModalConfig(null);
+        const sections = activePage.sections.filter((_, idx) => idx !== index);
+        sections.forEach((sec, idx) => {
+          sec.sortOrder = idx;
+        });
+
+        const updatedPages = config.pages.map((p) =>
+          p.slug === activeSlug ? { ...p, sections } : p
+        );
+        setConfig({ ...config, pages: updatedPages });
+      },
     });
-
-    const updatedPages = config.pages.map((p) =>
-      p.slug === activeSlug ? { ...p, sections } : p
-    );
-    setConfig({ ...config, pages: updatedPages });
   }
 
   function handleSaveEditSection() {
@@ -764,6 +781,8 @@ export function DefaultWebsite() {
             </div>
           </div>
         ) : null}
+
+        {modalConfig && <ModalDialog {...modalConfig} />}
       </div>
     </Shell>
   );

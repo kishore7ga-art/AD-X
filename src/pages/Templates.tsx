@@ -6,6 +6,8 @@ import { API_BASE } from "@/env";
 import type { TemplateRow, TemplateStats } from "@/api/types";
 import { Shell } from "@/components/Shell";
 import { AddSectionModal } from "@/components/AddSectionModal";
+import { ModalDialog } from "@/components/ModalDialog";
+import type { ModalDialogState } from "@/components/ModalDialog";
 
 /**
  * Every template in the database, drafts and archived included.
@@ -136,51 +138,68 @@ export function Templates() {
     void fetchTemplates();
   }, []);
 
-  const handleDelete = async (template: TemplateRow) => {
+  const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
+
+  const handleDelete = (template: TemplateRow) => {
     setError(null);
     const inUseMsg =
       template.colleges > 0
-        ? ` (${template.colleges} college(s) are using this. It will be removed from all live colleges and the database permanently.)`
+        ? ` (${template.colleges} college(s) are using this. It will be removed permanently.)`
         : "";
-    if (
-      !window.confirm(
-        `Permanently delete "${template.name}" from the live database for ALL users?${inUseMsg}`,
-      )
-    ) {
-      return;
-    }
-    setBusyId(template.id);
-    try {
-      await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
-      await fetchTemplates();
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Failed to delete template",
-      );
-    } finally {
-      setBusyId(null);
-    }
+
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "danger",
+      title: `Delete "${template.name}"?`,
+      message: `Are you sure you want to permanently delete "${template.name}" from the database?${inUseMsg}`,
+      confirmText: "Delete Template",
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        setBusyId(template.id);
+        try {
+          await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
+          await fetchTemplates();
+        } catch (cause) {
+          setError(
+            cause instanceof Error ? cause.message : "Failed to delete template",
+          );
+        } finally {
+          setBusyId(null);
+        }
+      },
+    });
   };
 
-  const handleArchive = async (template: TemplateRow) => {
+  const handleArchive = (template: TemplateRow) => {
     setError(null);
     const actionName = template.archivedAt ? "Restore" : "Archive";
-    if (!window.confirm(`${actionName} template "${template.name}"?`)) {
-      return;
-    }
-    setBusyId(template.id);
-    try {
-      await api.del(`/api/v1/admin/templates/${template.id}`);
-      await fetchTemplates();
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : `Failed to ${actionName.toLowerCase()} template`,
-      );
-    } finally {
-      setBusyId(null);
-    }
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "warning",
+      title: `${actionName} "${template.name}"?`,
+      message: `Are you sure you want to ${actionName.toLowerCase()} "${template.name}"?`,
+      confirmText: `${actionName} Template`,
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        setBusyId(template.id);
+        try {
+          await api.del(`/api/v1/admin/templates/${template.id}`);
+          await fetchTemplates();
+        } catch (cause) {
+          setError(
+            cause instanceof Error ? cause.message : `Failed to ${actionName.toLowerCase()} template`,
+          );
+        } finally {
+          setBusyId(null);
+        }
+      },
+    });
   };
 
   const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -352,28 +371,34 @@ export function Templates() {
 
   const [isDeletingAll, setIsDeletingAll] = useState(false);
 
-  const handleDeleteAllTemplates = async () => {
+  const handleDeleteAllTemplates = () => {
     setError(null);
-    if (
-      !window.confirm(
-        "PERMANENTLY DELETE ALL TEMPLATES from the database? This will remove all template records across all colleges and cannot be undone.",
-      )
-    ) {
-      return;
-    }
-    setIsDeletingAll(true);
-    try {
-      await api.del("/api/v1/admin/templates");
-      await fetchTemplates();
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Failed to delete all templates",
-      );
-    } finally {
-      setIsDeletingAll(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "danger",
+      title: "DELETE ALL TEMPLATES?",
+      message: "PERMANENTLY DELETE ALL TEMPLATES from the database? This will remove all template records across all colleges and cannot be undone.",
+      confirmText: "Delete All Templates",
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        setIsDeletingAll(true);
+        try {
+          await api.del("/api/v1/admin/templates");
+          await fetchTemplates();
+        } catch (cause) {
+          setError(
+            cause instanceof Error
+              ? cause.message
+              : "Failed to delete all templates",
+          );
+        } finally {
+          setIsDeletingAll(false);
+        }
+      },
+    });
   };
 
   return (
@@ -1073,6 +1098,8 @@ export function Templates() {
           });
         }}
       />
+
+      {modalConfig && <ModalDialog {...modalConfig} />}
     </Shell>
   );
 }

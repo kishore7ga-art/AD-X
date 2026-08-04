@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/api/client";
 import { Shell } from "@/components/Shell";
+import { ModalDialog } from "@/components/ModalDialog";
+import type { ModalDialogState } from "@/components/ModalDialog";
 
 export type UserItem = {
   id: string;
@@ -19,6 +21,19 @@ export function Users() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
+
+  const showAlert = (title: string, message: string, variant: "success" | "danger" | "info" | "warning" = "info") => {
+    setModalConfig({
+      isOpen: true,
+      type: "alert",
+      variant,
+      title,
+      message,
+      confirmText: "OK",
+      onConfirm: () => setModalConfig(null),
+    });
+  };
 
   const fetchUsers = async () => {
     try {
@@ -28,7 +43,6 @@ export function Users() {
       if (data.users && data.users.length > 0) {
         setUsers(data.users);
       } else {
-        // Authenticated Primary User Account
         setUsers([
           {
             id: "usr-kishore-01",
@@ -44,7 +58,6 @@ export function Users() {
         ]);
       }
     } catch {
-      // Authenticated Primary User Account
       setUsers([
         {
           id: "usr-kishore-01",
@@ -78,57 +91,71 @@ export function Users() {
         prev.map((u) => (u.id === user.id ? { ...u, status: nextStatus } : u))
       );
     } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Could not update user status");
+      showAlert("Status Update Failed", err instanceof ApiError ? err.message : "Could not update user status", "danger");
     } finally {
       setUpdatingId(null);
     }
   };
 
-  const changePassword = async (user: UserItem) => {
-    const newPassword = prompt(
-      `Set new login password for ${user.email}:`
-    );
-    if (newPassword === null) return;
-    if (!newPassword.trim()) {
-      alert("Password cannot be empty.");
-      return;
-    }
-
-    try {
-      setUpdatingId(user.id);
-      await api.patch<{ success: boolean }>(`/api/v1/admin/users/${user.id}/password`, {
-        password: newPassword.trim(),
-      });
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, status: "ACTIVE" } : u))
-      );
-      alert(`Password updated & saved for ${user.email}!`);
-    } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to update password");
-    } finally {
-      setUpdatingId(null);
-    }
+  const changePassword = (user: UserItem) => {
+    setModalConfig({
+      isOpen: true,
+      type: "prompt",
+      variant: "info",
+      title: `Set Password for ${user.email}`,
+      message: "Enter the new login password for this college account:",
+      placeholder: "e.g. NewSecretPassword123!",
+      confirmText: "Save Password",
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async (newPassword) => {
+        setModalConfig(null);
+        if (!newPassword || !newPassword.trim()) {
+          showAlert("Invalid Password", "Password cannot be empty.", "warning");
+          return;
+        }
+        try {
+          setUpdatingId(user.id);
+          await api.patch<{ success: boolean }>(`/api/v1/admin/users/${user.id}/password`, {
+            password: newPassword.trim(),
+          });
+          setUsers((prev) =>
+            prev.map((u) => (u.id === user.id ? { ...u, status: "ACTIVE" } : u))
+          );
+          showAlert("Password Updated!", `Password updated & saved for ${user.email}!`, "success");
+        } catch (err) {
+          showAlert("Password Update Failed", err instanceof ApiError ? err.message : "Failed to update password", "danger");
+        } finally {
+          setUpdatingId(null);
+        }
+      },
+    });
   };
 
-  const deleteUserAccount = async (user: UserItem) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete user ${user.email}?\n\nThis will remove their account and college website from the database. They will NOT be able to log in or enter the editor unless they submit a new access request and you approve it again.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setUpdatingId(user.id);
-      await api.del(`/api/v1/admin/users/${user.id}`);
-      setUsers((prev) => prev.filter((u) => u.id !== user.id));
-      alert(`User ${user.email} has been permanently deleted from the database.`);
-    } catch (err) {
-      alert(err instanceof ApiError ? err.message : "Failed to delete user");
-    } finally {
-      setUpdatingId(null);
-    }
+  const deleteUserAccount = (user: UserItem) => {
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "danger",
+      title: `Delete Account ${user.email}?`,
+      message: `Are you sure you want to delete user ${user.email}? This will remove their account and college website from the database. They will NOT be able to log in unless you approve a new request.`,
+      confirmText: "Delete Account",
+      cancelText: "Keep Account",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        try {
+          setUpdatingId(user.id);
+          await api.del(`/api/v1/admin/users/${user.id}`);
+          setUsers((prev) => prev.filter((u) => u.id !== user.id));
+          showAlert("Account Deleted", `User ${user.email} has been permanently deleted from database.`, "success");
+        } catch (err) {
+          showAlert("Deletion Failed", err instanceof ApiError ? err.message : "Failed to delete user", "danger");
+        } finally {
+          setUpdatingId(null);
+        }
+      },
+    });
   };
 
   return (
@@ -246,6 +273,8 @@ export function Users() {
           </div>
         )}
       </div>
+
+      {modalConfig && <ModalDialog {...modalConfig} />}
     </Shell>
   );
 }
