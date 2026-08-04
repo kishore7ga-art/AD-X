@@ -62,30 +62,25 @@ export function Requests() {
   const handleApprove = (id: string, name: string, email: string) => {
     setModalConfig({
       isOpen: true,
-      type: "prompt",
+      type: "confirm",
       variant: "success",
-      title: `Approve Request for ${name}`,
-      message: `Set initial login password for ${email}:`,
-      placeholder: "e.g. SecretPassword123!",
+      title: `Approve Access for ${name}?`,
+      message: `Are you sure you want to approve and activate the access request for ${name} (${email})?`,
       confirmText: "Approve & Activate",
       cancelText: "Cancel",
       onCancel: () => setModalConfig(null),
-      onConfirm: async (password) => {
+      onConfirm: async () => {
         setModalConfig(null);
-        if (!password || !password.trim()) {
-          showAlert("Invalid Password", "Password cannot be empty.", "warning");
-          return;
-        }
         try {
           setProcessingId(id);
           await api.post<{ approved: boolean }>(
             `/api/v1/admin/access-requests/${id}/approve`,
-            { password: password.trim() }
+            {}
           );
           setRequests((prev) =>
             prev.map((r) => (r.id === id ? { ...r, status: "APPROVED" } : r))
           );
-          showAlert("Access Approved!", `Account activated for ${name} (${email}).`, "success");
+          showAlert("Access Approved!", `Account activated for ${name} (${email}). User can now log in.`, "success");
         } catch (err) {
           showAlert("Approval Failed", err instanceof ApiError ? err.message : "Failed to approve request", "danger");
         } finally {
