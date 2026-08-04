@@ -110,6 +110,27 @@ export function Users() {
     }
   };
 
+  const deleteUserAccount = async (user: UserItem) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete user ${user.email}?\n\nThis will remove their account and college website from the database. They will NOT be able to log in or enter the editor unless they submit a new access request and you approve it again.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setUpdatingId(user.id);
+      await api.del(`/api/v1/admin/users/${user.id}`);
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+      alert(`User ${user.email} has been permanently deleted from the database.`);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Failed to delete user");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   return (
     <Shell title="Users & Accounts">
       <div className="space-y-6">
@@ -204,10 +225,17 @@ export function Users() {
                           disabled={updatingId === user.id}
                           onClick={() => void toggleStatus(user)}
                           className={`text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer disabled:opacity-50 ${
-                            user.status === "ACTIVE" ? "text-red-400 hover:bg-red-950/40" : "text-emerald-400 hover:bg-emerald-950/40"
+                            user.status === "ACTIVE" ? "text-amber-400 hover:bg-amber-950/40" : "text-emerald-400 hover:bg-emerald-950/40"
                           }`}
                         >
                           {updatingId === user.id ? "Updating…" : user.status === "ACTIVE" ? "Disable" : "Enable"}
+                        </button>
+                        <button
+                          disabled={updatingId === user.id}
+                          onClick={() => void deleteUserAccount(user)}
+                          className="text-xs font-bold text-rose-400 hover:bg-rose-950/60 bg-rose-950/30 border border-rose-800/40 px-2.5 py-1 rounded-lg cursor-pointer disabled:opacity-50"
+                        >
+                          🗑️ Delete
                         </button>
                       </div>
                     </div>
