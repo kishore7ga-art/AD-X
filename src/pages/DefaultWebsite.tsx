@@ -54,10 +54,38 @@ export function DefaultWebsite() {
   } | null>(null);
 
   // Add Section Modal State
-  const [addingSection, setAddingSection] = useState<boolean>(false);
+  const [addingSection, setAddingSection] = useState(false);
   const [newTitle, setNewTitle] = useState("");
-  const [newType, setNewType] = useState("features");
+  const [newType, setNewType] = useState("hero");
   const [newCode, setNewCode] = useState("");
+  const [editViewMode, setEditViewMode] = useState<"desktop" | "mobile">("desktop");
+
+  function autoFormatResponsiveCode(rawCode: string): string {
+    if (!rawCode) return rawCode;
+    let code = rawCode;
+
+    // Replace fixed px widths with max-width: 100% & box-sizing: border-box
+    code = code.replace(/width:\s*(\d{3,4})px/gi, (match, p1) => {
+      const num = parseInt(p1, 10);
+      if (num > 360) {
+        return `max-width: 100%; width: 100%; box-sizing: border-box;`;
+      }
+      return match;
+    });
+
+    // Ensure flex containers wrap responsively on all screens
+    code = code.replace(/display:\s*flex;?/gi, "display: flex; flex-wrap: wrap; ");
+
+    // Ensure images are responsive
+    code = code.replace(/<img /gi, '<img style="max-width: 100%; height: auto;" ');
+
+    // Add box-sizing: border-box & max-width: 100% to section tags
+    if (!code.includes("box-sizing")) {
+      code = code.replace(/<section style="/i, '<section style="box-sizing: border-box; max-width: 100%; ');
+    }
+
+    return code;
+  }
 
   useEffect(() => {
     loadConfig();
@@ -373,88 +401,188 @@ export function DefaultWebsite() {
           </div>
         ) : null}
 
-        {/* Modal: Edit Code & Title */}
+        {/* Modal: Edit Code & Title Studio */}
         {editingSection ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-night/85 p-4 backdrop-blur-xs">
-            <div className="w-full max-w-3xl rounded-2xl border border-night-line bg-night-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-night/90 p-4 backdrop-blur-md">
+            <div className="w-full max-w-6xl rounded-3xl border border-night-line bg-night-card p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
+              
+              {/* Modal Top Header */}
               <div className="flex items-center justify-between border-b border-night-line pb-4">
-                <h3 className="text-base font-extrabold text-chalk">Edit Section Box Code</h3>
-                <button
-                  type="button"
-                  onClick={() => setEditingSection(null)}
-                  className="text-xs font-bold text-chalk-dim/60 hover:text-chalk"
-                >
-                  ✕ Close
-                </button>
-              </div>
-
-              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-chalk mb-1">Section Box Title *</label>
-                  <input
-                    type="text"
-                    value={editingSection.section.title}
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        section: { ...editingSection.section, title: e.target.value },
-                      })
-                    }
-                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+                      Live Studio Code Editor
+                    </span>
+                    <h3 className="text-lg font-black text-chalk">Edit Section Box — {editingSection.section.title}</h3>
+                  </div>
+                  <p className="text-xs text-chalk-dim/60 mt-0.5">
+                    Modify title, category type, and section HTML source code with instant live render preview.
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-chalk mb-1">Category / Type</label>
-                  <select
-                    value={editingSection.section.sectionType}
-                    onChange={(e) =>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = autoFormatResponsiveCode(editingSection.section.code);
                       setEditingSection({
                         ...editingSection,
-                        section: { ...editingSection.section, sectionType: e.target.value },
-                      })
-                    }
-                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                        section: { ...editingSection.section, code: updated },
+                      });
+                    }}
+                    className="flex items-center gap-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 px-3.5 py-2 text-xs font-black text-amber-300 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
+                    title="Automatically format code with responsive CSS & mobile flex-wrap"
                   >
-                    {SECTION_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name} ({cat.id.toUpperCase()})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <span>⚡ Auto Edit (Make Responsive)</span>
+                  </button>
 
-                <div>
-                  <label className="block text-xs font-bold text-chalk mb-1">HTML Code</label>
-                  <textarea
-                    rows={12}
-                    value={editingSection.section.code}
-                    onChange={(e) =>
-                      setEditingSection({
-                        ...editingSection,
-                        section: { ...editingSection.section, code: e.target.value },
-                      })
-                    }
-                    className="w-full rounded-xl border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setEditingSection(null)}
+                    className="text-xs font-bold text-chalk-dim/60 hover:text-chalk p-2"
+                  >
+                    ✕ Close
+                  </button>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-2 border-t border-night-line">
-                <button
-                  type="button"
-                  onClick={() => setEditingSection(null)}
-                  className="rounded-xl border border-night-line px-4 py-2 text-xs font-bold text-chalk-dim hover:text-chalk"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveEditSection}
-                  className="rounded-xl bg-chalk px-5 py-2 text-xs font-bold text-night hover:bg-chalk/90"
-                >
-                  Save Section Box
-                </button>
+              {/* Split Screen Grid: Preview vs Source Code */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Left Column: Live Section Preview Canvas */}
+                <div className="space-y-3 flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black tracking-wider text-neutral-400 uppercase flex items-center gap-2">
+                      <span>👁️ Live Section Preview</span>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
+                        Real-Time Render
+                      </span>
+                    </h4>
+
+                    {/* Viewport Width Toggles */}
+                    <div className="flex items-center gap-1 bg-night border border-night-line rounded-lg p-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditViewMode("desktop")}
+                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                          editViewMode === "desktop" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
+                        }`}
+                      >
+                        🖥️ Desktop
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditViewMode("mobile")}
+                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                          editViewMode === "mobile" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
+                        }`}
+                      >
+                        📱 Mobile
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Live Render Canvas Box */}
+                  <div className="w-full flex-1 min-h-[380px] bg-black border border-night-line rounded-2xl p-3 overflow-y-auto max-h-[500px]">
+                    <div
+                      className={`transition-all duration-300 ${
+                        editViewMode === "mobile"
+                          ? "max-w-[375px] mx-auto border-2 border-slate-700 rounded-xl overflow-hidden shadow-2xl my-2"
+                          : "w-full"
+                      }`}
+                    >
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            editingSection.section.code ||
+                            `<div style="padding: 40px; text-align: center; color: #888;">Empty Section HTML Code</div>`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Code Editor & Metadata Inputs */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-chalk mb-1">Section Box Title *</label>
+                    <input
+                      type="text"
+                      value={editingSection.section.title}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          section: { ...editingSection.section, title: e.target.value },
+                        })
+                      }
+                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-chalk mb-1">Category / Type</label>
+                    <select
+                      value={editingSection.section.sectionType}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          section: { ...editingSection.section, sectionType: e.target.value },
+                        })
+                      }
+                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                    >
+                      {SECTION_CATEGORIES.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name} ({cat.id.toUpperCase()})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-chalk">Section HTML Source Code</label>
+                      <span className="text-[10px] font-mono text-neutral-400">
+                        {editingSection.section.code.length.toLocaleString()} chars
+                      </span>
+                    </div>
+                    <textarea
+                      rows={12}
+                      value={editingSection.section.code}
+                      onChange={(e) =>
+                        setEditingSection({
+                          ...editingSection,
+                          section: { ...editingSection.section, code: e.target.value },
+                        })
+                      }
+                      className="w-full rounded-xl border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk leading-relaxed"
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-night-line">
+                <span className="text-xs text-chalk-dim/60 font-mono">
+                  Edits apply instantly to Default Website template
+                </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingSection(null)}
+                    className="rounded-xl border border-night-line px-5 py-2.5 text-xs font-bold text-chalk-dim hover:text-chalk"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveEditSection}
+                    className="rounded-xl bg-chalk px-6 py-2.5 text-xs font-black text-night hover:bg-chalk/90 shadow-lg cursor-pointer"
+                  >
+                    Save Section Box
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -462,76 +590,175 @@ export function DefaultWebsite() {
 
         {/* Modal: Add New Section Box */}
         {addingSection ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-night/85 p-4 backdrop-blur-xs">
-            <div className="w-full max-w-xl rounded-2xl border border-night-line bg-night-card p-6 shadow-2xl space-y-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-night/90 p-4 backdrop-blur-md">
+            <div className="w-full max-w-6xl rounded-3xl border border-night-line bg-night-card p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
+              
+              {/* Modal Top Header */}
               <div className="flex items-center justify-between border-b border-night-line pb-4">
-                <h3 className="text-base font-extrabold text-chalk">
-                  Add Section Box to {activePage?.title} Page
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setAddingSection(false)}
-                  className="text-xs font-bold text-chalk-dim/60 hover:text-chalk"
-                >
-                  ✕ Close
-                </button>
-              </div>
-
-              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-chalk mb-1">Section Box Title *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Hero Banner, Placement Stats, Contact Cards"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+                      New Component Builder
+                    </span>
+                    <h3 className="text-lg font-black text-chalk">Add Section Box to {activePage?.title} Page</h3>
+                  </div>
+                  <p className="text-xs text-chalk-dim/60 mt-0.5">
+                    Configure a new section box with title, category, and responsive HTML source code.
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-chalk mb-1">Category / Type</label>
-                  <select
-                    value={newType}
-                    onChange={(e) => setNewType(e.target.value)}
-                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newCode.trim()) {
+                        setNewCode(autoFormatResponsiveCode(newCode));
+                      }
+                    }}
+                    className="flex items-center gap-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 px-3.5 py-2 text-xs font-black text-amber-300 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
+                    title="Automatically format code with responsive CSS & mobile flex-wrap"
                   >
-                    {SECTION_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name} ({cat.id.toUpperCase()})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <span>⚡ Auto Edit (Make Responsive)</span>
+                  </button>
 
-                <div>
-                  <label className="block text-xs font-bold text-chalk mb-1">HTML Code (Optional)</label>
-                  <textarea
-                    rows={6}
-                    placeholder="<section style='padding: 60px 24px...'>...</section>"
-                    value={newCode}
-                    onChange={(e) => setNewCode(e.target.value)}
-                    className="w-full rounded-xl border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setAddingSection(false)}
+                    className="text-xs font-bold text-chalk-dim/60 hover:text-chalk p-2"
+                  >
+                    ✕ Close
+                  </button>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-2 border-t border-night-line">
-                <button
-                  type="button"
-                  onClick={() => setAddingSection(false)}
-                  className="rounded-xl border border-night-line px-4 py-2 text-xs font-bold text-chalk-dim hover:text-chalk"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddSectionSubmit}
-                  disabled={!newTitle.trim()}
-                  className="rounded-xl bg-chalk px-5 py-2 text-xs font-bold text-night hover:bg-chalk/90 disabled:opacity-50"
-                >
-                  Add Box
-                </button>
+              {/* Split Screen Grid: Preview vs Source Code */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Left Column: Live Section Preview Canvas */}
+                <div className="space-y-3 flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black tracking-wider text-neutral-400 uppercase flex items-center gap-2">
+                      <span>👁️ Live Section Preview</span>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
+                        Real-Time Render
+                      </span>
+                    </h4>
+
+                    {/* Viewport Width Toggles */}
+                    <div className="flex items-center gap-1 bg-night border border-night-line rounded-lg p-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditViewMode("desktop")}
+                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                          editViewMode === "desktop" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
+                        }`}
+                      >
+                        🖥️ Desktop
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditViewMode("mobile")}
+                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                          editViewMode === "mobile" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
+                        }`}
+                      >
+                        📱 Mobile
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Live Render Canvas Box */}
+                  <div className="w-full flex-1 min-h-[380px] bg-black border border-night-line rounded-2xl p-3 overflow-y-auto max-h-[500px]">
+                    <div
+                      className={`transition-all duration-300 ${
+                        editViewMode === "mobile"
+                          ? "max-w-[375px] mx-auto border-2 border-slate-700 rounded-xl overflow-hidden shadow-2xl my-2"
+                          : "w-full"
+                      }`}
+                    >
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            newCode.trim() ||
+                            `<section style="padding: 60px 24px; background: #09090b; color: #ffffff; text-align: center; border-radius: 12px; font-family: system-ui, sans-serif;">
+  <h2 style="font-size: 28px; font-weight: 800;">${newTitle || "New Section Title"}</h2>
+  <p style="color: #a1a1aa; margin-top: 8px;">Live HTML Preview Canvas for ${activePage?.title}</p>
+</section>`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Code Editor & Metadata Inputs */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-chalk mb-1">Section Box Title *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Hero Banner, Placement Stats, Contact Cards"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-chalk mb-1">Category / Type</label>
+                    <select
+                      value={newType}
+                      onChange={(e) => setNewType(e.target.value)}
+                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                    >
+                      {SECTION_CATEGORIES.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name} ({cat.id.toUpperCase()})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-chalk">Section HTML Source Code</label>
+                      <span className="text-[10px] font-mono text-neutral-400">
+                        {newCode.length.toLocaleString()} chars
+                      </span>
+                    </div>
+                    <textarea
+                      rows={12}
+                      placeholder="<section style='padding: 60px 24px...'>...</section>"
+                      value={newCode}
+                      onChange={(e) => setNewCode(e.target.value)}
+                      className="w-full rounded-xl border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk leading-relaxed"
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-night-line">
+                <span className="text-xs text-chalk-dim/60 font-mono">
+                  New box will be added to {activePage?.title} template
+                </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setAddingSection(false)}
+                    className="rounded-xl border border-night-line px-5 py-2.5 text-xs font-bold text-chalk-dim hover:text-chalk"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddSectionSubmit}
+                    disabled={!newTitle.trim()}
+                    className="rounded-xl bg-chalk px-6 py-2.5 text-xs font-black text-night hover:bg-chalk/90 shadow-lg cursor-pointer disabled:opacity-50"
+                  >
+                    Add Section Box
+                  </button>
+                </div>
               </div>
             </div>
           </div>
