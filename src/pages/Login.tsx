@@ -118,12 +118,6 @@ export function Login() {
             />
           ) : null}
 
-          {/* Credential Hint Badge */}
-          <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/60 p-3.5 text-center text-xs text-slate-400">
-            <span className="font-semibold text-slate-300">Default Admin Password:</span>{" "}
-            <code className="rounded bg-slate-800 px-2 py-0.5 font-mono text-blue-400 font-bold text-xs">2008</code>
-          </div>
-
           {/* Form */}
           <form onSubmit={submit} className="mt-6 space-y-5">
             <div>
