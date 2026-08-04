@@ -243,9 +243,26 @@ export function DefaultWebsite() {
     // Ensure images are responsive
     code = code.replace(/<img /gi, '<img style="max-width: 100%; height: auto;" ');
 
-    // Add box-sizing: border-box & max-width: 100% to section tags
+    // Add box-sizing: border-box & max-width: 100% to section/footer tags
     if (!code.includes("box-sizing")) {
       code = code.replace(/<section style="/i, '<section style="box-sizing: border-box; max-width: 100%; ');
+      code = code.replace(/<footer style="/i, '<footer style="box-sizing: border-box; max-width: 100%; ');
+    }
+
+    // Inject responsive utility styles for Shadcn blocks & class-based HTML if missing
+    if (!code.includes("<style>")) {
+      const defaultUtilityStyles = `<style>
+  .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px; box-sizing: border-box; }
+  .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 20px; font-size: 13px; }
+  .legal-links { display: flex; flex-wrap: wrap; gap: 16px; }
+  .legal-links a { color: inherit; text-decoration: none; font-weight: 500; }
+  .legal-links a:hover { text-decoration: underline; }
+  .grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .flex { display: flex; flex-wrap: wrap; gap: 16px; }
+  img { max-width: 100%; height: auto; }
+  section, footer, header { box-sizing: border-box; max-width: 100%; width: 100%; font-family: system-ui, -apple-system, sans-serif; }
+</style>\n`;
+      code = defaultUtilityStyles + code;
     }
 
     return code;
@@ -687,7 +704,7 @@ export function DefaultWebsite() {
                       <div
                         dangerouslySetInnerHTML={{
                           __html:
-                            editingSection.section.code ||
+                            autoFormatResponsiveCode(editingSection.section.code) ||
                             `<div style="padding: 40px; text-align: center; color: #888;">Empty Section HTML Code</div>`,
                         }}
                       />
@@ -909,7 +926,7 @@ export function DefaultWebsite() {
                       <div
                         dangerouslySetInnerHTML={{
                           __html:
-                            newCode.trim() ||
+                            autoFormatResponsiveCode(newCode.trim()) ||
                             `<section style="padding: 60px 24px; background: #09090b; color: #ffffff; text-align: center; border-radius: 12px; font-family: system-ui, sans-serif;">
   <h2 style="font-size: 28px; font-weight: 800;">${newTitle || "New Section Title"}</h2>
   <p style="color: #a1a1aa; margin-top: 8px;">Live HTML Preview Canvas for ${activePage?.title}</p>
