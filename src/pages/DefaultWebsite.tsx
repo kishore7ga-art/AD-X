@@ -196,6 +196,13 @@ const PRESET_SECTION_TEMPLATES = [
   },
 ];
 
+function matchesSlug(slugA: string, slugB: string): boolean {
+  if (!slugA || !slugB) return false;
+  const normA = slugA.trim().toLowerCase().replace(/^\/+/, "");
+  const normB = slugB.trim().toLowerCase().replace(/^\/+/, "");
+  return normA === normB;
+}
+
 export function DefaultWebsite() {
   const [config, setConfig] = useState<DefaultWebsiteConfig | null>(null);
   const [activeSlug, setActiveSlug] = useState<string>("/home");
@@ -254,7 +261,7 @@ export function DefaultWebsite() {
     try {
       const data = await api.get<DefaultWebsiteConfig>("/api/v1/admin/default-website");
       setConfig(data);
-      if (data?.pages && data.pages.length > 0 && !data.pages.some((p) => p.slug === activeSlug)) {
+      if (data?.pages && data.pages.length > 0 && !data.pages.some((p) => matchesSlug(p.slug, activeSlug))) {
         const firstPage = data.pages[0];
         if (firstPage) {
           setActiveSlug(firstPage.slug);
@@ -268,14 +275,14 @@ export function DefaultWebsite() {
     }
   }
 
-  async function handleSave() {
-    if (!config) return;
+  async function persistConfig(newConfig: DefaultWebsiteConfig) {
+    setConfig(newConfig);
     setSaving(true);
     setStatusMsg(null);
     try {
-      const updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", config);
+      const updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", newConfig);
       setConfig(updated);
-      setStatusMsg({ type: "success", text: "Default Website structure successfully saved!" });
+      setStatusMsg({ type: "success", text: "Default Website structure successfully saved & updated live!" });
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Failed to save configuration";
       setStatusMsg({ type: "error", text: msg });
@@ -284,10 +291,16 @@ export function DefaultWebsite() {
     }
   }
 
-  const activePage = config?.pages.find((p) => p.slug === activeSlug);
+  async function handleSave() {
+    if (!config) return;
+    await persistConfig(config);
+  }
 
-  function moveSection(index: number, direction: "up" | "down") {
+  const activePage = config?.pages.find((p) => matchesSlug(p.slug, activeSlug)) || config?.pages[0];
+
+  async function moveSection(index: number, direction: "up" | "down") {
     if (!config || !activePage) return;
+    const targetSlug = activePage.slug;
     const sections = [...activePage.sections];
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     if (targetIdx < 0 || targetIdx >= sections.length) return;
@@ -305,9 +318,9 @@ export function DefaultWebsite() {
     });
 
     const updatedPages = config.pages.map((p) =>
-      p.slug === activeSlug ? { ...p, sections } : p
+      matchesSlug(p.slug, targetSlug) ? { ...p, sections } : p
     );
-    setConfig({ ...config, pages: updatedPages });
+    await persistConfig({ ...config, pages: updatedPages });
   }
 
   const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
@@ -325,38 +338,43 @@ export function DefaultWebsite() {
       confirmText: "Remove Section Box",
       cancelText: "Keep Section Box",
       onCancel: () => setModalConfig(null),
-      onConfirm: () => {
+      onConfirm: async () => {
         setModalConfig(null);
-        const sections = activePage.sections.filter((_, idx) => idx !== index);
+        const targetSlug = activePage?.slug || activeSlug;
+        const sections = (activePage?.sections || []).filter((_, idx) => idx !== index);
         sections.forEach((sec, idx) => {
           sec.sortOrder = idx;
         });
 
         const updatedPages = config.pages.map((p) =>
-          p.slug === activeSlug ? { ...p, sections } : p
+          matchesSlug(p.slug, targetSlug) ? { ...p, sections } : p
         );
-        setConfig({ ...config, pages: updatedPages });
+        await persistConfig({ ...config, pages: updatedPages });
       },
     });
   }
 
-  function handleSaveEditSection() {
+  async function handleSaveEditSection() {
     if (!config || !editingSection) return;
     const { pageSlug, section, index } = editingSection;
 
     const updatedPages = config.pages.map((p) => {
-      if (p.slug !== pageSlug) return p;
+      if (!matchesSlug(p.slug, pageSlug)) return p;
       const secs = [...p.sections];
       secs[index] = section;
       return { ...p, sections: secs };
     });
 
-    setConfig({ ...config, pages: updatedPages });
+    const updatedConfig = { ...config, pages: updatedPages };
     setEditingSection(null);
+    await persistConfig(updatedConfig);
   }
 
-  function handleAddSectionSubmit() {
-    if (!config || !activePage || !newTitle.trim()) return;
+  async function handleAddSectionSubmit() {
+    if (!config || !newTitle.trim()) return;
+
+    const targetSlug = activePage?.slug || activeSlug;
+    const currentSections = activePage?.sections || [];
 
     const newSec: DefaultWebsiteSection = {
       id: `def-${Date.now()}`,
@@ -368,17 +386,20 @@ export function DefaultWebsite() {
   <h2 style="font-size: 28px; font-weight: 800;">${newTitle}</h2>
   <p style="color: #a1a1aa; margin-top: 8px;">Configured default section box for ${newTitle}</p>
 </section>`,
-      sortOrder: activePage.sections.length,
+      sortOrder: currentSections.length,
     };
 
     const updatedPages = config.pages.map((p) =>
-      p.slug === activeSlug ? { ...p, sections: [...p.sections, newSec] } : p
+      matchesSlug(p.slug, targetSlug) ? { ...p, sections: [...p.sections, newSec] } : p
     );
-    setConfig({ ...config, pages: updatedPages });
+
+    const updatedConfig = { ...config, pages: updatedPages };
 
     setAddingSection(false);
     setNewTitle("");
     setNewCode("");
+
+    await persistConfig(updatedConfig);
   }
 
   function getCategoryStyle(type: string) {
