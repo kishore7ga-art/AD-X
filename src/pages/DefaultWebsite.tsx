@@ -187,8 +187,6 @@ const PRESET_SECTION_TEMPLATES = [
         <a href="#courses" style="color: #94a3b8; text-decoration: none;">Departments</a>
         <a href="#placements" style="color: #94a3b8; text-decoration: none;">Placement Cell</a>
       </div>
-    </div>
-  </div>
   <div style="text-align: center; font-size: 12px; border-top: 1px solid #1e293b; padding-top: 20px; color: #64748b;">
     © 2026 College Campus Portal. All Rights Reserved. Powered by XITE.
   </div>
@@ -201,6 +199,67 @@ function matchesSlug(slugA: string, slugB: string): boolean {
   const normA = slugA.trim().toLowerCase().replace(/^\/+/, "");
   const normB = slugB.trim().toLowerCase().replace(/^\/+/, "");
   return normA === normB;
+}
+
+function SectionLivePreviewIframe({
+  code,
+  title,
+  viewMode = "desktop",
+}: {
+  code: string;
+  title?: string;
+  viewMode?: "desktop" | "mobile";
+}) {
+  const displayTitle = title || "Empty Section Box";
+  const bodyContent =
+    code ||
+    `<section style="padding: 60px 24px; text-align: center;"><h2>${displayTitle}</h2></section>`;
+
+  const fullHtmlDoc = [
+    "<!DOCTYPE html>",
+    '<html lang="en">',
+    "<head>",
+    '  <meta charset="utf-8"/>',
+    '  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>',
+    '  <script src="https://cdn.tailwindcss.com"></script>',
+    '  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>',
+    '  <link rel="preconnect" href="https://fonts.googleapis.com">',
+    '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
+    '  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&family=Outfit:wght@400..900&display=swap" rel="stylesheet">',
+    "  <style>",
+    "    *, ::before, ::after { box-sizing: border-box; }",
+    '    html, body { margin: 0; padding: 0; background-color: #09090b; color: #ffffff; font-family: "Inter", system-ui, sans-serif; width: 100%; min-height: 100%; }',
+    "    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px; box-sizing: border-box; }",
+    "    .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 13px; }",
+    "    .legal-links { display: flex; flex-wrap: wrap; gap: 16px; }",
+    "    .legal-links a { color: inherit; text-decoration: none; font-weight: 500; }",
+    "    .legal-links a:hover { text-decoration: underline; }",
+    "    img { max-width: 100%; height: auto; }",
+    "    a { color: inherit; }",
+    "  </style>",
+    "</head>",
+    "<body>",
+    "  " + bodyContent,
+    "</body>",
+    "</html>",
+  ].join("\n");
+
+  return (
+    <div
+      className={`w-full transition-all duration-300 ${
+        viewMode === "mobile"
+          ? "max-w-[375px] mx-auto border-4 border-slate-700 rounded-3xl overflow-hidden shadow-2xl my-2 min-h-[480px]"
+          : "w-full min-h-[400px] rounded-2xl overflow-hidden border border-night-line bg-black"
+      }`}
+    >
+      <iframe
+        title="Live Section Sandbox"
+        srcDoc={fullHtmlDoc}
+        className="w-full h-full min-h-[400px] border-0 bg-black block"
+        sandbox="allow-scripts allow-same-origin"
+      />
+    </div>
+  );
 }
 
 export function DefaultWebsite() {
@@ -232,7 +291,7 @@ export function DefaultWebsite() {
     code = code.replace(/width:\s*(\d{3,4})px/gi, (match, p1) => {
       const num = parseInt(p1, 10);
       if (num > 360) {
-        return `max-width: 100%; width: 100%; box-sizing: border-box;`;
+        return "max-width: 100%; width: 100%; box-sizing: border-box;";
       }
       return match;
     });
@@ -247,22 +306,6 @@ export function DefaultWebsite() {
     if (!code.includes("box-sizing")) {
       code = code.replace(/<section style="/i, '<section style="box-sizing: border-box; max-width: 100%; ');
       code = code.replace(/<footer style="/i, '<footer style="box-sizing: border-box; max-width: 100%; ');
-    }
-
-    // Inject responsive utility styles for Shadcn blocks & class-based HTML if missing
-    if (!code.includes("<style>")) {
-      const defaultUtilityStyles = `<style>
-  .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px; box-sizing: border-box; }
-  .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 20px; font-size: 13px; }
-  .legal-links { display: flex; flex-wrap: wrap; gap: 16px; }
-  .legal-links a { color: inherit; text-decoration: none; font-weight: 500; }
-  .legal-links a:hover { text-decoration: underline; }
-  .grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-  .flex { display: flex; flex-wrap: wrap; gap: 16px; }
-  img { max-width: 100%; height: auto; }
-  section, footer, header { box-sizing: border-box; max-width: 100%; width: 100%; font-family: system-ui, -apple-system, sans-serif; }
-</style>\n`;
-      code = defaultUtilityStyles + code;
     }
 
     return code;
@@ -583,14 +626,11 @@ export function DefaultWebsite() {
                     </div>
 
                     {/* Live HTML Mini-Preview Box */}
-                    <div className="relative overflow-hidden rounded-xl border border-night-line bg-black/90 p-4">
-                      <div className="text-[10px] font-extrabold uppercase tracking-widest text-chalk-dim/40 mb-2">
-                        Live Preview Canvas
+                    <div className="relative overflow-hidden rounded-xl border border-night-line bg-black p-2">
+                      <div className="text-[10px] font-extrabold uppercase tracking-widest text-chalk-dim/40 mb-2 px-2 pt-1">
+                        Live Preview Sandbox
                       </div>
-                      <div
-                        className="pointer-events-none rounded-lg bg-black text-white p-2 min-h-[100px] overflow-hidden"
-                        dangerouslySetInnerHTML={{ __html: sec.code }}
-                      />
+                      <SectionLivePreviewIframe code={sec.code} title={sec.title} />
                     </div>
                   </div>
                 ))}
@@ -693,23 +733,11 @@ export function DefaultWebsite() {
                   </div>
 
                   {/* Live Render Canvas Box */}
-                  <div className="w-full flex-1 min-h-[380px] bg-black border border-night-line rounded-2xl p-3 overflow-y-auto max-h-[500px]">
-                    <div
-                      className={`transition-all duration-300 ${
-                        editViewMode === "mobile"
-                          ? "max-w-[375px] mx-auto border-2 border-slate-700 rounded-xl overflow-hidden shadow-2xl my-2"
-                          : "w-full"
-                      }`}
-                    >
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            autoFormatResponsiveCode(editingSection.section.code) ||
-                            `<div style="padding: 40px; text-align: center; color: #888;">Empty Section HTML Code</div>`,
-                        }}
-                      />
-                    </div>
-                  </div>
+                  <SectionLivePreviewIframe
+                    code={editingSection.section.code}
+                    title={editingSection.section.title}
+                    viewMode={editViewMode}
+                  />
                 </div>
 
                 {/* Right Column: Code Editor & Metadata Inputs */}
@@ -915,26 +943,11 @@ export function DefaultWebsite() {
                   </div>
 
                   {/* Live Render Canvas Box */}
-                  <div className="w-full flex-1 min-h-[380px] bg-black border border-night-line rounded-2xl p-3 overflow-y-auto max-h-[500px]">
-                    <div
-                      className={`transition-all duration-300 ${
-                        editViewMode === "mobile"
-                          ? "max-w-[375px] mx-auto border-2 border-slate-700 rounded-xl overflow-hidden shadow-2xl my-2"
-                          : "w-full"
-                      }`}
-                    >
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            autoFormatResponsiveCode(newCode.trim()) ||
-                            `<section style="padding: 60px 24px; background: #09090b; color: #ffffff; text-align: center; border-radius: 12px; font-family: system-ui, sans-serif;">
-  <h2 style="font-size: 28px; font-weight: 800;">${newTitle || "New Section Title"}</h2>
-  <p style="color: #a1a1aa; margin-top: 8px;">Live HTML Preview Canvas for ${activePage?.title}</p>
-</section>`,
-                        }}
-                      />
-                    </div>
-                  </div>
+                  <SectionLivePreviewIframe
+                    code={newCode}
+                    title={newTitle}
+                    viewMode={editViewMode}
+                  />
                 </div>
 
                 {/* Right Column: Code Editor & Metadata Inputs */}
