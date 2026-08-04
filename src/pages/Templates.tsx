@@ -72,6 +72,7 @@ const STUDIO_PALETTES = [
 ];
 
 const SECTION_CATEGORIES_GRID = [
+  { id: "header", name: "Header & Navigation", description: "Top navbar, campus logo, navigation links & CTA" },
   { id: "hero", name: "Hero Banner", description: "Lead banner & title headline" },
   { id: "about", name: "About Us", description: "History, vision & mission statement" },
   { id: "courses", name: "Academics & Courses", description: "Degree programs & department grid" },

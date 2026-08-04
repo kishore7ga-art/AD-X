@@ -9,6 +9,12 @@ interface AddSectionModalProps {
 
 export const SECTION_TYPES_LIST = [
   {
+    id: "header",
+    name: "Header & Navigation",
+    description: "Top navigation bar, college logo, menu links, and header call-to-action.",
+    icon: Layout,
+  },
+  {
     id: "hero",
     name: "Hero Banner",
     description: "Main lead banner, masthead, and headline CTA for the top of the page.",

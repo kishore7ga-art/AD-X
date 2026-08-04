@@ -29,6 +29,7 @@ export type LibraryVariant = {
 };
 
 const SECTION_CATEGORIES = [
+  { id: "header", name: "Header & Navbar", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   { id: "hero", name: "Hero Banner", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
   { id: "about", name: "About Us", bg: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
   { id: "features", name: "Features / Highlights", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
