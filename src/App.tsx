@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "@/auth/AuthContext";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
+import { DefaultWebsite } from "@/pages/DefaultWebsite";
 import { Login } from "@/pages/Login";
 import { Requests } from "@/pages/Requests";
 import { SectionAddStudio } from "@/pages/SectionAddStudio";

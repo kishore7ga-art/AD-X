@@ -50,8 +50,11 @@ export function DefaultWebsite() {
     try {
       const data = await api.get<DefaultWebsiteConfig>("/api/v1/admin/default-website");
       setConfig(data);
-      if (data.pages && data.pages.length > 0 && !data.pages.some((p) => p.slug === activeSlug)) {
-        setActiveSlug(data.pages[0].slug);
+      if (data?.pages && data.pages.length > 0 && !data.pages.some((p) => p.slug === activeSlug)) {
+        const firstPage = data.pages[0];
+        if (firstPage) {
+          setActiveSlug(firstPage.slug);
+        }
       }
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Failed to load default website configuration";
@@ -85,9 +88,12 @@ export function DefaultWebsite() {
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     if (targetIdx < 0 || targetIdx >= sections.length) return;
 
-    const temp = sections[index];
-    sections[index] = sections[targetIdx];
-    sections[targetIdx] = temp;
+    const itemA = sections[index];
+    const itemB = sections[targetIdx];
+    if (itemA && itemB) {
+      sections[index] = itemB;
+      sections[targetIdx] = itemA;
+    }
 
     // re-assign sort orders
     sections.forEach((sec, idx) => {
