@@ -42,6 +42,160 @@ const SECTION_CATEGORIES = [
   { id: "footer", name: "Footer", bg: "bg-slate-500/10 text-slate-400 border-slate-500/20" },
 ];
 
+const PRESET_SECTION_TEMPLATES = [
+  {
+    id: "preset-header-1",
+    title: "Header & Navigation Bar",
+    category: "header",
+    icon: "🧭",
+    description: "Classic responsive navbar with logo, menu links & CTA button.",
+    code: `<section style="padding: 16px 32px; background: #0f172a; color: #ffffff; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #1e293b; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <div style="width: 36px; height: 36px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #fff;">X</div>
+    <span style="font-size: 20px; font-weight: 800; tracking-tight: -0.02em;">Madras Institute of Tech</span>
+  </div>
+  <nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 14px; font-weight: 600; color: #cbd5e1;">
+    <a href="#about" style="color: #cbd5e1; text-decoration: none;">About</a>
+    <a href="#courses" style="color: #cbd5e1; text-decoration: none;">Academics</a>
+    <a href="#placements" style="color: #cbd5e1; text-decoration: none;">Placements</a>
+    <a href="#contact" style="color: #cbd5e1; text-decoration: none;">Contact</a>
+  </nav>
+  <button style="padding: 10px 20px; background: #3b82f6; color: #ffffff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">Apply Admissions</button>
+</section>`,
+  },
+  {
+    id: "preset-hero-1",
+    title: "Hero Banner (Modern Gradient)",
+    category: "hero",
+    icon: "🚀",
+    description: "High impact hero section with headline, CTA buttons, and badge.",
+    code: `<section style="padding: 80px 32px; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; text-align: center; border-radius: 16px; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
+  <span style="display: inline-block; padding: 6px 16px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(129, 140, 248, 0.4); color: #c7d2fe; font-size: 12px; font-weight: 700; border-radius: 999px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">Admissions Open 2026-2027</span>
+  <h1 style="font-size: 42px; font-weight: 900; margin: 0 0 16px 0; line-height: 1.2; letter-spacing: -0.02em;">Empowering Future Leaders & Engineers</h1>
+  <p style="font-size: 18px; color: #94a3b8; max-width: 680px; margin: 0 auto 32px auto; line-height: 1.6;">Join a premier institution dedicated to academic excellence, innovation, cutting-edge research, and top global career placements.</p>
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
+    <button style="padding: 14px 28px; background: #6366f1; color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);">Explore Programs</button>
+    <button style="padding: 14px 28px; background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer;">Virtual Tour</button>
+  </div>
+</section>`,
+  },
+  {
+    id: "preset-features-1",
+    title: "Campus Highlights & Features",
+    category: "features",
+    icon: "🌟",
+    description: "3-column feature grid showcasing campus infrastructure and labs.",
+    code: `<section style="padding: 64px 32px; background: #09090b; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
+  <div style="text-align: center; max-width: 600px; margin: 0 auto 48px auto;">
+    <h2 style="font-size: 32px; font-weight: 800; margin: 0 0 12px 0;">Why Choose Our Campus</h2>
+    <p style="color: #a1a1aa; font-size: 15px; margin: 0;">World-class facilities designed for innovative learning and industry readiness.</p>
+  </div>
+  <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;">
+    <div style="flex: 1 1 280px; max-width: 380px; padding: 28px; background: #18181b; border: 1px solid #27272a; border-radius: 14px; box-sizing: border-box;">
+      <div style="font-size: 32px; margin-bottom: 16px;">🔬</div>
+      <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 8px 0; color: #f4f4f5;">Advanced Research Labs</h3>
+      <p style="color: #a1a1aa; font-size: 14px; line-height: 1.5; margin: 0;">State-of-the-art AI, Robotics, and Biotechnology research facilities.</p>
+    </div>
+    <div style="flex: 1 1 280px; max-width: 380px; padding: 28px; background: #18181b; border: 1px solid #27272a; border-radius: 14px; box-sizing: border-box;">
+      <div style="font-size: 32px; margin-bottom: 16px;">📚</div>
+      <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 8px 0; color: #f4f4f5;">Digital Knowledge Center</h3>
+      <p style="color: #a1a1aa; font-size: 14px; line-height: 1.5; margin: 0;">Access to over 100,000 journals, books, and online databases 24/7.</p>
+    </div>
+    <div style="flex: 1 1 280px; max-width: 380px; padding: 28px; background: #18181b; border: 1px solid #27272a; border-radius: 14px; box-sizing: border-box;">
+      <div style="font-size: 32px; margin-bottom: 16px;">🏆</div>
+      <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 8px 0; color: #f4f4f5;">Top Tier Placements</h3>
+      <p style="color: #a1a1aa; font-size: 14px; line-height: 1.5; margin: 0;">Over 95% placement rate with leading global tech companies.</p>
+    </div>
+  </div>
+</section>`,
+  },
+  {
+    id: "preset-stats-1",
+    title: "Key Statistics Counters",
+    category: "stats",
+    icon: "📊",
+    description: "4-column counter grid for students, faculty, and packages.",
+    code: `<section style="padding: 56px 32px; background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 32px; text-align: center;">
+    <div>
+      <div style="font-size: 36px; font-weight: 900; color: #38bdf8;">15,000+</div>
+      <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px; text-transform: uppercase;">Enrolled Students</div>
+    </div>
+    <div>
+      <div style="font-size: 36px; font-weight: 900; color: #a855f7;">500+</div>
+      <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px; text-transform: uppercase;">Expert Faculty</div>
+    </div>
+    <div>
+      <div style="font-size: 36px; font-weight: 900; color: #34d399;">98%</div>
+      <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px; text-transform: uppercase;">Placement Rate</div>
+    </div>
+    <div>
+      <div style="font-size: 36px; font-weight: 900; color: #fbbf24;">48 LPA</div>
+      <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px; text-transform: uppercase;">Highest Package</div>
+    </div>
+  </div>
+</section>`,
+  },
+  {
+    id: "preset-contact-1",
+    title: "Contact Form & Campus Address",
+    category: "contact",
+    icon: "📍",
+    description: "Split layout with contact form, address details, and email.",
+    code: `<section style="padding: 64px 32px; background: #09090b; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
+  <div style="display: flex; flex-wrap: wrap; gap: 40px; justify-content: space-between;">
+    <div style="flex: 1 1 300px;">
+      <h2 style="font-size: 30px; font-weight: 800; margin: 0 0 16px 0;">Get in Touch</h2>
+      <p style="color: #a1a1aa; font-size: 15px; margin-bottom: 28px; line-height: 1.6;">Have questions about admissions or programs? Send us a message and our counselor will reach out.</p>
+      <div style="font-size: 14px; color: #e4e4e7;">
+        <p style="margin: 8px 0;">📍 <strong>Address:</strong> 100 College Road, Academic Zone, Chennai 600028</p>
+        <p style="margin: 8px 0;">📞 <strong>Phone:</strong> +91 44 2490 0000 / +91 98400 12345</p>
+        <p style="margin: 8px 0;">✉️ <strong>Email:</strong> admissions@college.edu.in</p>
+      </div>
+    </div>
+    <div style="flex: 1 1 320px; background: #18181b; padding: 32px; border-radius: 16px; border: 1px solid #27272a; box-sizing: border-box;">
+      <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 20px 0;">Send Enquiry</h3>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #a1a1aa; margin-bottom: 6px;">Full Name</label>
+        <input type="text" placeholder="John Doe" style="width: 100%; padding: 10px 14px; background: #09090b; border: 1px solid #3f3f46; border-radius: 8px; color: #fff; box-sizing: border-box;" />
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #a1a1aa; margin-bottom: 6px;">Email Address</label>
+        <input type="email" placeholder="john@example.com" style="width: 100%; padding: 10px 14px; background: #09090b; border: 1px solid #3f3f46; border-radius: 8px; color: #fff; box-sizing: border-box;" />
+      </div>
+      <button style="width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 8px;">Submit Request</button>
+    </div>
+  </div>
+</section>`,
+  },
+  {
+    id: "preset-footer-1",
+    title: "Footer Section",
+    category: "footer",
+    icon: "🦶",
+    description: "Clean footer with links, copyright & accreditation notice.",
+    code: `<section style="padding: 48px 32px 24px 32px; background: #0f172a; color: #94a3b8; font-family: system-ui, sans-serif; border-top: 1px solid #1e293b; box-sizing: border-box; max-width: 100%;">
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 32px; margin-bottom: 40px;">
+    <div style="max-width: 320px;">
+      <h3 style="color: #ffffff; font-size: 18px; font-weight: 800; margin: 0 0 12px 0;">College Portal</h3>
+      <p style="font-size: 13px; line-height: 1.6; margin: 0;">Approved by AICTE, Accredited with NAAC A++ Grade. Affiliated to State Technological University.</p>
+    </div>
+    <div>
+      <h4 style="color: #ffffff; font-size: 14px; font-weight: 700; margin: 0 0 12px 0;">Quick Links</h4>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+        <a href="#about" style="color: #94a3b8; text-decoration: none;">About College</a>
+        <a href="#courses" style="color: #94a3b8; text-decoration: none;">Departments</a>
+        <a href="#placements" style="color: #94a3b8; text-decoration: none;">Placement Cell</a>
+      </div>
+    </div>
+  </div>
+  <div style="text-align: center; font-size: 12px; border-top: 1px solid #1e293b; padding-top: 20px; color: #64748b;">
+    © 2026 College Campus Portal. All Rights Reserved. Powered by XITE.
+  </div>
+</section>`,
+  },
+];
+
 export function DefaultWebsite() {
   const [config, setConfig] = useState<DefaultWebsiteConfig | null>(null);
   const [activeSlug, setActiveSlug] = useState<string>("/home");
@@ -646,6 +800,43 @@ export function DefaultWebsite() {
                   >
                     ✕ Close
                   </button>
+                </div>
+              </div>
+
+              {/* Quick Choose Preset Section Box Section */}
+              <div className="bg-night border border-night-line rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-chalk flex items-center gap-2">
+                    <span>✨ Select Quick Preset Section Template</span>
+                    <span className="text-[10px] font-normal text-chalk-dim">Click any preset to auto-fill title, category & responsive code</span>
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                  {PRESET_SECTION_TEMPLATES.map((tmpl) => (
+                    <button
+                      key={tmpl.id}
+                      type="button"
+                      onClick={() => {
+                        setNewTitle(tmpl.title);
+                        setNewType(tmpl.category);
+                        setNewCode(tmpl.code);
+                      }}
+                      className={`flex flex-col items-start text-left p-3 rounded-xl border transition cursor-pointer group ${
+                        newTitle === tmpl.title
+                          ? "bg-emerald-950/40 border-emerald-500/80 ring-1 ring-emerald-500/50"
+                          : "bg-night-card border-night-line hover:border-chalk/40 hover:bg-night/60"
+                      }`}
+                    >
+                      <span className="text-xl mb-1">{tmpl.icon}</span>
+                      <span className="text-xs font-bold text-chalk group-hover:text-amber-300 transition-colors line-clamp-1">
+                        {tmpl.title}
+                      </span>
+                      <span className="text-[10px] font-mono text-chalk-dim/60 uppercase mt-0.5">
+                        {tmpl.category}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
