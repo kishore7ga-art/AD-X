@@ -808,11 +808,37 @@ export function DefaultWebsite() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-xs font-bold text-chalk">Section HTML Source Code</label>
-                      <span className="text-[10px] font-mono text-neutral-400">
-                        {editingSection.section.code.length.toLocaleString()} chars
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-1.5 rounded-lg border border-chalk/30 bg-chalk/10 px-3 py-1 text-xs font-bold text-chalk hover:bg-chalk/20 cursor-pointer transition shadow-sm">
+                          <span>📁 Upload HTML File</span>
+                          <input
+                            type="file"
+                            accept=".html,.htm,.txt"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  const text = event.target?.result as string;
+                                  if (text) {
+                                    setEditingSection({
+                                      ...editingSection,
+                                      section: { ...editingSection.section, code: text },
+                                    });
+                                  }
+                                };
+                                reader.readAsText(file);
+                              }
+                            }}
+                          />
+                        </label>
+                        <span className="text-[10px] font-mono text-neutral-400">
+                          {editingSection.section.code.length.toLocaleString()} chars
+                        </span>
+                      </div>
                     </div>
                     <textarea
                       rows={12}
@@ -1028,11 +1054,34 @@ export function DefaultWebsite() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-xs font-bold text-chalk">Section HTML Source Code</label>
-                      <span className="text-[10px] font-mono text-neutral-400">
-                        {newCode.length.toLocaleString()} chars
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center gap-1.5 rounded-lg border border-chalk/30 bg-chalk/10 px-3 py-1 text-xs font-bold text-chalk hover:bg-chalk/20 cursor-pointer transition shadow-sm">
+                          <span>📁 Upload HTML File</span>
+                          <input
+                            type="file"
+                            accept=".html,.htm,.txt"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  const text = event.target?.result as string;
+                                  if (text) {
+                                    setNewCode(text);
+                                  }
+                                };
+                                reader.readAsText(file);
+                              }
+                            }}
+                          />
+                        </label>
+                        <span className="text-[10px] font-mono text-neutral-400">
+                          {newCode.length.toLocaleString()} chars
+                        </span>
+                      </div>
                     </div>
                     <textarea
                       rows={12}
