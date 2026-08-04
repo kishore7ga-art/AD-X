@@ -40,6 +40,7 @@ export function Shell({
             */}
             <nav className="flex items-center gap-5 text-xs">
               <Tab to="/templates">Templates</Tab>
+              <Tab to="/default-website">Default Website</Tab>
               <Tab to="/users">Users</Tab>
               <Tab to="/requests">Requests</Tab>
             </nav>

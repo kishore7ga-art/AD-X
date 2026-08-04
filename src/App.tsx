@@ -37,6 +37,14 @@ export function App() {
             }
           />
           <Route
+            path="/default-website"
+            element={
+              <ProtectedRoute>
+                <DefaultWebsite />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/users"
             element={
               <ProtectedRoute>
