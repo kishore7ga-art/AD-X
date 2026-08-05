@@ -224,6 +224,47 @@ const PRESET_SECTION_TEMPLATES = [
   },
 ];
 
+function extractStylesAndBody(rawCode: string): { headCss: string; headLinks: string; bodyHtml: string } {
+  if (!rawCode) return { headCss: "", headLinks: "", bodyHtml: "" };
+  let code = rawCode.trim();
+
+  let headCss = "";
+  let headLinks = "";
+
+  // Extract all <style>...</style> blocks
+  code = code.replace(/<style[\s\S]*?>([\s\S]*?)<\/style>/gi, (_, cssContent) => {
+    headCss += "\n" + cssContent;
+    return "";
+  });
+
+  // Extract all stylesheet <link> tags
+  code = code.replace(/<link[\s\S]*?>/gi, (linkTag) => {
+    if (linkTag.toLowerCase().includes("stylesheet") || linkTag.toLowerCase().includes("fonts") || linkTag.toLowerCase().includes("css")) {
+      headLinks += "\n" + linkTag;
+      return "";
+    }
+    return linkTag;
+  });
+
+  // Extract content inside <body>...</body> if present
+  let bodyHtml = code;
+  const bodyMatch = code.match(/<body[\s\S]*?>([\s\S]*?)<\/body>/i);
+  if (bodyMatch && bodyMatch[1]) {
+    bodyHtml = bodyMatch[1].trim();
+  } else {
+    // Strip structural document tags left behind
+    bodyHtml = code
+      .replace(/<!DOCTYPE[\s\S]*?>/gi, "")
+      .replace(/<\/?html[\s\S]*?>/gi, "")
+      .replace(/<head[\s\S]*?>[\s\S]*?<\/head>/gi, "")
+      .replace(/<\/?head[\s\S]*?>/gi, "")
+      .replace(/<\/?body[\s\S]*?>/gi, "")
+      .trim();
+  }
+
+  return { headCss, headLinks, bodyHtml };
+}
+
 function matchesSlug(slugA: string, slugB: string): boolean {
   if (!slugA || !slugB) return false;
   const normA = slugA.trim().toLowerCase().replace(/^\/+/, "");
@@ -241,9 +282,8 @@ function SectionLivePreviewIframe({
   viewMode?: "desktop" | "mobile";
 }) {
   const displayTitle = title || "Empty Section Box";
-  const bodyContent =
-    code ||
-    `<section style="padding: 60px 24px; text-align: center;"><h2>${displayTitle}</h2></section>`;
+  const rawCode = code || `<section style="padding: 60px 24px; text-align: center;"><h2>${displayTitle}</h2></section>`;
+  const { headCss, headLinks, bodyHtml } = extractStylesAndBody(rawCode);
 
   const fullHtmlDoc = [
     "<!DOCTYPE html>",
@@ -256,6 +296,7 @@ function SectionLivePreviewIframe({
     '  <link rel="preconnect" href="https://fonts.googleapis.com">',
     '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     '  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&family=Outfit:wght@400..900&display=swap" rel="stylesheet">',
+    headLinks ? "  " + headLinks : "",
     "  <style>",
     "    *, ::before, ::after { box-sizing: border-box; }",
     '    html, body { margin: 0; padding: 0; background-color: #09090b; color: #ffffff; font-family: "Inter", system-ui, sans-serif; width: 100%; min-height: 100%; }',
@@ -266,13 +307,14 @@ function SectionLivePreviewIframe({
     "    .legal-links a:hover { text-decoration: underline; }",
     "    img { max-width: 100%; height: auto; }",
     "    a { color: inherit; }",
+    headCss ? "    /* Extracted User Custom Web CSS */\n" + headCss : "",
     "  </style>",
     "</head>",
     "<body>",
-    "  " + bodyContent,
+    "  " + (bodyHtml || rawCode),
     "</body>",
     "</html>",
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 
   return (
     <div
