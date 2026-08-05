@@ -48,20 +48,31 @@ const PRESET_SECTION_TEMPLATES = [
     category: "header",
     icon: "📰",
     subtitle: "Top navigation bar, college logo, menu links, and header call-to-action.",
-    code: `<section style="padding: 16px 32px; background: #0f172a; color: #ffffff; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #1e293b; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <div style="display: flex; align-items: center; gap: 12px;">
-    <div style="width: 36px; height: 36px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #fff;">X</div>
-    <span style="font-size: 20px; font-weight: 800; tracking-tight: -0.02em;">Madras Institute of Tech</span>
+    code: `<header class="w-full bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-50 px-6 py-4 transition-all">
+  <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/20">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div>
+        <span class="text-lg font-black tracking-tight text-white block leading-none">Madras Institute of Tech</span>
+        <span class="text-[11px] font-medium text-slate-400">Autonomous • NAAC A++ Accredited</span>
+      </div>
+    </div>
+    <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
+      <a href="#about" class="hover:text-blue-400 transition-colors">About</a>
+      <a href="#courses" class="hover:text-blue-400 transition-colors">Academics</a>
+      <a href="#faculty" class="hover:text-blue-400 transition-colors">Faculty</a>
+      <a href="#events" class="hover:text-blue-400 transition-colors">Events</a>
+      <a href="#placements" class="hover:text-blue-400 transition-colors">Placements</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <a href="#contact" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-all hover:scale-105">
+        Apply Admissions <i class="fa-solid fa-arrow-right ml-1.5"></i>
+      </a>
+    </div>
   </div>
-  <nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 14px; font-weight: 600; color: #cbd5e1;">
-    <a href="#about" style="color: #cbd5e1; text-decoration: none;">About</a>
-    <a href="#courses" style="color: #cbd5e1; text-decoration: none;">Academics</a>
-    <a href="#faculty" style="color: #cbd5e1; text-decoration: none;">Faculty</a>
-    <a href="#events" style="color: #cbd5e1; text-decoration: none;">Events</a>
-    <a href="#contact" style="color: #cbd5e1; text-decoration: none;">Contact</a>
-  </nav>
-  <button style="padding: 10px 20px; background: #3b82f6; color: #ffffff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">Apply Admissions</button>
-</section>`,
+</header>`,
   },
   {
     id: "preset-hero",
@@ -69,13 +80,26 @@ const PRESET_SECTION_TEMPLATES = [
     category: "hero",
     icon: "🖼️",
     subtitle: "Main lead banner, masthead, and headline CTA for the top of the page.",
-    code: `<section style="padding: 80px 32px; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; text-align: center; border-radius: 16px; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <span style="display: inline-block; padding: 6px 16px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(129, 140, 248, 0.4); color: #c7d2fe; font-size: 12px; font-weight: 700; border-radius: 999px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">Admissions Open 2026-2027</span>
-  <h1 style="font-size: 42px; font-weight: 900; margin: 0 0 16px 0; line-height: 1.2; letter-spacing: -0.02em;">Empowering Future Leaders & Engineers</h1>
-  <p style="font-size: 18px; color: #94a3b8; max-width: 680px; margin: 0 auto 32px auto; line-height: 1.6;">Join a premier institution dedicated to academic excellence, innovation, cutting-edge research, and top global career placements.</p>
-  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
-    <button style="padding: 14px 28px; background: #6366f1; color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);">Explore Programs</button>
-    <button style="padding: 14px 28px; background: rgba(255, 255, 255, 0.08); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer;">Virtual Tour</button>
+    code: `<section class="relative w-full py-24 px-6 bg-slate-950 overflow-hidden text-white font-sans border-b border-slate-800/80">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] pointer-events-none"></div>
+  <div class="max-w-5xl mx-auto text-center relative z-10 space-y-6">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider">
+      <i class="fa-solid fa-sparkles"></i> Admissions Open 2026-2027
+    </div>
+    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
+      Empowering World-Class <span class="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Engineers & Leaders</span>
+    </h1>
+    <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-normal leading-relaxed">
+      Transforming education through cutting-edge AI research labs, industry mentorship, and top global career placements.
+    </p>
+    <div class="flex flex-wrap justify-center items-center gap-4 pt-4">
+      <a href="#courses" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm shadow-xl shadow-blue-600/30 hover:scale-105 transition-all">
+        Explore Degree Programs <i class="fa-solid fa-compass ml-2"></i>
+      </a>
+      <a href="#contact" class="px-8 py-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 font-bold text-sm hover:bg-slate-800 hover:text-white transition-all">
+        Download Prospectus <i class="fa-solid fa-file-pdf ml-2 text-rose-400"></i>
+      </a>
+    </div>
   </div>
 </section>`,
   },
@@ -85,15 +109,43 @@ const PRESET_SECTION_TEMPLATES = [
     category: "about",
     icon: "ℹ️",
     subtitle: "College history, mission statement, leadership quote, and campus overview.",
-    code: `<section style="padding: 64px 32px; background: #09090b; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <div style="max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 40px; align-items: center;">
-    <div style="flex: 1 1 400px;">
-      <span style="color: #38bdf8; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">ABOUT INSTITUTION</span>
-      <h2 style="font-size: 34px; font-weight: 900; margin: 12px 0 16px 0;">Legacy of Educational Excellence Since 1985</h2>
-      <p style="color: #a1a1aa; font-size: 15px; line-height: 1.7; margin-bottom: 20px;">Our campus spans over 150 acres with state-of-the-art infrastructure, world-class research centers, and a diverse community of passionate learners.</p>
-      <div style="display: flex; gap: 24px;">
-        <div><h4 style="font-size: 24px; font-weight: 900; margin: 0; color: #38bdf8;">40+</h4><p style="font-size: 12px; color: #71717a; margin: 0;">Years Heritage</p></div>
-        <div><h4 style="font-size: 24px; font-weight: 900; margin: 0; color: #a855f7;">NAAC A++</h4><p style="font-size: 12px; color: #71717a; margin: 0;">Accreditation</p></div>
+    code: `<section class="w-full py-20 px-6 bg-slate-900/60 border-b border-slate-800/80 text-white font-sans">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+    <div class="space-y-5">
+      <span class="text-xs font-black uppercase tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full">
+        About Institution
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+        40+ Years of Academic Heritage & Technological Innovation
+      </h2>
+      <p class="text-slate-400 text-sm leading-relaxed">
+        Established in 1985, our institute spans over 150 acres equipped with modern research parks, digital libraries, and advanced robotics labs to cultivate future global innovators.
+      </p>
+      <div class="grid grid-cols-2 gap-4 pt-2">
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="text-2xl font-black text-blue-400">150+ Acres</div>
+          <div class="text-xs text-slate-400 font-medium mt-1">Smart Eco Campus</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="text-2xl font-black text-purple-400">NAAC A++</div>
+          <div class="text-xs text-slate-400 font-medium mt-1">Highest Accreditation</div>
+        </div>
+      </div>
+    </div>
+    <div class="relative">
+      <div class="rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950 p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl font-bold">
+            <i class="fa-solid fa-quote-left"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-white text-sm">Director's Vision</h4>
+            <p class="text-xs text-slate-400">Prof. K. R. Sundaram</p>
+          </div>
+        </div>
+        <p class="text-slate-300 text-xs italic leading-relaxed">
+          "Our mission is to empower every student with practical engineering knowledge, ethical values, and global industry opportunities."
+        </p>
       </div>
     </div>
   </div>
@@ -105,23 +157,40 @@ const PRESET_SECTION_TEMPLATES = [
     category: "courses",
     icon: "🎓",
     subtitle: "Degree programs, department grid, curriculum accordion, and course catalog.",
-    code: `<section style="padding: 64px 32px; background: #0f172a; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <div style="text-align: center; max-width: 600px; margin: 0 auto 40px auto;">
-    <h2 style="font-size: 32px; font-weight: 800; margin: 0 0 12px 0;">Academic Programs</h2>
-    <p style="color: #94a3b8; font-size: 15px; margin: 0;">Comprehensive undergraduate and postgraduate degree courses designed for modern careers.</p>
-  </div>
-  <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;">
-    <div style="flex: 1 1 280px; max-width: 360px; padding: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155;">
-      <span style="font-size: 12px; font-weight: 800; color: #38bdf8;">B.TECH / B.E.</span>
-      <h3 style="font-size: 20px; font-weight: 800; margin: 8px 0;">Computer Science & Engineering</h3>
-      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">AI, Machine Learning, Cloud Computing, Cyber Security & Data Science.</p>
-      <span style="font-size: 12px; font-weight: 700; color: #cbd5e1;">4 Years • Full Time</span>
+    code: `<section class="w-full py-20 px-6 bg-slate-950 border-b border-slate-800/80 text-white font-sans">
+  <div class="max-w-6xl mx-auto space-y-12">
+    <div class="text-center max-w-2xl mx-auto space-y-3">
+      <span class="text-xs font-black uppercase tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full">
+        Academic Programs
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Industry-Focused Degree Offerings</h2>
+      <p class="text-slate-400 text-sm">Undergraduate & postgraduate engineering curricula tailored for modern technology careers.</p>
     </div>
-    <div style="flex: 1 1 280px; max-width: 360px; padding: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155;">
-      <span style="font-size: 12px; font-weight: 800; color: #a855f7;">MANAGEMENT</span>
-      <h3 style="font-size: 20px; font-weight: 800; margin: 8px 0;">Master of Business Admin (MBA)</h3>
-      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">Finance, Marketing, Analytics, Operations & Entrepreneurship.</p>
-      <span style="font-size: 12px; font-weight: 700; color: #cbd5e1;">2 Years • Full Time</span>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 space-y-4 group">
+        <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xl font-bold group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <span class="text-[10px] font-black uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md">B.Tech • 4 Years</span>
+        <h3 class="text-lg font-bold text-white">Computer Science & AI</h3>
+        <p class="text-slate-400 text-xs leading-relaxed">Specializations in Artificial Intelligence, Neural Networks, Cloud Systems, and Full-Stack Engineering.</p>
+      </div>
+      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-purple-500/50 transition-all duration-300 space-y-4 group">
+        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl font-bold group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md">B.Tech • 4 Years</span>
+        <h3 class="text-lg font-bold text-white">Robotics & Automation</h3>
+        <p class="text-slate-400 text-xs leading-relaxed">Mechatronics, Autonomous Drones, Industrial IoT, and Advanced Sensors Laboratory training.</p>
+      </div>
+      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition-all duration-300 space-y-4 group">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl font-bold group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">MBA • 2 Years</span>
+        <h3 class="text-lg font-bold text-white">Business Analytics & Tech</h3>
+        <p class="text-slate-400 text-xs leading-relaxed">Financial Engineering, Tech Product Management, Operations, and Entrepreneurship Incubator.</p>
+      </div>
     </div>
   </div>
 </section>`,
@@ -132,17 +201,40 @@ const PRESET_SECTION_TEMPLATES = [
     category: "faculty",
     icon: "👥",
     subtitle: "Professors, department heads, research scholars, and faculty grid.",
-    code: `<section style="padding: 64px 32px; background: #09090b; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <div style="text-align: center; max-width: 600px; margin: 0 auto 40px auto;">
-    <h2 style="font-size: 32px; font-weight: 800; margin: 0 0 12px 0;">Distinguished Faculty</h2>
-    <p style="color: #a1a1aa; font-size: 15px; margin: 0;">Learn from internationally acclaimed professors and leading industry researchers.</p>
-  </div>
-  <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;">
-    <div style="flex: 1 1 260px; max-width: 320px; padding: 24px; background: #18181b; border: 1px solid #27272a; border-radius: 14px; text-align: center;">
-      <div style="width: 72px; height: 72px; background: #27272a; border-radius: 999px; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 28px;">👨‍🏫</div>
-      <h3 style="font-size: 18px; font-weight: 800; margin: 0 0 4px 0;">Dr. Rajesh Raman PhD</h3>
-      <p style="color: #38bdf8; font-size: 12px; font-weight: 700; margin: 0 0 8px 0;">Head of Computer Science</p>
-      <p style="color: #a1a1aa; font-size: 13px; margin: 0;">Former IIT Senior Fellow, 20+ Research Patents in AI Systems.</p>
+    code: `<section class="w-full py-20 px-6 bg-slate-900/40 border-b border-slate-800/80 text-white font-sans">
+  <div class="max-w-6xl mx-auto space-y-12">
+    <div class="text-center max-w-2xl mx-auto space-y-3">
+      <span class="text-xs font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
+        Expert Faculty
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Acclaimed Mentors & Scholars</h2>
+      <p class="text-slate-400 text-sm">Learn directly from internationally recognized researchers and former tech leaders.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-3xl bg-slate-950 border border-slate-800 text-center space-y-3">
+        <div class="w-20 h-20 rounded-full bg-slate-800 border-2 border-amber-500/40 mx-auto flex items-center justify-center text-2xl text-amber-400 font-bold">
+          <i class="fa-solid fa-user-tie"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">Dr. Rajesh Raman, PhD</h3>
+        <p class="text-xs text-amber-400 font-semibold">Head of Computer Science</p>
+        <p class="text-slate-400 text-xs">Ex-IIT Senior Fellow • 22 AI System Patents</p>
+      </div>
+      <div class="p-6 rounded-3xl bg-slate-950 border border-slate-800 text-center space-y-3">
+        <div class="w-20 h-20 rounded-full bg-slate-800 border-2 border-blue-500/40 mx-auto flex items-center justify-center text-2xl text-blue-400 font-bold">
+          <i class="fa-solid fa-user-doctor"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">Dr. Anita Deshmukh</h3>
+        <p class="text-xs text-blue-400 font-semibold">Dean of Robotics & AI</p>
+        <p class="text-slate-400 text-xs">PhD Stanford University • IEEE Senior Member</p>
+      </div>
+      <div class="p-6 rounded-3xl bg-slate-950 border border-slate-800 text-center space-y-3">
+        <div class="w-20 h-20 rounded-full bg-slate-800 border-2 border-emerald-500/40 mx-auto flex items-center justify-center text-2xl text-emerald-400 font-bold">
+          <i class="fa-solid fa-user-gear"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">Prof. Vikram Malhotra</h3>
+        <p class="text-xs text-emerald-400 font-semibold">Director of Innovation Cell</p>
+        <p class="text-slate-400 text-xs">Former Tech VP • Startup Accelerator Mentor</p>
+      </div>
     </div>
   </div>
 </section>`,
@@ -153,16 +245,38 @@ const PRESET_SECTION_TEMPLATES = [
     category: "events",
     icon: "📅",
     subtitle: "Upcoming campus events, academic calendar, and campus news highlights.",
-    code: `<section style="padding: 64px 32px; background: #0f172a; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <div style="text-align: center; max-width: 600px; margin: 0 auto 40px auto;">
-    <h2 style="font-size: 32px; font-weight: 800; margin: 0 0 12px 0;">Campus Events & News</h2>
-    <p style="color: #94a3b8; font-size: 15px; margin: 0;">Stay updated with upcoming symposiums, hackathons, and cultural fests.</p>
-  </div>
-  <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;">
-    <div style="flex: 1 1 300px; max-width: 400px; padding: 24px; background: #1e293b; border-radius: 12px; border: 1px solid #334155;">
-      <span style="background: #3b82f6; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase;">MAR 15, 2026</span>
-      <h3 style="font-size: 18px; font-weight: 800; margin: 12px 0 8px 0;">National AI & Robotics Hackathon 2026</h3>
-      <p style="color: #94a3b8; font-size: 13px; margin: 0;">48-hour continuous coding championship with cash prizes worth ₹5 Lakhs.</p>
+    code: `<section class="w-full py-20 px-6 bg-slate-950 border-b border-slate-800/80 text-white font-sans">
+  <div class="max-w-6xl mx-auto space-y-12">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <span class="text-xs font-black uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+          Campus Life
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-3">Upcoming Events & Highlights</h2>
+      </div>
+      <a href="#events" class="text-xs font-bold text-emerald-400 hover:underline">View Full Academic Calendar →</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex gap-4 items-start">
+        <div class="px-4 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center shrink-0">
+          <span class="text-xl font-black text-emerald-400 block">15</span>
+          <span class="text-[10px] font-bold text-slate-400 uppercase">MAR</span>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-base font-bold text-white">National AI & Robotics Hackathon 2026</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">48-hour continuous coding championship with cash prizes worth ₹5 Lakhs.</p>
+        </div>
+      </div>
+      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex gap-4 items-start">
+        <div class="px-4 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-center shrink-0">
+          <span class="text-xl font-black text-blue-400 block">28</span>
+          <span class="text-[10px] font-bold text-slate-400 uppercase">MAR</span>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-base font-bold text-white">Global Industry Conclave & Career Fair</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">Over 80 Fortune 500 company leaders visiting campus for placement interviews.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>`,
@@ -173,28 +287,36 @@ const PRESET_SECTION_TEMPLATES = [
     category: "contact",
     icon: "✉️",
     subtitle: "Campus address, interactive location map, contact form, and helpline numbers.",
-    code: `<section style="padding: 64px 32px; background: #09090b; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <div style="display: flex; flex-wrap: wrap; gap: 40px; justify-content: space-between;">
-    <div style="flex: 1 1 300px;">
-      <h2 style="font-size: 30px; font-weight: 800; margin: 0 0 16px 0;">Get in Touch</h2>
-      <p style="color: #a1a1aa; font-size: 15px; margin-bottom: 28px; line-height: 1.6;">Have questions about admissions or programs? Send us a message and our counselor will reach out.</p>
-      <div style="font-size: 14px; color: #e4e4e7;">
-        <p style="margin: 8px 0;">📍 <strong>Address:</strong> 100 College Road, Academic Zone, Chennai 600028</p>
-        <p style="margin: 8px 0;">📞 <strong>Phone:</strong> +91 44 2490 0000 / +91 98400 12345</p>
-        <p style="margin: 8px 0;">✉️ <strong>Email:</strong> admissions@college.edu.in</p>
+    code: `<section class="w-full py-20 px-6 bg-slate-900/50 border-b border-slate-800/80 text-white font-sans">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div class="space-y-6">
+      <span class="text-xs font-black uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full">
+        Admissions Desk
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Get in Touch with Admissions</h2>
+      <p class="text-slate-400 text-sm leading-relaxed">Have questions about eligibility, fee structures, or campus hostels? Reach out to our team.</p>
+      <div class="space-y-3 text-xs text-slate-300">
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+          <i class="fa-solid fa-location-dot text-rose-400 text-base"></i>
+          <span>100 College Road, Academic Zone, Chennai 600028</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+          <i class="fa-solid fa-phone text-blue-400 text-base"></i>
+          <span>+91 44 2490 0000 / +91 98400 12345</span>
+        </div>
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
+          <i class="fa-solid fa-envelope text-emerald-400 text-base"></i>
+          <span>admissions@college.edu.in</span>
+        </div>
       </div>
     </div>
-    <div style="flex: 1 1 320px; background: #18181b; padding: 32px; border-radius: 16px; border: 1px solid #27272a; box-sizing: border-box;">
-      <h3 style="font-size: 20px; font-weight: 700; margin: 0 0 20px 0;">Send Enquiry</h3>
-      <div style="margin-bottom: 16px;">
-        <label style="display: block; font-size: 12px; font-weight: 700; color: #a1a1aa; margin-bottom: 6px;">Full Name</label>
-        <input type="text" placeholder="John Doe" style="width: 100%; padding: 10px 14px; background: #09090b; border: 1px solid #3f3f46; border-radius: 8px; color: #fff; box-sizing: border-box;" />
-      </div>
-      <div style="margin-bottom: 16px;">
-        <label style="display: block; font-size: 12px; font-weight: 700; color: #a1a1aa; margin-bottom: 6px;">Email Address</label>
-        <input type="email" placeholder="john@example.com" style="width: 100%; padding: 10px 14px; background: #09090b; border: 1px solid #3f3f46; border-radius: 8px; color: #fff; box-sizing: border-box;" />
-      </div>
-      <button style="width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 8px;">Submit Request</button>
+    <div class="p-8 rounded-3xl bg-slate-950 border border-slate-800 space-y-4">
+      <h3 class="text-lg font-bold text-white">Send Admission Enquiry</h3>
+      <input type="text" placeholder="Full Name" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500" />
+      <input type="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500" />
+      <button class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-lg shadow-blue-600/30 transition-all cursor-pointer">
+        Submit Request <i class="fa-solid fa-paper-plane ml-1"></i>
+      </button>
     </div>
   </div>
 </section>`,
@@ -205,19 +327,28 @@ const PRESET_SECTION_TEMPLATES = [
     category: "placements",
     icon: "💼",
     subtitle: "Placement statistics, top recruiters, salary packages, and career cell info.",
-    code: `<section style="padding: 56px 32px; background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; color: #ffffff; font-family: system-ui, sans-serif; box-sizing: border-box; max-width: 100%;">
-  <div style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 32px; text-align: center;">
-    <div>
-      <div style="font-size: 36px; font-weight: 900; color: #34d399;">98%</div>
-      <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px; text-transform: uppercase;">Placement Rate</div>
+    code: `<section class="w-full py-20 px-6 bg-slate-950 text-white font-sans">
+  <div class="max-w-6xl mx-auto space-y-12 text-center">
+    <div class="space-y-3 max-w-2xl mx-auto">
+      <span class="text-xs font-black uppercase tracking-widest text-teal-400 bg-teal-500/10 border border-teal-500/20 px-3 py-1 rounded-full">
+        Career Excellence
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Unrivaled Placement Records</h2>
+      <p class="text-slate-400 text-sm">Over 250+ top global technology companies actively recruit from our campus every year.</p>
     </div>
-    <div>
-      <div style="font-size: 36px; font-weight: 900; color: #fbbf24;">48 LPA</div>
-      <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px; text-transform: uppercase;">Highest Package</div>
-    </div>
-    <div>
-      <div style="font-size: 36px; font-weight: 900; color: #38bdf8;">250+</div>
-      <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px; text-transform: uppercase;">Top Recruiters</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="text-4xl font-black text-emerald-400">98%</div>
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Placement Rate</div>
+      </div>
+      <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="text-4xl font-black text-amber-400">48 LPA</div>
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Highest Package</div>
+      </div>
+      <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="text-4xl font-black text-blue-400">250+</div>
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Top Recruiters</div>
+      </div>
     </div>
   </div>
 </section>`,
