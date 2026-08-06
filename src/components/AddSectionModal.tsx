@@ -8,60 +8,25 @@ interface AddSectionModalProps {
 }
 
 export const SECTION_TYPES_LIST = [
-  {
-    id: "header",
-    name: "Header & Navigation",
-    description: "Top navigation bar, college logo, menu links, and header call-to-action.",
-    icon: Layout,
-  },
-  {
-    id: "hero",
-    name: "Hero Banner",
-    description: "Main lead banner, masthead, and headline CTA for the top of the page.",
-    icon: Layout,
-  },
-  {
-    id: "about",
-    name: "About Us",
-    description: "College history, mission statement, leadership quote, and campus overview.",
-    icon: Info,
-  },
-  {
-    id: "courses",
-    name: "Academics & Courses",
-    description: "Degree programs, department grid, curriculum accordion, and course catalog.",
-    icon: GraduationCap,
-  },
-  {
-    id: "faculty",
-    name: "Faculty Roster",
-    description: "Professors, department heads, research scholars, and faculty grid.",
-    icon: Users,
-  },
-  {
-    id: "events",
-    name: "Events & News",
-    description: "Upcoming campus events, academic calendar, and campus news highlights.",
-    icon: Calendar,
-  },
-  {
-    id: "contact",
-    name: "Contact & Map",
-    description: "Campus address, interactive location map, contact form, and helpline numbers.",
-    icon: Mail,
-  },
-  {
-    id: "placements",
-    name: "Placements & Careers",
-    description: "Placement statistics, top recruiters, salary packages, and career cell info.",
-    icon: Briefcase,
-  },
-  {
-    id: "scholarships",
-    name: "Scholarships & Grants",
-    description: "Financial aid, merit scholarships, eligibility criteria, and application links.",
-    icon: Award,
-  },
+  { id: "header", name: "Navbar / Header", description: "Top navigation bar with logo, menu links & action buttons", icon: Layout },
+  { id: "hero", name: "Hero Banner", description: "Lead banner, masthead & main title headline", icon: Layout },
+  { id: "highlights", name: "College Highlights / Stats", description: "Rankings, accreditation badges, key stats & active student count", icon: Award },
+  { id: "about", name: "About College", description: "College history, overview & leadership message", icon: Info },
+  { id: "vision", name: "Vision & Mission Statement", description: "Institutional core values, vision & long-term goals", icon: Info },
+  { id: "courses", name: "Courses / Programs Offered", description: "UG, PG & Ph.D degree programs catalog", icon: GraduationCap },
+  { id: "departments", name: "Academic Departments", description: "Engineering, Science, Arts & Business faculties", icon: GraduationCap },
+  { id: "admission", name: "Admission Section", description: "Eligibility criteria, fee structure & apply online form", icon: GraduationCap },
+  { id: "placements", name: "Placement & Top Recruiters", description: "Highest package stats & top hiring companies", icon: Briefcase },
+  { id: "facilities", name: "Campus Facilities / Infrastructure", description: "Library, hostels, sports complex & labs", icon: Layout },
+  { id: "research", name: "Research & Innovation Labs", description: "Patents, R&D labs & published research papers", icon: Layout },
+  { id: "news", name: "News & Announcement Circulars", description: "Official circulars, notices & campus news", icon: Calendar },
+  { id: "events", name: "Upcoming Campus Events", description: "Cultural fests, symposiums & workshops calendar", icon: Calendar },
+  { id: "gallery", name: "Gallery / Campus Life", description: "Photo gallery, campus infrastructure & student life", icon: Layout },
+  { id: "testimonials", name: "Student Testimonials / Alumni", description: "Alumni reviews, student experiences & video feedback", icon: Users },
+  { id: "awards", name: "Achievements & Awards", description: "National awards, sports trophies & rankings", icon: Award },
+  { id: "contact", name: "Contact / Inquiry Form", description: "Admissions helpdesk, address & inquiry form", icon: Mail },
+  { id: "map", name: "Map & Location", description: "Interactive campus map, directions & transportation", icon: Mail },
+  { id: "footer", name: "Footer", description: "Bottom copyright, quick links & social icons", icon: Layout },
 ];
 
 export function AddSectionModal({

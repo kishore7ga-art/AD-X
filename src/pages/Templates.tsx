@@ -74,15 +74,25 @@ const STUDIO_PALETTES = [
 ];
 
 const SECTION_CATEGORIES_GRID = [
-  { id: "header", name: "Header & Navigation", description: "Top navbar, campus logo, navigation links & CTA" },
-  { id: "hero", name: "Hero Banner", description: "Lead banner & title headline" },
-  { id: "about", name: "About Us", description: "History, vision & mission statement" },
-  { id: "courses", name: "Academics & Courses", description: "Degree programs & department grid" },
-  { id: "faculty", name: "Faculty Roster", description: "Professors & department heads" },
-  { id: "events", name: "Events & News", description: "Upcoming campus events & highlights" },
-  { id: "contact", name: "Contact & Map", description: "Campus address, helpline & map" },
-  { id: "placements", name: "Placements & Careers", description: "Recruiters & placement stats" },
-  { id: "scholarships", name: "Scholarships & Grants", description: "Financial aid & merit awards" },
+  { id: "header", name: "Navbar / Header", description: "Top navigation bar with logo, menu links & action buttons" },
+  { id: "hero", name: "Hero Banner", description: "Lead banner, masthead & main title headline" },
+  { id: "highlights", name: "College Highlights / Stats", description: "Rankings, accreditation badges, key stats & active student count" },
+  { id: "about", name: "About College", description: "College history, overview & leadership message" },
+  { id: "vision", name: "Vision & Mission Statement", description: "Institutional core values, vision & long-term goals" },
+  { id: "courses", name: "Courses / Programs Offered", description: "UG, PG & Ph.D degree programs catalog" },
+  { id: "departments", name: "Academic Departments", description: "Engineering, Science, Arts & Business faculties" },
+  { id: "admission", name: "Admission Section", description: "Eligibility criteria, fee structure & apply online form" },
+  { id: "placements", name: "Placement & Top Recruiters", description: "Highest package stats & top hiring companies" },
+  { id: "facilities", name: "Campus Facilities / Infrastructure", description: "Library, hostels, sports complex & labs" },
+  { id: "research", name: "Research & Innovation Labs", description: "Patents, R&D labs & published research papers" },
+  { id: "news", name: "News & Announcement Circulars", description: "Official circulars, notices & campus news" },
+  { id: "events", name: "Upcoming Campus Events", description: "Cultural fests, symposiums & workshops calendar" },
+  { id: "gallery", name: "Gallery / Campus Life", description: "Photo gallery, campus infrastructure & student life" },
+  { id: "testimonials", name: "Student Testimonials / Alumni", description: "Alumni reviews, student experiences & video feedback" },
+  { id: "awards", name: "Achievements & Awards", description: "National awards, sports trophies & rankings" },
+  { id: "contact", name: "Contact / Inquiry Form", description: "Admissions helpdesk, address & inquiry form" },
+  { id: "map", name: "Map & Location", description: "Interactive campus map, directions & transportation" },
+  { id: "footer", name: "Footer", description: "Bottom copyright, quick links & social icons" },
 ];
 
 export function Templates() {
