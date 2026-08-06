@@ -207,9 +207,13 @@ export function Requests() {
                     >
                       {req.status}
                     </span>
-                    {req.hasPassword && (
+                    {req.hasPassword ? (
                       <span className="inline-flex items-center rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-0.5 text-[10px] font-bold">
                         🔑 Password set
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-slate-800 text-slate-400 border border-slate-700/50 px-2.5 py-0.5 text-[10px] font-bold">
+                        ⚡ Default password
                       </span>
                     )}
                   </div>
