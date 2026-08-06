@@ -27,7 +27,64 @@ export function TemplateEdit() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [optSuccess, setOptSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewWidth, setPreviewWidth] = useState<string>("100%");
+
+  // Auto-Resolution Code Optimizer
+  const handleAutoResolutionOptimize = () => {
+    let currentCode = code;
+    const responsiveStyles = `
+<style id="auto-responsive-styles">
+  * { box-sizing: border-box !important; }
+  img, video, iframe, canvas, svg { max-width: 100% !important; height: auto !important; }
+  section, div, header, footer, nav, article { max-width: 100% !important; box-sizing: border-box !important; }
+  @media (max-width: 1024px) {
+    .grid-cols-4, [style*="grid-template-columns: repeat(4"], [style*="grid-template-columns:repeat(4"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+  @media (max-width: 768px) {
+    section, header, footer { padding-left: 20px !important; padding-right: 20px !important; }
+    h1 { font-size: clamp(28px, 6vw, 42px) !important; line-height: 1.2 !important; }
+    h2 { font-size: clamp(22px, 5vw, 32px) !important; }
+    h3 { font-size: clamp(18px, 4vw, 24px) !important; }
+    .grid, [style*="display: grid"], [style*="display:grid"] {
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+    }
+    div[style*="display: flex"], header[style*="display: flex"], nav[style*="display: flex"] {
+      flex-wrap: wrap !important;
+    }
+  }
+  @media (max-width: 480px) {
+    section, header, footer { padding-left: 14px !important; padding-right: 14px !important; }
+    h1 { font-size: 26px !important; }
+    button, a[style*="display: inline"], a[style*="display: block"] {
+      width: 100% !important;
+      text-align: center !important;
+      justify-content: center !important;
+    }
+  }
+</style>
+`;
+
+    if (!currentCode.includes("auto-responsive-styles")) {
+      if (currentCode.includes("</section>")) {
+        currentCode = currentCode.replace("</section>", `</section>\n${responsiveStyles}`);
+      } else if (currentCode.includes("</footer>")) {
+        currentCode = currentCode.replace("</footer>", `</footer>\n${responsiveStyles}`);
+      } else if (currentCode.includes("</header>")) {
+        currentCode = currentCode.replace("</header>", `</header>\n${responsiveStyles}`);
+      } else {
+        currentCode = `${currentCode}\n${responsiveStyles}`;
+      }
+    }
+
+    setCode(currentCode);
+    setOptSuccess(true);
+    setTimeout(() => setOptSuccess(false), 3500);
+  };
 
   // Load existing template data
   useEffect(() => {
@@ -135,14 +192,24 @@ export function TemplateEdit() {
             </div>
           </div>
 
-          <button
-            onClick={() => void handleSave()}
-            disabled={saving}
-            className="flex items-center gap-2 bg-white text-black hover:bg-neutral-200 font-black text-xs px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
-            <span>{saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleAutoResolutionOptimize}
+              className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer"
+              title="Automatically optimize code layout & responsive CSS rules for Desktop, Tablet, and Mobile devices"
+            >
+              <span>⚡ Auto Resolution Code Edit</span>
+            </button>
+
+            <button
+              onClick={() => void handleSave()}
+              disabled={saving}
+              className="flex items-center gap-2 bg-white text-black hover:bg-neutral-200 font-black text-xs px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              <span>{saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}</span>
+            </button>
+          </div>
         </div>
 
         {/* Error / Success Banners */}
@@ -152,6 +219,14 @@ export function TemplateEdit() {
             <span>{error}</span>
           </div>
         )}
+
+        {optSuccess && (
+          <div className="p-4 rounded-xl bg-amber-950/60 border border-amber-800 text-amber-300 text-xs font-bold flex items-center gap-2 animate-bounce">
+            <CheckCircle className="w-4 h-4 text-amber-400" />
+            <span>⚡ Section code auto-optimized with fluid responsive rules for Desktop (1200px), Tablet (768px), and Mobile (375px)!</span>
+          </div>
+        )}
+
         {saveSuccess && (
           <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs font-bold flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-emerald-400" />
@@ -213,22 +288,56 @@ export function TemplateEdit() {
 
           {/* Left Side: Live Preview Canvas */}
           <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-            <div className="p-3 border-b border-white/10 bg-neutral-900 flex items-center justify-between">
+            <div className="p-3 border-b border-white/10 bg-neutral-900 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Eye className="w-4 h-4 text-white" />
                 <span className="text-xs font-extrabold text-white tracking-wide uppercase">Live Section Preview</span>
               </div>
-              <span className="text-[10px] font-mono text-neutral-400 bg-black px-2 py-0.5 rounded border border-neutral-800">
-                REAL-TIME RENDER
-              </span>
+              
+              {/* Device Resolution Switcher */}
+              <div className="flex items-center gap-1 bg-black p-1 rounded-xl border border-neutral-800">
+                <button
+                  type="button"
+                  onClick={() => setPreviewWidth("100%")}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    previewWidth === "100%" ? "bg-neutral-800 text-white font-extrabold" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  🖥️ Desktop (1200px)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewWidth("768px")}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    previewWidth === "768px" ? "bg-neutral-800 text-white font-extrabold" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  📱 Tablet (768px)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewWidth("375px")}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    previewWidth === "375px" ? "bg-neutral-800 text-white font-extrabold" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  📱 Mobile (375px)
+                </button>
+              </div>
             </div>
-            <div className="flex-1 bg-black p-4 overflow-auto flex items-center justify-center min-h-[400px]">
-              <iframe
-                title="Section Preview"
-                srcDoc={code}
-                className="w-full h-full min-h-[400px] rounded-xl bg-black border border-neutral-900"
-                sandbox="allow-scripts"
-              />
+            
+            <div className="flex-1 bg-neutral-900 p-4 overflow-auto flex items-center justify-center min-h-[420px] transition-all">
+              <div
+                style={{ width: previewWidth, maxWidth: "100%" }}
+                className="h-full min-h-[400px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-neutral-800 overflow-hidden"
+              >
+                <iframe
+                  title="Section Preview"
+                  srcDoc={code}
+                  className="w-full h-full min-h-[400px] bg-black"
+                  sandbox="allow-scripts"
+                />
+              </div>
             </div>
           </div>
 
@@ -239,12 +348,13 @@ export function TemplateEdit() {
                 <FileCode className="w-4 h-4 text-white" />
                 <span className="text-xs font-extrabold text-white tracking-wide uppercase">Section Source Code</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-neutral-400">
-                  {code ? `${code.length.toLocaleString()} chars` : "0 chars"}
-                </span>
-                <span className="text-[10px] font-mono text-emerald-400">EDITABLE</span>
-              </div>
+              <button
+                type="button"
+                onClick={handleAutoResolutionOptimize}
+                className="text-[10px] font-black uppercase tracking-wider text-amber-300 bg-amber-500/20 border border-amber-500/40 px-2.5 py-1 rounded-lg hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
+              >
+                ⚡ Auto Resolution Code Edit
+              </button>
             </div>
             <div className="flex-1 p-3 bg-black">
               <textarea
