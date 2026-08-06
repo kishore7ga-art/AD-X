@@ -8,6 +8,7 @@ export type AccessRequest = {
   id: string;
   name: string;
   email: string;
+  hasPassword?: boolean;
   collegeName?: string;
   subdomain?: string;
   role?: string;
@@ -44,7 +45,7 @@ export function Requests() {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.get<{ requests: AccessRequest[] }>("/api/v1/admin/access-requests");
+      const data = await api.get<{ requests: AccessRequest[] }>("/api/v1/admin/access-requests?status=ALL");
       setRequests(data.requests || []);
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Failed to load access requests";
@@ -59,28 +60,36 @@ export function Requests() {
     void fetchRequests();
   }, []);
 
-  const handleApprove = (id: string, name: string, email: string) => {
+  const handleApprove = (reqItem: AccessRequest) => {
+    const pwdNotice = reqItem.hasPassword
+      ? "User set a custom password during registration. Approving will activate their account with their requested password."
+      : "No custom password was set by user. Default initial password 'college123' will be set.";
+
     setModalConfig({
       isOpen: true,
       type: "confirm",
       variant: "success",
-      title: `Approve Access for ${name}?`,
-      message: `Are you sure you want to approve and activate the access request for ${name} (${email})?`,
+      title: `Approve Access for ${reqItem.name}?`,
+      message: `Are you sure you want to approve and activate the access request for ${reqItem.name} (${reqItem.email})?\n\n${pwdNotice}`,
       confirmText: "Approve & Activate",
       cancelText: "Cancel",
       onCancel: () => setModalConfig(null),
       onConfirm: async () => {
         setModalConfig(null);
         try {
-          setProcessingId(id);
+          setProcessingId(reqItem.id);
           await api.post<{ approved: boolean }>(
-            `/api/v1/admin/access-requests/${id}/approve`,
+            `/api/v1/admin/access-requests/${reqItem.id}/approve`,
             {}
           );
           setRequests((prev) =>
-            prev.map((r) => (r.id === id ? { ...r, status: "APPROVED" } : r))
+            prev.map((r) => (r.id === reqItem.id ? { ...r, status: "APPROVED" } : r))
           );
-          showAlert("Access Approved!", `Account activated for ${name} (${email}). User can now log in.`, "success");
+          showAlert(
+            "Access Approved!",
+            `Account activated for ${reqItem.name} (${reqItem.email}). User can now log in using their password!`,
+            "success"
+          );
         } catch (err) {
           showAlert("Approval Failed", err instanceof ApiError ? err.message : "Failed to approve request", "danger");
         } finally {
@@ -198,6 +207,11 @@ export function Requests() {
                     >
                       {req.status}
                     </span>
+                    {req.hasPassword && (
+                      <span className="inline-flex items-center rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-0.5 text-[10px] font-bold">
+                        🔑 Password set
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-chalk-dim/70">
@@ -230,7 +244,7 @@ export function Requests() {
                       <button
                         type="button"
                         disabled={processingId === req.id}
-                        onClick={() => void handleApprove(req.id, req.name, req.email)}
+                        onClick={() => void handleApprove(req)}
                         className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-night transition hover:bg-emerald-400 disabled:opacity-50 shadow-md"
                       >
                         {processingId === req.id ? "Processing..." : "Accept (Approve)"}
