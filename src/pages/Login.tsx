@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { ShieldCheck, Lock, KeyRound, Eye, EyeOff, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
+import { ShieldCheck, Lock, Mail, KeyRound, Eye, EyeOff, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
 
 import { ApiError } from "@/api/client";
 import { useAuth } from "@/auth/AuthContext";
@@ -10,6 +10,7 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [needsToken, setNeedsToken] = useState(false);
@@ -43,7 +44,11 @@ export function Login() {
     setPending(true);
 
     try {
-      await signIn({ password, ...(token ? { token } : {}) });
+      await signIn({
+        ...(email.trim() ? { email: email.trim() } : {}),
+        password,
+        ...(token ? { token } : {}),
+      });
       navigate(destination, { replace: true });
     } catch (cause) {
       let message = "Sign-in failed";
@@ -99,7 +104,7 @@ export function Login() {
               Welcome Back
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-slate-400 font-medium">
-              Enter your master password to access the XITE control panel.
+              Enter your admin credentials to access the control panel.
             </p>
           </div>
 
@@ -128,6 +133,24 @@ export function Login() {
 
           {/* Form */}
           <form onSubmit={submit} className="mt-6 space-y-5">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                Admin Email (Optional)
+              </label>
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                  <Mail className="h-4 w-4" />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="username"
+                  placeholder="admin@xite.co.in"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950/80 py-3.5 pl-10 pr-4 text-sm font-medium text-white placeholder-slate-600 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+            </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
                 Master Password

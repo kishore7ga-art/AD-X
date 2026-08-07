@@ -33,7 +33,7 @@ type AuthState = {
   /** `undefined` while resolving, `null` for signed out. */
   admin: Admin | null | undefined;
   setup: Setup | null;
-  signIn: (input: { password: string; token?: string }) => Promise<void>;
+  signIn: (input: { email?: string; password: string; token?: string }) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
