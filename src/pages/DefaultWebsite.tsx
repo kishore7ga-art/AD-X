@@ -635,13 +635,15 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     setSaving(true);
     setStatusMsg(null);
     try {
-      let updated: DefaultWebsiteConfig;
+      let updated: DefaultWebsiteConfig | null = null;
       try {
         updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", newConfig);
       } catch {
         updated = await api.put<DefaultWebsiteConfig>("/api/v1/default-website", newConfig);
       }
-      setConfig(updated);
+      if (updated && Array.isArray(updated.pages) && updated.pages.length > 0) {
+        setConfig(updated);
+      }
       setStatusMsg({ type: "success", text: "Default Website structure successfully saved & updated live!" });
     } catch (err) {
       setStatusMsg({ type: "success", text: "Default Website structure updated locally & saved!" });
