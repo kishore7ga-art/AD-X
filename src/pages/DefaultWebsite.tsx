@@ -407,8 +407,8 @@ function extractStylesAndBody(rawCode: string): { headCss: string; headLinks: st
   return { headCss, headLinks, bodyHtml };
 }
 
-function matchesSlug(slugA: string, slugB: string): boolean {
-  if (!slugA || !slugB) return false;
+function matchesSlug(slugA?: string, slugB?: string): boolean {
+  if (!slugA || !slugB || typeof slugA !== "string" || typeof slugB !== "string") return false;
   const normA = slugA.trim().toLowerCase().replace(/^\/+/, "");
   const normB = slugB.trim().toLowerCase().replace(/^\/+/, "");
   return normA === normB;
@@ -755,7 +755,8 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     await persistConfig(updatedConfig);
   }
 
-  function getCategoryStyle(type: string) {
+  function getCategoryStyle(type?: string) {
+    if (!type || typeof type !== "string") return "bg-slate-500/10 text-slate-400 border-slate-500/20";
     const cat = SECTION_CATEGORIES.find((c) => c.id === type.toLowerCase());
     return cat?.bg || "bg-slate-500/10 text-slate-400 border-slate-500/20";
   }
@@ -868,13 +869,13 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="text-base font-extrabold text-chalk">{sec.title}</h4>
+                            <h4 className="text-base font-extrabold text-chalk">{sec?.title || "Untitled Section"}</h4>
                             <span
                               className={`rounded-md border px-2 py-0.5 font-mono text-[10px] font-extrabold uppercase ${getCategoryStyle(
-                                sec.sectionType
+                                sec?.sectionType
                               )}`}
                             >
-                              {sec.sectionType}
+                              {sec?.sectionType || "SECTION"}
                             </span>
                           </div>
                           <span className="text-[11px] text-chalk-dim/50">
