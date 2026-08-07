@@ -227,12 +227,14 @@ export function SectionAddStudio() {
               </div>
 
               {/* Device Resolution Switcher */}
-              <div className="flex items-center gap-1 bg-black p-1 rounded-xl border border-neutral-800">
+              <div className="flex items-center gap-1 bg-slate-950 p-1.5 rounded-full border border-slate-800 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setPreviewWidth("100%")}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                    previewWidth === "100%" ? "bg-neutral-800 text-white font-extrabold" : "text-neutral-400 hover:text-white"
+                  className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
+                    previewWidth === "100%"
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-md shadow-blue-600/30 scale-105 border border-blue-400/30"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                   }`}
                 >
                   🖥️ Desktop (1200px)
@@ -240,8 +242,10 @@ export function SectionAddStudio() {
                 <button
                   type="button"
                   onClick={() => setPreviewWidth("768px")}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                    previewWidth === "768px" ? "bg-neutral-800 text-white font-extrabold" : "text-neutral-400 hover:text-white"
+                  className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
+                    previewWidth === "768px"
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-md shadow-blue-600/30 scale-105 border border-blue-400/30"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                   }`}
                 >
                   📱 Tablet (768px)
@@ -249,8 +253,10 @@ export function SectionAddStudio() {
                 <button
                   type="button"
                   onClick={() => setPreviewWidth("375px")}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                    previewWidth === "375px" ? "bg-neutral-800 text-white font-extrabold" : "text-neutral-400 hover:text-white"
+                  className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
+                    previewWidth === "375px"
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-md shadow-blue-600/30 scale-105 border border-blue-400/30"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                   }`}
                 >
                   📱 Mobile (375px)
