@@ -295,40 +295,31 @@ export function TemplateEdit() {
               </div>
               
               {/* Device Resolution Switcher */}
-              <div className="flex items-center gap-1 bg-slate-950 p-1.5 rounded-full border border-slate-800 shadow-inner">
-                <button
-                  type="button"
-                  onClick={() => setPreviewWidth("100%")}
-                  className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
-                    previewWidth === "100%"
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-md shadow-blue-600/30 scale-105 border border-blue-400/30"
-                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                >
-                  🖥️ Desktop (1200px)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewWidth("768px")}
-                  className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
-                    previewWidth === "768px"
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-md shadow-blue-600/30 scale-105 border border-blue-400/30"
-                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                >
-                  📱 Tablet (768px)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewWidth("375px")}
-                  className={`text-[11px] font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
-                    previewWidth === "375px"
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-md shadow-blue-600/30 scale-105 border border-blue-400/30"
-                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                >
-                  📱 Mobile (375px)
-                </button>
+              <div className="flex items-center gap-1.5 bg-slate-950/95 p-2 px-3 rounded-full border border-slate-800/90 shadow-inner">
+                {[
+                  { label: "🖥️ Desktop (1200px)", width: "100%" },
+                  { label: "📱 Tablet (768px)", width: "768px" },
+                  { label: "📱 Mobile (375px)", width: "375px" },
+                ].map((item) => {
+                  const isActive = previewWidth === item.width;
+                  return (
+                    <button
+                      key={item.width}
+                      type="button"
+                      onClick={() => setPreviewWidth(item.width)}
+                      className={`relative text-[11px] font-bold px-3.5 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap active:scale-95 ${
+                        isActive
+                          ? "text-white font-extrabold"
+                          : "text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium"
+                      }`}
+                    >
+                      {isActive && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full shadow-md shadow-blue-600/30 border border-blue-400/30 pointer-events-none" />
+                      )}
+                      <span className="relative z-10">{item.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
             
