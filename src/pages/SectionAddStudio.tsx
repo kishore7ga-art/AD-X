@@ -5,14 +5,32 @@ import { Shell } from "@/components/Shell";
 import { api } from "@/api/client";
 
 const DEFAULT_STARTER_CODE = `<!-- Section Component: Hero Banner -->
-<section style="background: #000; color: #fff; padding: 80px 24px; text-align: center; font-family: system-ui, sans-serif;">
-  <div style="max-w: 800px; margin: 0 auto;">
-    <span style="border: 1px solid #333; padding: 6px 16px; border-radius: 9999px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #ccc;">Official Campus Portal</span>
-    <h1 style="font-size: 48px; font-weight: 900; margin-top: 24px; letter-spacing: -0.02em; line-height: 1.1;">Excellence in Higher Education & Innovation</h1>
-    <p style="font-size: 16px; color: #888; margin-top: 16px; line-height: 1.6;">Empowering minds, advancing research, and building leaders for tomorrow's challenges.</p>
-    <div style="margin-top: 32px; display: flex; justify-content: center; gap: 16px;">
-      <a href="#explore" style="background: #fff; color: #000; padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none;">Explore Programs</a>
-      <a href="#contact" style="border: 1px solid #333; color: #fff; padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none;">Contact Us</a>
+<section style="background: #ffffff; color: #0f172a; padding: 80px 24px 60px 24px; text-align: center; font-family: system-ui, sans-serif; width: 100%; box-sizing: border-box; border-bottom: 1px solid #e2e8f0;">
+  <div style="max-width: 960px; margin: 0 auto;">
+    <span style="background: #ffe4e6; border: 1px solid #f43f5e; color: #e11d48; padding: 6px 20px; border-radius: 9999px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block;">ADMISSIONS OPEN 2026–2027</span>
+    <h1 style="font-size: 56px; font-weight: 900; margin-top: 24px; line-height: 1.15; color: #0f172a; letter-spacing: -0.02em;">Empowering Minds, Shaping Tomorrow's Leaders</h1>
+    <p style="font-size: 18px; color: #64748b; margin-top: 20px; line-height: 1.6; max-width: 840px; margin-left: auto; margin-right: auto; font-weight: 500;">Join a world-class academic community dedicated to innovation, groundbreaking research, and personal growth. Discover over 120 undergraduate and graduate programs tailored for your future.</p>
+    <div style="margin-top: 36px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+      <a href="#admissions" style="background: #ef4444; color: #ffffff; padding: 14px 36px; border-radius: 12px; font-size: 15px; font-weight: 800; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4); display: inline-block;">Apply Now</a>
+      <a href="#courses" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px 36px; border-radius: 12px; font-size: 15px; font-weight: 800; text-decoration: none; display: inline-block;">Explore Programs</a>
+    </div>
+    <div style="margin-top: 60px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">#12</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">NATIONAL RANK</div>
+      </div>
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">120+</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">ACADEMIC MAJORS</div>
+      </div>
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">96%</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">GRADUATE PLACEMENT</div>
+      </div>
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">10:1</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">STUDENT-FACULTY RATIO</div>
+      </div>
     </div>
   </div>
 </section>`;

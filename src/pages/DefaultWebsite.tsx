@@ -91,25 +91,32 @@ const PRESET_SECTION_TEMPLATES = [
     category: "hero",
     icon: "🖼️",
     subtitle: "Main lead banner, masthead, and headline CTA for the top of the page.",
-    code: `<section class="relative w-full py-24 px-6 bg-slate-950 overflow-hidden text-white font-sans border-b border-slate-800/80">
-  <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] pointer-events-none"></div>
-  <div class="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider">
-      <i class="fa-solid fa-sparkles"></i> Admissions Open 2026-2027
+    code: `<section style="background: #ffffff; color: #0f172a; padding: 80px 24px 60px 24px; text-align: center; font-family: system-ui, sans-serif; width: 100%; box-sizing: border-box; border-bottom: 1px solid #e2e8f0;">
+  <div style="max-width: 960px; margin: 0 auto;">
+    <span style="background: #ffe4e6; border: 1px solid #f43f5e; color: #e11d48; padding: 6px 20px; border-radius: 9999px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block;">ADMISSIONS OPEN 2026–2027</span>
+    <h1 style="font-size: 56px; font-weight: 900; margin-top: 24px; line-height: 1.15; color: #0f172a; letter-spacing: -0.02em;">Empowering Minds, Shaping Tomorrow's Leaders</h1>
+    <p style="font-size: 18px; color: #64748b; margin-top: 20px; line-height: 1.6; max-width: 840px; margin-left: auto; margin-right: auto; font-weight: 500;">Join a world-class academic community dedicated to innovation, groundbreaking research, and personal growth. Discover over 120 undergraduate and graduate programs tailored for your future.</p>
+    <div style="margin-top: 36px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+      <a href="#admissions" style="background: #ef4444; color: #ffffff; padding: 14px 36px; border-radius: 12px; font-size: 15px; font-weight: 800; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4); display: inline-block;">Apply Now</a>
+      <a href="#courses" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px 36px; border-radius: 12px; font-size: 15px; font-weight: 800; text-decoration: none; display: inline-block;">Explore Programs</a>
     </div>
-    <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
-      Empowering World-Class <span class="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Engineers & Leaders</span>
-    </h1>
-    <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-normal leading-relaxed">
-      Transforming education through cutting-edge AI research labs, industry mentorship, and top global career placements.
-    </p>
-    <div class="flex flex-wrap justify-center items-center gap-4 pt-4">
-      <a href="#courses" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm shadow-xl shadow-blue-600/30 hover:scale-105 transition-all">
-        Explore Degree Programs <i class="fa-solid fa-compass ml-2"></i>
-      </a>
-      <a href="#contact" class="px-8 py-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 font-bold text-sm hover:bg-slate-800 hover:text-white transition-all">
-        Download Prospectus <i class="fa-solid fa-file-pdf ml-2 text-rose-400"></i>
-      </a>
+    <div style="margin-top: 60px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">#12</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">NATIONAL RANK</div>
+      </div>
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">120+</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">ACADEMIC MAJORS</div>
+      </div>
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">96%</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">GRADUATE PLACEMENT</div>
+      </div>
+      <div>
+        <div style="font-size: 28px; font-weight: 900; color: #0f172a;">10:1</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em;">STUDENT-FACULTY RATIO</div>
+      </div>
     </div>
   </div>
 </section>`,
