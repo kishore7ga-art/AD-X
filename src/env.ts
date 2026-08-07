@@ -18,6 +18,9 @@ const resolvedBase = (() => {
     window.location.hostname !== "localhost" &&
     window.location.hostname !== "127.0.0.1"
   ) {
+    if (window.location.hostname.includes("meetkishore.in")) {
+      return "https://api.meetkishore.in";
+    }
     if (!raw || raw.includes("localhost") || raw.includes("127.0.0.1")) {
       return "https://api.xite.co.in";
     }
