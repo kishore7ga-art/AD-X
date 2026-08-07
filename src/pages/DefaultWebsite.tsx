@@ -722,15 +722,47 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     });
   }
 
+  const cleanCanvasWrapperFromCode = (rawCode: string): string => {
+  if (!rawCode) return "";
+
+  let clean = rawCode;
+
+  // 1. Remove canvas containment <style> blocks
+  clean = clean.replace(/<style[^>]*>[\s\S]*?\.section-canvas-box[\s\S]*?<\/style>/gi, "");
+
+  // 2. Un-escape HTML entities if present (&lt;, &gt;, &amp;)
+  clean = clean.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+
+  // 3. Strip outer wrapper divs injected by canvas rendering
+  clean = clean.replace(/^<div[^>]*class="[^"]*(?:section-canvas-box|section-wrapper-container|items-center|overflow-hidden)[^"]*"[^>]*>([\s\S]*)<\/div>$/i, (_match, inner) => {
+    return inner ? inner.trim() : _match;
+  });
+
+  // 4. Strip nested wrapper divs containing [&>*:first-child] or section-canvas-box
+  clean = clean.replace(/<div[^>]*class="[^"]*\[&[^"]*"[^>]*>([\s\S]*?)<\/div>/gi, "$1");
+  clean = clean.replace(/<div[^>]*class="[^"]*section-canvas-box[^"]*"[^>]*>([\s\S]*?)<\/div>/gi, "$1");
+
+  // 5. Strip any top-level wrapper div with w-full overflow-hidden flex flex-col
+  clean = clean.replace(/^<div[^>]*class="[^"]*w-full overflow-hidden flex flex-col[^"]*"[^>]*>([\s\S]*)<\/div>$/i, "$1");
+
+  return clean.trim();
+};
+
   async function handleSaveEditSection() {
-    if (!editingSection) return;
-    const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
-    const { pageSlug, section, index } = editingSection;
+    if (!editingSection || !config) return;
+
+    const { pageSlug, index, section } = editingSection;
+    const currentConfig = config;
+
+    const sanitizedSection = {
+      ...section,
+      code: cleanCanvasWrapperFromCode(section.code),
+    };
 
     const updatedPages = currentConfig.pages.map((p) => {
       if (!matchesSlug(p.slug, pageSlug)) return p;
       const secs = [...p.sections];
-      secs[index] = section;
+      secs[index] = sanitizedSection;
       return { ...p, sections: secs };
     });
 
@@ -922,7 +954,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setEditingSection({ pageSlug: activeSlug, section: { ...sec }, index: idx })}
+                          onClick={() => setEditingSection({ pageSlug: activeSlug, section: { ...sec, code: cleanCanvasWrapperFromCode(sec.code) }, index: idx })}
                           className="rounded-lg bg-chalk px-4 py-1.5 text-xs font-black text-night transition hover:bg-chalk/90"
                         >
                           Edit Code
