@@ -78,11 +78,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (input: { password: string; token?: string }) => {
-      const { admin: signedIn } = await api.post<{ admin: Admin }>(
-        "/api/v1/admin/auth/login",
-        input,
-      );
-      setAdmin(signedIn);
+      let res: { admin: Admin };
+      try {
+        res = await api.post<{ admin: Admin }>("/api/v1/admin/auth/login", input);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 404) {
+          res = await api.post<{ admin: Admin }>("/api/v1/admin/login", input);
+        } else {
+          throw err;
+        }
+      }
+      setAdmin(res.admin);
     },
     [],
   );

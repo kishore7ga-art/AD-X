@@ -46,8 +46,16 @@ export function Login() {
       await signIn({ password, ...(token ? { token } : {}) });
       navigate(destination, { replace: true });
     } catch (cause) {
-      const message =
-        cause instanceof ApiError ? cause.message : "Sign-in failed";
+      let message = "Sign-in failed";
+      if (cause instanceof ApiError) {
+        message = cause.message;
+      } else if (cause instanceof Error) {
+        message = cause.message;
+      } else if (typeof cause === "string") {
+        message = cause;
+      } else if (cause && typeof cause === "object") {
+        message = (cause as { message?: string }).message || "Sign-in failed";
+      }
 
       const isRateLimit =
         (cause instanceof ApiError && cause.status === 429) ||
