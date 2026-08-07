@@ -659,9 +659,12 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   const activePage = activeConfig.pages.find((p) => matchesSlug(p.slug, activeSlug)) || activeConfig.pages[0];
 
   async function moveSection(index: number, direction: "up" | "down") {
-    if (!config || !activePage) return;
-    const targetSlug = activePage.slug;
-    const sections = [...activePage.sections];
+    const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
+    const targetPage = currentConfig.pages.find((p) => matchesSlug(p.slug, activeSlug)) || currentConfig.pages[0];
+    if (!targetPage) return;
+
+    const targetSlug = targetPage.slug;
+    const sections = [...targetPage.sections];
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     if (targetIdx < 0 || targetIdx >= sections.length) return;
 
@@ -677,17 +680,20 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
       sec.sortOrder = idx;
     });
 
-    const updatedPages = config.pages.map((p) =>
+    const updatedPages = currentConfig.pages.map((p) =>
       matchesSlug(p.slug, targetSlug) ? { ...p, sections } : p
     );
-    await persistConfig({ ...config, pages: updatedPages });
+    await persistConfig({ ...currentConfig, pages: updatedPages });
   }
 
   const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
 
   function removeSection(index: number) {
-    if (!config || !activePage) return;
-    const secTitle = activePage.sections[index]?.title || "this section box";
+    const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
+    const targetPage = currentConfig.pages.find((p) => matchesSlug(p.slug, activeSlug)) || currentConfig.pages[0];
+    if (!targetPage) return;
+
+    const secTitle = targetPage.sections[index]?.title || "this section box";
 
     setModalConfig({
       isOpen: true,
@@ -700,41 +706,44 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
       onCancel: () => setModalConfig(null),
       onConfirm: async () => {
         setModalConfig(null);
-        const targetSlug = activePage?.slug || activeSlug;
-        const sections = (activePage?.sections || []).filter((_, idx) => idx !== index);
+        const targetSlug = targetPage?.slug || activeSlug;
+        const sections = (targetPage?.sections || []).filter((_, idx) => idx !== index);
         sections.forEach((sec, idx) => {
           sec.sortOrder = idx;
         });
 
-        const updatedPages = config.pages.map((p) =>
+        const updatedPages = currentConfig.pages.map((p) =>
           matchesSlug(p.slug, targetSlug) ? { ...p, sections } : p
         );
-        await persistConfig({ ...config, pages: updatedPages });
+        await persistConfig({ ...currentConfig, pages: updatedPages });
       },
     });
   }
 
   async function handleSaveEditSection() {
-    if (!config || !editingSection) return;
+    if (!editingSection) return;
+    const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
     const { pageSlug, section, index } = editingSection;
 
-    const updatedPages = config.pages.map((p) => {
+    const updatedPages = currentConfig.pages.map((p) => {
       if (!matchesSlug(p.slug, pageSlug)) return p;
       const secs = [...p.sections];
       secs[index] = section;
       return { ...p, sections: secs };
     });
 
-    const updatedConfig = { ...config, pages: updatedPages };
+    const updatedConfig = { ...currentConfig, pages: updatedPages };
     setEditingSection(null);
     await persistConfig(updatedConfig);
   }
 
   async function handleAddSectionSubmit() {
-    if (!config || !newTitle.trim()) return;
+    if (!newTitle.trim()) return;
 
-    const targetSlug = activePage?.slug || activeSlug;
-    const currentSections = activePage?.sections || [];
+    const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
+    const targetPage = currentConfig.pages.find((p) => matchesSlug(p.slug, activeSlug)) || currentConfig.pages[0];
+    const targetSlug = targetPage?.slug || activeSlug;
+    const currentSections = targetPage?.sections || [];
 
     const newSec: DefaultWebsiteSection = {
       id: `def-${Date.now()}`,
@@ -749,11 +758,11 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
       sortOrder: currentSections.length,
     };
 
-    const updatedPages = config.pages.map((p) =>
+    const updatedPages = currentConfig.pages.map((p) =>
       matchesSlug(p.slug, targetSlug) ? { ...p, sections: [...p.sections, newSec] } : p
     );
 
-    const updatedConfig = { ...config, pages: updatedPages };
+    const updatedConfig = { ...currentConfig, pages: updatedPages };
 
     setAddingSection(false);
     setNewTitle("");
