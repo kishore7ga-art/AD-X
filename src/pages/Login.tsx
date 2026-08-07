@@ -10,7 +10,7 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("2008");
   const [token, setToken] = useState("");
   const [needsToken, setNeedsToken] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -93,6 +93,9 @@ export function Login() {
             <p className="mt-2 text-xs sm:text-sm text-slate-400 font-medium">
               Enter your master password to access the XITE control panel.
             </p>
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-mono text-amber-300 font-bold">
+              🔑 Master Password: <span className="text-white underline">2008</span>
+            </div>
           </div>
 
           {/* Setup Warnings */}
