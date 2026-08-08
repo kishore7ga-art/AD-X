@@ -50,7 +50,7 @@ export function SectionAddStudio() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [optSuccess, setOptSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewWidth, setPreviewWidth] = useState<string>("100%");
+  const [previewWidth, setPreviewWidth] = useState<string>("1200px");
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,12 +74,28 @@ export function SectionAddStudio() {
   * { box-sizing: border-box !important; }
   img, video, iframe, canvas, svg { max-width: 100% !important; height: auto !important; }
   section, div, header, footer, nav, article { max-width: 100% !important; box-sizing: border-box !important; }
-  @media (max-width: 1024px) {
-    .grid-cols-4, [style*="grid-template-columns: repeat(4"], [style*="grid-template-columns:repeat(4"] {
-      grid-template-columns: repeat(2, 1fr) !important;
+  
+  /* Desktop Viewport Rules (>= 768px): Hide hamburger menu & display full desktop navigation links */
+  @media (min-width: 768px) {
+    .hamburger, .mobile-toggle, [data-mobile-menu], .mobile-menu-btn, button.hamburger-btn {
+      display: none !important;
+    }
+    .desktop-nav, nav, header nav, header ul, .nav-links {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 24px !important;
     }
   }
-  @media (max-width: 768px) {
+
+  /* Tablet & Mobile Viewport Rules (< 768px): Hide horizontal nav links & display hamburger icon */
+  @media (max-width: 767px) {
+    .desktop-nav, nav, header nav, .nav-links {
+      display: none !important;
+    }
+    .hamburger, .mobile-toggle, [data-mobile-menu], .mobile-menu-btn, button.hamburger-btn {
+      display: flex !important;
+    }
     section, header, footer { padding-left: 20px !important; padding-right: 20px !important; }
     h1 { font-size: clamp(28px, 6vw, 42px) !important; line-height: 1.2 !important; }
     h2 { font-size: clamp(22px, 5vw, 32px) !important; }
@@ -88,18 +104,10 @@ export function SectionAddStudio() {
       grid-template-columns: 1fr !important;
       gap: 16px !important;
     }
-    div[style*="display: flex"], header[style*="display: flex"], nav[style*="display: flex"] {
-      flex-wrap: wrap !important;
-    }
   }
   @media (max-width: 480px) {
     section, header, footer { padding-left: 14px !important; padding-right: 14px !important; }
     h1 { font-size: 26px !important; }
-    button, a[style*="display: inline"], a[style*="display: block"] {
-      width: 100% !important;
-      text-align: center !important;
-      justify-content: center !important;
-    }
   }
 </style>
 `;
@@ -247,7 +255,7 @@ export function SectionAddStudio() {
               {/* Device Resolution Switcher */}
               <div className="flex items-center gap-1.5 bg-slate-950/95 p-2 px-3 rounded-full border border-slate-800/90 shadow-inner">
                 {[
-                  { label: "🖥️ Desktop (1200px)", width: "100%" },
+                  { label: "🖥️ Desktop (1200px)", width: "1200px" },
                   { label: "📱 Tablet (768px)", width: "768px" },
                   { label: "📱 Mobile (375px)", width: "375px" },
                 ].map((item) => {
@@ -280,7 +288,7 @@ export function SectionAddStudio() {
               >
                 <iframe
                   title="Section Preview"
-                  srcDoc={code}
+                  srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>body{margin:0;padding:0;background:#0d1527;color:#ffffff;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body>' + code + '</body></html>'}
                   className="w-full h-full min-h-[400px] bg-black"
                   sandbox="allow-scripts"
                 />
