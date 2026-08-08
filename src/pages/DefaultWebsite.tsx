@@ -31,14 +31,14 @@ export type LibraryVariant = {
 };
 
 const SECTION_CATEGORIES = [
-  { id: "header", name: "Navbar / Header", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+  { id: "navbar", name: "Navbar / Header", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   { id: "hero", name: "Hero Banner", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
   { id: "highlights", name: "College Highlights / Stats", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
   { id: "about", name: "About College", bg: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
   { id: "vision", name: "Vision & Mission Statement", bg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" },
   { id: "courses", name: "Courses / Programs Offered", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
   { id: "departments", name: "Academic Departments", bg: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" },
-  { id: "admission", name: "Admission Section", bg: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
+  { id: "admissions", name: "Admission Section", bg: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
   { id: "placements", name: "Placement & Top Recruiters", bg: "bg-teal-500/10 text-teal-400 border-teal-500/20" },
   { id: "facilities", name: "Campus Facilities / Infrastructure", bg: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
   { id: "research", name: "Research & Innovation Labs", bg: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
@@ -46,7 +46,7 @@ const SECTION_CATEGORIES = [
   { id: "events", name: "Upcoming Campus Events", bg: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20" },
   { id: "gallery", name: "Gallery / Campus Life", bg: "bg-rose-500/10 text-rose-400 border-rose-500/20" },
   { id: "testimonials", name: "Student Testimonials / Alumni", bg: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" },
-  { id: "awards", name: "Achievements & Awards", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+  { id: "achievements", name: "Achievements & Awards", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
   { id: "contact", name: "Contact / Inquiry Form", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   { id: "map", name: "Map & Location", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
   { id: "footer", name: "Footer", bg: "bg-slate-500/10 text-slate-400 border-slate-500/20" },
