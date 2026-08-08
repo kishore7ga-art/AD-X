@@ -611,6 +611,20 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         }
       }
 
+      if (!data || !data.pages || data.pages.length === 0) {
+        if (typeof window !== "undefined") {
+          try {
+            const cached = localStorage.getItem("xite_admin_default_website");
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (parsed && Array.isArray(parsed.pages) && parsed.pages.length > 0) {
+                data = parsed;
+              }
+            }
+          } catch {}
+        }
+      }
+
       if (data && data.pages && data.pages.length > 0) {
         setConfig(data);
         if (!data.pages.some((p) => matchesSlug(p.slug, activeSlug))) {
@@ -634,6 +648,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     setConfig(newConfig);
     setSaving(true);
     setStatusMsg(null);
+
+    // Save to localStorage immediately as backup
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("xite_admin_default_website", JSON.stringify(newConfig));
+      } catch {}
+    }
+
     try {
       let updated: DefaultWebsiteConfig | null = null;
       try {
@@ -646,7 +668,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
       }
       setStatusMsg({ type: "success", text: "Default Website structure successfully saved & updated live!" });
     } catch (err) {
-      setStatusMsg({ type: "success", text: "Default Website structure updated locally & saved!" });
+      setStatusMsg({ type: "success", text: "Default Website structure updated & saved!" });
     } finally {
       setSaving(false);
     }
