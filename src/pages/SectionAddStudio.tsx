@@ -69,14 +69,37 @@ export function SectionAddStudio() {
 
   const handleAutoResolutionOptimize = () => {
     let currentCode = code;
+
+    // 1. Rewrite static fixed header padding, gap, and link wrapping in code string for fluid responsive behavior
+    currentCode = currentCode
+      .replace(/(<header[^>]*style="[^"]*padding:\s*)([0-9]+px\s+[0-9]+px)("[^>]*>)/gi, `$116px clamp(12px, 3vw, 40px)$3`)
+      .replace(/(<nav[^>]*style="[^"]*gap:\s*)([0-9]+px)("[^>]*>)/gi, `$1clamp(6px, 1.5vw, 24px)$3`)
+      .replace(/(<a[^>]*style=")([^"]*)(")/gi, (_m, p1, p2, p3) => {
+        if (!p2.includes("white-space")) {
+          return `${p1}${p2}; white-space: nowrap;${p3}`;
+        }
+        return _m;
+      });
+
+    // 2. Comprehensive fluid auto-responsive styles
     const responsiveStyles = `
 <style id="auto-responsive-styles">
   * { box-sizing: border-box !important; }
   img, video, iframe, canvas, svg { max-width: 100% !important; height: auto !important; }
   section, div, header, footer, nav, article { max-width: 100% !important; box-sizing: border-box !important; }
+
+  header, nav {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
   
-  /* Desktop Viewport Rules (>= 768px): Hide hamburger menu & display full desktop navigation links */
-  @media (min-width: 768px) {
+  header > div, header nav {
+    gap: clamp(6px, 1.5vw, 24px) !important;
+  }
+  
+  /* Desktop Viewport Rules (min-width: 900px) */
+  @media (min-width: 900px) {
     .hamburger, .mobile-toggle, [data-mobile-menu], .mobile-menu-btn, button.hamburger-btn {
       display: none !important;
     }
@@ -84,30 +107,66 @@ export function SectionAddStudio() {
       display: flex !important;
       flex-direction: row !important;
       align-items: center !important;
-      gap: 24px !important;
+      justify-content: flex-end !important;
+      gap: clamp(8px, 1.5vw, 20px) !important;
+      flex-wrap: nowrap !important;
+    }
+    header nav a, .nav-links a {
+      white-space: nowrap !important;
+      font-size: clamp(12px, 1.1vw, 15px) !important;
     }
   }
 
-  /* Tablet & Mobile Viewport Rules (< 768px): Hide horizontal nav links & display hamburger icon */
-  @media (max-width: 767px) {
-    .desktop-nav, nav, header nav, .nav-links {
+  /* Tablet Viewport Rules (641px to 899px) */
+  @media (min-width: 641px) and (max-width: 899px) {
+    header { padding-left: 16px !important; padding-right: 16px !important; }
+    header nav a, .nav-links a { font-size: 13px !important; white-space: nowrap !important; }
+    .grid, [style*="display: grid"], [style*="display:grid"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 16px !important;
+    }
+  }
+
+  /* Mobile Viewport Rules (max-width: 640px) */
+  @media (max-width: 640px) {
+    section, header, footer {
+      padding-left: 14px !important;
+      padding-right: 14px !important;
+    }
+    
+    header {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      flex-wrap: wrap !important;
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+    }
+
+    header nav:not([data-mobile-open]), .nav-links:not([data-mobile-open]) {
       display: none !important;
     }
-    .hamburger, .mobile-toggle, [data-mobile-menu], .mobile-menu-btn, button.hamburger-btn {
+
+    header nav[data-mobile-open], .nav-links[data-mobile-open] {
       display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      background: rgba(15, 23, 42, 0.98) !important;
+      padding: 16px !important;
+      border-radius: 12px !important;
+      margin-top: 12px !important;
+      gap: 12px !important;
     }
-    section, header, footer { padding-left: 20px !important; padding-right: 20px !important; }
-    h1 { font-size: clamp(28px, 6vw, 42px) !important; line-height: 1.2 !important; }
-    h2 { font-size: clamp(22px, 5vw, 32px) !important; }
-    h3 { font-size: clamp(18px, 4vw, 24px) !important; }
+
+    h1 { font-size: clamp(24px, 6vw, 36px) !important; line-height: 1.2 !important; }
+    h2 { font-size: clamp(20px, 5vw, 28px) !important; }
+    h3 { font-size: clamp(16px, 4vw, 22px) !important; }
+
     .grid, [style*="display: grid"], [style*="display:grid"] {
       grid-template-columns: 1fr !important;
       gap: 16px !important;
     }
-  }
-  @media (max-width: 480px) {
-    section, header, footer { padding-left: 14px !important; padding-right: 14px !important; }
-    h1 { font-size: 26px !important; }
   }
 </style>
 `;
@@ -122,6 +181,8 @@ export function SectionAddStudio() {
       } else {
         currentCode = `${currentCode}\n${responsiveStyles}`;
       }
+    } else {
+      currentCode = currentCode.replace(/<style id="auto-responsive-styles">[\s\S]*?<\/style>/gi, responsiveStyles.trim());
     }
 
     setCode(currentCode);
