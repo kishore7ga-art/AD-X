@@ -199,6 +199,7 @@ export function SectionAddStudio() {
     try {
       await api.post("/api/v1/admin/templates", {
         name: `${typeName} [${typeId}] - ${variantName}`,
+        category: typeId,
         description: `Admin uploaded section for ${typeName}`,
         code: code,
         isPublished: true,
