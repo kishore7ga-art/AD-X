@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { api } from "@/api/client";
 import { ModalDialog } from "@/components/ModalDialog";
+import { AddSectionButton } from "@/components/AddSectionButton";
 import type { ModalDialogState } from "@/components/ModalDialog";
 
 export type DefaultWebsiteSection = {
@@ -916,13 +917,12 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   Visual layout of default section boxes for route <code className="text-chalk bg-night px-1.5 py-0.5 rounded">{activeSlug}</code>
                 </p>
               </div>
-              <button
+              <AddSectionButton
                 type="button"
                 onClick={() => setAddingSection(true)}
-                className="flex items-center gap-2 rounded-xl border border-chalk/30 bg-chalk/10 px-4 py-2.5 text-xs font-bold text-chalk transition hover:bg-chalk/20 active:scale-95"
-              >
-                <span>+ Add Section Box</span>
-              </button>
+                label="Add Section Box"
+                size="sm"
+              />
             </div>
 
             {/* Visual Section Cards Grid (Mini-Boxes Layout) */}
@@ -1005,13 +1005,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
               <div className="rounded-2xl border border-dashed border-night-line bg-night-card p-16 text-center space-y-3">
                 <p className="text-sm font-bold text-chalk">No section boxes configured for {activePage?.title} yet.</p>
                 <p className="text-xs text-chalk-dim/60">Click below to add a section box for this page.</p>
-                <button
-                  type="button"
-                  onClick={() => setAddingSection(true)}
-                  className="inline-block rounded-xl bg-chalk px-5 py-2.5 text-xs font-bold text-night hover:bg-chalk/90"
-                >
-                  + Add Section Box
-                </button>
+                <div className="pt-2">
+                  <AddSectionButton
+                    type="button"
+                    onClick={() => setAddingSection(true)}
+                    label="Add Section Box"
+                    size="md"
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -1444,14 +1445,13 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   >
                     Cancel
                   </button>
-                  <button
+                  <AddSectionButton
                     type="button"
                     onClick={handleAddSectionSubmit}
                     disabled={!newTitle.trim()}
-                    className="rounded-xl bg-chalk px-6 py-2.5 text-xs font-black text-night hover:bg-chalk/90 shadow-lg cursor-pointer disabled:opacity-50"
-                  >
-                    Add Section Box
-                  </button>
+                    label="Add Section Box"
+                    size="md"
+                  />
                 </div>
               </div>
             </div>

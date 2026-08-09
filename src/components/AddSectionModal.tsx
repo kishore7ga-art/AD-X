@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, ArrowRight, Layout, Info, GraduationCap, Users, Calendar, Mail, Briefcase, Award } from "lucide-react";
+import { AddSectionButton } from "@/components/AddSectionButton";
 
 interface AddSectionModalProps {
   isOpen: boolean;
@@ -97,16 +98,15 @@ export function AddSectionModal({
             Selected: <strong className="text-white font-bold">{current.name}</strong>
           </span>
 
-          <button
+          <AddSectionButton
             onClick={() => {
               onSelectSectionType(current);
               onClose();
             }}
-            className="flex items-center gap-2 bg-white text-black hover:bg-neutral-200 px-6 py-2.5 rounded-xl font-black text-xs shadow-lg transition-all cursor-pointer"
-          >
-            <span>Proceed to Code Studio</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+            label="Proceed to Code Studio"
+            icon={<ArrowRight className="w-4 h-4 text-slate-700 group-hover:text-slate-950" />}
+            size="sm"
+          />
         </div>
 
       </div>

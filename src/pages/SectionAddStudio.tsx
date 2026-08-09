@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Upload, Save, ArrowLeft, Eye, FileCode, CheckCircle, AlertCircle } from "lucide-react";
 import { Shell } from "@/components/Shell";
+import { AddSectionButton } from "@/components/AddSectionButton";
 import { api } from "@/api/client";
 
 const DEFAULT_STARTER_CODE = `<!-- Section Component: Hero Banner -->
@@ -246,14 +247,13 @@ export function SectionAddStudio() {
               <span>⚡ Auto Resolution Code Edit</span>
             </button>
 
-            <button
+            <AddSectionButton
               onClick={handleSaveToDatabase}
               disabled={saving}
-              className="flex items-center gap-2 bg-white text-black hover:bg-neutral-200 font-black text-xs px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              <span>{saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}</span>
-            </button>
+              label={saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}
+              icon={<Save className="w-4 h-4 text-slate-700 group-hover:text-slate-950" />}
+              size="sm"
+            />
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import { API_BASE } from "@/env";
 import type { TemplateRow, TemplateStats } from "@/api/types";
 import { Shell } from "@/components/Shell";
 import { AddSectionModal } from "@/components/AddSectionModal";
+import { AddSectionButton } from "@/components/AddSectionButton";
 import { ModalDialog } from "@/components/ModalDialog";
 import type { ModalDialogState } from "@/components/ModalDialog";
 
@@ -431,13 +432,12 @@ export function Templates() {
               {isDeletingAll ? "Deleting All…" : "🗑️ Delete All Sections"}
             </button>
           ) : null}
-          <button
+          <AddSectionButton
             type="button"
             onClick={() => setShowAddSectionModal(true)}
-            className="rounded-xl bg-white px-5 py-2.5 text-xs font-black text-black transition-all hover:bg-neutral-200 cursor-pointer shadow-lg"
-          >
-            + Add Section
-          </button>
+            label="Add Section"
+            size="sm"
+          />
         </div>
       </div>
 
@@ -559,15 +559,14 @@ export function Templates() {
                   <span className="text-xs font-bold text-neutral-400">
                     {count} {count === 1 ? "Section" : "Sections"}
                   </span>
-                  <button
+                  <AddSectionButton
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
                     }}
-                    className="text-xs font-extrabold text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
-                  >
-                    + Add {cat.name}
-                  </button>
+                    label={`Add ${cat.name}`}
+                    size="sm"
+                  />
                 </div>
               </div>
             );
@@ -596,16 +595,15 @@ export function Templates() {
                 <p className="text-xs text-neutral-400 mt-0.5">{selectedCategoryModal.description}</p>
               </div>
 
-              <button
+              <AddSectionButton
                 onClick={() => {
                   const cat = selectedCategoryModal;
                   setSelectedCategoryModal(null);
                   navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
                 }}
-                className="rounded-xl bg-white px-4 py-2 text-xs font-black text-black hover:bg-neutral-200 transition-all shadow-md cursor-pointer"
-              >
-                + Add {selectedCategoryModal.name}
-              </button>
+                label={`Add ${selectedCategoryModal.name}`}
+                size="sm"
+              />
             </div>
 
             {/* Matching Section List inside Popup */}
@@ -624,15 +622,14 @@ export function Templates() {
                 return (
                   <div className="py-10 text-center space-y-3">
                     <p className="text-xs text-neutral-500 italic">No section variants added yet for {cat.name}.</p>
-                    <button
+                    <AddSectionButton
                       onClick={() => {
                         setSelectedCategoryModal(null);
                         navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
                       }}
-                      className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold cursor-pointer"
-                    >
-                      Upload First {cat.name} Section
-                    </button>
+                      label={`Upload ${cat.name} Section`}
+                      size="sm"
+                    />
                   </div>
                 );
               }
