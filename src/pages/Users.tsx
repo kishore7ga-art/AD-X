@@ -233,7 +233,7 @@ export function Users() {
 
                     <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between gap-2">
                       <a
-                        href="http://localhost:3000/editor"
+                        href="http://localhost:3000/editor/mec"
                         target="_blank"
                         rel="noreferrer"
                         className="text-xs font-extrabold text-blue-400 hover:text-blue-300 hover:underline"
