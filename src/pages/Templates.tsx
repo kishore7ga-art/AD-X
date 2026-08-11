@@ -509,14 +509,14 @@ export function Templates() {
               <div
                 key={cat.id}
                 onClick={() => setSelectedCategoryModal(cat)}
-                className={`relative rounded-2xl p-5 border transition-all flex flex-col justify-between cursor-pointer group ${
+                className={`relative rounded-2xl p-5 border transition-all flex flex-col justify-between cursor-pointer group h-[270px] ${
                   isLive
                     ? "bg-[#11161d] border-emerald-500/40 hover:border-emerald-500/80 shadow-lg hover:scale-[1.02]"
                     : "bg-[#0d1117] border-neutral-800 hover:border-neutral-700 hover:scale-[1.01]"
                 }`}
               >
                 {/* Status Indicator Dot (Matching Screenshot 3) */}
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-mono text-neutral-400 font-bold uppercase tracking-wider">
                     {cat.id}
                   </span>
@@ -529,27 +529,27 @@ export function Templates() {
                   </span>
                 </div>
 
-                <div>
-                  <h3 className="text-sm font-black text-white group-hover:text-emerald-400 transition-colors flex items-center justify-between">
+                <div className="flex-1 flex flex-col justify-start overflow-hidden">
+                  <h3 className="text-sm font-black text-white group-hover:text-emerald-400 transition-colors flex items-center justify-between shrink-0">
                     <span>{cat.name}</span>
                     <span className="text-xs text-neutral-500 font-normal group-hover:translate-x-1 transition-transform">↗</span>
                   </h3>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">{cat.description}</p>
+                  <p className="text-[11px] text-neutral-500 mt-0.5 line-clamp-1 shrink-0">{cat.description}</p>
 
-                  {/* List of Section Names inside this Box */}
-                  <div className="mt-3 space-y-1.5 min-h-[48px]">
+                  {/* List of Section Names inside this Box (Fixed Height Scrollable Area) */}
+                  <div className="mt-2.5 space-y-1.5 h-[110px] overflow-y-auto pr-1 no-scrollbar">
                     {matchingSections.length > 0 ? (
                       matchingSections.map((sec) => (
                         <div
                           key={sec.id}
-                          className="text-xs font-mono text-emerald-400 font-bold flex items-center justify-between bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-800/40"
+                          className="text-xs font-mono text-emerald-400 font-bold flex items-center justify-between bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-800/40 shrink-0"
                         >
                           <span className="truncate">{sec.name}</span>
-                          <span className="text-[9px] text-emerald-300 font-normal">Active</span>
+                          <span className="text-[9px] text-emerald-300 font-normal ml-1 shrink-0">Active</span>
                         </div>
                       ))
                     ) : (
-                      <p className="text-[11px] text-neutral-500 italic">No sections added yet</p>
+                      <p className="text-[11px] text-neutral-500 italic pt-2">No sections added yet</p>
                     )}
                   </div>
                 </div>
@@ -564,8 +564,8 @@ export function Templates() {
                       e.stopPropagation();
                       navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
                     }}
-                    label={`Add ${cat.name}`}
-                    size="sm"
+                    label={`+ Add ${cat.name.split(" ")[0]}`}
+                    size="xs"
                   />
                 </div>
               </div>

@@ -4,30 +4,37 @@ import { Plus } from "lucide-react";
 export interface AddSectionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label?: string;
   icon?: React.ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   className?: string;
 }
 
 export const AddSectionButton = React.forwardRef<HTMLButtonElement, AddSectionButtonProps>(
   ({ label = "Add Section", icon, size = "md", className = "", style, ...props }, ref) => {
     const sizeConfig = {
+      xs: {
+        trackPadding: "p-[1.5px]",
+        buttonPadding: "px-2.5 py-1",
+        textSize: "text-[11px] font-black",
+        iconSize: "w-3 h-3",
+        gap: "gap-1",
+      },
       sm: {
-        trackPadding: "p-[3px]",
-        buttonPadding: "px-4 py-2",
+        trackPadding: "p-[2px]",
+        buttonPadding: "px-3 py-1.5",
         textSize: "text-xs font-black",
         iconSize: "w-3.5 h-3.5",
         gap: "gap-1.5",
       },
       md: {
-        trackPadding: "p-[4px]",
-        buttonPadding: "px-6 py-2.5",
+        trackPadding: "p-[3px]",
+        buttonPadding: "px-5 py-2",
         textSize: "text-xs font-black sm:text-sm",
         iconSize: "w-4 h-4",
         gap: "gap-2",
       },
       lg: {
-        trackPadding: "p-[5px]",
-        buttonPadding: "px-8 py-3.5",
+        trackPadding: "p-[4px]",
+        buttonPadding: "px-7 py-3",
         textSize: "text-sm font-black sm:text-base",
         iconSize: "w-5 h-5",
         gap: "gap-2.5",
