@@ -13,16 +13,14 @@
 const raw = import.meta.env.VITE_API_BASE_URL?.trim();
 
 const resolvedBase = (() => {
-  if (
-    typeof window !== "undefined" &&
-    window.location.hostname !== "localhost" &&
-    window.location.hostname !== "127.0.0.1"
-  ) {
-    if (!raw || raw.includes("localhost") || raw.includes("127.0.0.1")) {
-      return "https://api.xite.co.in";
+  if (raw) return raw;
+  if (typeof window !== "undefined") {
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      return "http://localhost:4000";
     }
+    return window.location.origin;
   }
-  return raw || "http://localhost:4000";
+  return "http://localhost:4000";
 })();
 
 /** Trailing slash trimmed, so `${API_BASE}/api/v1/...` never doubles up. */
