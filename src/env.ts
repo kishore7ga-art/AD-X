@@ -15,8 +15,15 @@ const raw = import.meta.env.VITE_API_BASE_URL?.trim();
 const resolvedBase = (() => {
   if (raw) return raw;
   if (typeof window !== "undefined") {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") {
       return "http://localhost:4000";
+    }
+    if (host.includes("meetkishore.in")) {
+      return "https://api.meetkishore.in";
+    }
+    if (host.includes("xite.co.in")) {
+      return "https://api.xite.co.in";
     }
     return window.location.origin;
   }
