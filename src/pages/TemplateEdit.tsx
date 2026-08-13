@@ -167,6 +167,7 @@ export function TemplateEdit() {
         setName(row.name);
         setCode(row.code ?? "");
         setIsPublished(row.isPublished);
+        setError(null);
       } catch (cause) {
         if (!cancelled) {
           setError(cause instanceof Error ? cause.message : "Could not load template");

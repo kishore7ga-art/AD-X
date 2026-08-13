@@ -837,17 +837,32 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   return (
     <Shell title="Default Website Builder">
       <div className="space-y-6">
+        {/* ⚠️ Template-only notice — makes scope crystal clear to admin */}
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 shadow-md">
+          <span className="mt-0.5 text-xl leading-none">⚠️</span>
+          <div>
+            <p className="text-sm font-extrabold text-amber-300">
+              This is the New-User Template Only
+            </p>
+            <p className="mt-1 text-xs text-amber-200/80 max-w-3xl">
+              Changes saved here set the <strong>starting template for brand-new users</strong> when they first sign up.
+              Existing colleges manage their own website independently in the User Editor — your changes here
+              will <strong>not</strong> affect or overwrite any existing college's content.
+            </p>
+          </div>
+        </div>
+
         {/* Header & Master Save Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-night-line bg-night-card p-6 shadow-xl">
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
-                Master Website Config
+                New-User Template
               </span>
-              <h2 className="text-xl font-black tracking-tight text-chalk">Default Website For All Colleges</h2>
+              <h2 className="text-xl font-black tracking-tight text-chalk">Default Website For New Colleges</h2>
             </div>
             <p className="mt-1 text-xs text-chalk-dim/70 max-w-2xl">
-              Each section box below defines the starting website layout for all users. Admin can add, edit code, and arrange section boxes for every page.
+              Each section box below defines the <strong>starting website layout</strong> that is copied to a new user when they first sign up. Existing users&apos; websites are independent and unaffected.
             </p>
           </div>
           <button
@@ -856,7 +871,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
             disabled={saving || loading}
             className="flex items-center gap-2 rounded-xl bg-chalk px-6 py-3 text-xs font-black text-night shadow-lg transition hover:bg-chalk/90 active:scale-95 disabled:opacity-50"
           >
-            <span>{saving ? "Saving Changes..." : "Save Default Website"}</span>
+            <span>{saving ? "Saving Changes..." : "Save Default Template"}</span>
           </button>
         </div>
 
