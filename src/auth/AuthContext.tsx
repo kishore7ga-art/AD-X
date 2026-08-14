@@ -47,23 +47,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     void (async () => {
-      /**
-       * Both together, and neither is allowed to fail the other.
-       *
-       * A 401 from `/me` is the normal signed-out answer, not an error — treating
-       * it as one would show an error screen where a login form belongs.
-       */
+      const fetchWithFallback = async <T,>(endpoints: string[]): Promise<T | null> => {
+        for (const endpoint of endpoints) {
+          try {
+            return await api.get<T>(endpoint);
+          } catch (err) {
+            if (err instanceof ApiError && err.status === 404) continue;
+            throw err;
+          }
+        }
+        return null;
+      };
+
       const [me, status] = await Promise.all([
-        api
-          .get<{ admin: Admin }>("/api/v1/admin/me")
-          .then((payload) => payload.admin)
+        fetchWithFallback<{ admin: Admin }>([
+          "/api/v1/admin/me",
+          "/api/admin/me",
+          "/admin/me",
+        ])
+          .then((payload) => payload?.admin ?? null)
           .catch(() => null),
-        api
-          .get<Setup>("/api/v1/admin/status")
-          // Being wrong in this direction shows a login form that will not work;
-          // being wrong the other way tells somebody their account does not exist
-          // when it does. The same trade xite-F's admin client already makes.
-          .catch(() => ({ configured: true, hasAccounts: true })),
+        fetchWithFallback<Setup>([
+          "/api/v1/admin/status",
+          "/api/admin/status",
+          "/admin/status",
+        ]).catch(() => ({ configured: true, hasAccounts: true })),
       ]);
 
       if (cancelled) return;
