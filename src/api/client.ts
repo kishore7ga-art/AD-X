@@ -22,10 +22,14 @@ export class ApiError extends Error {
 
 /** The API answers every failure as `{ error: string }`. */
 async function readError(response: Response): Promise<string> {
-  const payload = (await response.json().catch(() => null)) as {
-    error?: string;
-  } | null;
-  return payload?.error ?? `Request failed (${response.status})`;
+  const payload = (await response.json().catch(() => null)) as Record<string, any> | null;
+  if (!payload) return `Request failed (${response.status})`;
+  if (typeof payload.error === "string") return payload.error;
+  if (payload.error && typeof payload.error === "object" && typeof payload.error.message === "string") {
+    return payload.error.message;
+  }
+  if (typeof payload.message === "string") return payload.message;
+  return `Request failed (${response.status})`;
 }
 
 async function request<T>(

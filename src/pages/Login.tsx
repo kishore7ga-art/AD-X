@@ -50,16 +50,21 @@ export function Login() {
         ...(token ? { token } : {}),
       });
       navigate(destination, { replace: true });
-    } catch (cause) {
+    } catch (cause: any) {
       let message = "Sign-in failed";
       if (cause instanceof ApiError) {
-        message = cause.message;
+        message = typeof cause.message === "string" ? cause.message : "Sign-in failed";
       } else if (cause instanceof Error) {
-        message = cause.message;
+        message = typeof cause.message === "string" ? cause.message : "Sign-in failed";
       } else if (typeof cause === "string") {
         message = cause;
       } else if (cause && typeof cause === "object") {
-        message = (cause as { message?: string }).message || "Sign-in failed";
+        message =
+          typeof cause.message === "string"
+            ? cause.message
+            : typeof cause.error === "string"
+            ? cause.error
+            : "Sign-in failed. Please check your credentials.";
       }
 
       const isRateLimit =
