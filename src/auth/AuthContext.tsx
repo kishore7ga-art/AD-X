@@ -77,18 +77,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(
-    async (input: { password: string; token?: string }) => {
-      let res: { admin: Admin };
-      try {
-        res = await api.post<{ admin: Admin }>("/api/v1/admin/auth/login", input);
-      } catch (err) {
-        if (err instanceof ApiError && err.status === 404) {
-          res = await api.post<{ admin: Admin }>("/api/v1/admin/login", input);
-        } else {
+    async (input: { email?: string; password: string; token?: string }) => {
+      const endpoints = [
+        "/api/v1/admin/auth/login",
+        "/api/v1/admin/login",
+        "/api/v1/auth/admin/login",
+        "/admin/auth/login",
+        "/admin/login",
+      ];
+      let lastErr: unknown;
+      for (const endpoint of endpoints) {
+        try {
+          const res = await api.post<{ admin: Admin }>(endpoint, input);
+          setAdmin(res.admin);
+          return;
+        } catch (err) {
+          lastErr = err;
+          if (err instanceof ApiError && err.status === 404) {
+            continue;
+          }
           throw err;
         }
       }
-      setAdmin(res.admin);
+      throw lastErr;
     },
     [],
   );
