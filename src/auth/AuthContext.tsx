@@ -50,10 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const [me, status] = await Promise.all([
         api
           .get<{ admin: Admin }>("/api/v1/admin/me")
+          .catch(() => api.get<{ admin: Admin }>("/admin/me"))
+          .catch(() => api.get<{ admin: Admin }>("/api/admin/me"))
           .then((payload) => payload?.admin ?? null)
           .catch(() => null),
         api
           .get<Setup>("/api/v1/admin/status")
+          .catch(() => api.get<Setup>("/admin/status"))
+          .catch(() => api.get<Setup>("/api/admin/status"))
           .catch(() => ({ configured: true, hasAccounts: true })),
       ]);
 

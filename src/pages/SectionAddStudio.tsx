@@ -197,13 +197,18 @@ export function SectionAddStudio() {
     setSaveSuccess(false);
 
     try {
-      await api.post("/api/v1/admin/templates", {
+      const payload = {
         name: `${typeName} [${typeId}] - ${variantName}`,
         category: typeId,
         description: `Admin uploaded section for ${typeName}`,
         code: code,
         isPublished: true,
-      });
+      };
+
+      await api.post("/api/v1/admin/templates", payload).catch(() =>
+        api.post("/admin/templates", payload)
+      );
+
       setSaveSuccess(true);
       setTimeout(() => {
         navigate("/templates");
