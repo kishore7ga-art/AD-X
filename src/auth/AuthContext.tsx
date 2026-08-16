@@ -47,19 +47,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     void (async () => {
-      const [me, status] = await Promise.all([
-        api
-          .get<{ admin: Admin }>("/api/v1/admin/me")
-          .catch(() => api.get<{ admin: Admin }>("/admin/me"))
-          .catch(() => api.get<{ admin: Admin }>("/api/admin/me"))
-          .then((payload) => payload?.admin ?? null)
-          .catch(() => null),
-        api
-          .get<Setup>("/api/v1/admin/status")
-          .catch(() => api.get<Setup>("/admin/status"))
-          .catch(() => api.get<Setup>("/api/admin/status"))
-          .catch(() => ({ configured: true, hasAccounts: true })),
-      ]);
+      let me: Admin | null = null;
+      let status: Setup | null = { configured: true, hasAccounts: true };
+
+      // Try fetching session silently across path variations
+      for (const mePath of ["/api/v1/admin/me", "/admin/me", "/api/admin/me", "/me"]) {
+        try {
+          const res = await api.get<{ admin: Admin }>(mePath);
+          if (res && res.admin) {
+            me = res.admin;
+            break;
+          }
+        } catch {}
+      }
+
+      // Try fetching setup status silently across path variations
+      for (const statusPath of ["/api/v1/admin/status", "/admin/status", "/api/admin/status", "/status"]) {
+        try {
+          const res = await api.get<Setup>(statusPath);
+          if (res) {
+            status = res;
+            break;
+          }
+        } catch {}
+      }
 
       if (cancelled) return;
       setAdmin(me);
