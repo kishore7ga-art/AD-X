@@ -209,9 +209,18 @@ export function SectionAddStudio() {
         isPublished: true,
       };
 
-      await api.post("/api/v1/admin/templates", payload).catch(() =>
-        api.post("/admin/templates", payload)
-      );
+      let saved = false;
+      for (const endpoint of ["/api/v1/admin/templates", "/admin/templates", "/api/admin/templates", "/templates"]) {
+        try {
+          await api.post(endpoint, payload);
+          saved = true;
+          break;
+        } catch {}
+      }
+
+      if (!saved) {
+        await api.post("/api/v1/admin/templates", payload);
+      }
 
       setSaveSuccess(true);
       setTimeout(() => {
