@@ -197,9 +197,13 @@ export function SectionAddStudio() {
     setSaveSuccess(false);
 
     try {
+      const cleanCategory = (typeId || "header").toLowerCase();
+      const customTitle = variantName.trim() || `Variant ${Date.now().toString().slice(-4)}`;
+      const finalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
+
       const payload = {
-        name: `${typeName} [${typeId}] - ${variantName}`,
-        category: typeId,
+        name: finalName,
+        category: cleanCategory,
         description: `Admin uploaded section for ${typeName}`,
         code: code,
         isPublished: true,
