@@ -535,61 +535,11 @@ export function DefaultWebsite() {
 
 const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   pages: [
-    {
-      slug: "/home",
-      title: "Home",
-      sections: PRESET_SECTION_TEMPLATES.map((preset, idx) => ({
-        id: preset.id,
-        title: preset.title,
-        sectionType: preset.category,
-        code: preset.code,
-        sortOrder: idx,
-      })),
-    },
-    {
-      slug: "/about",
-      title: "About Us",
-      sections: PRESET_SECTION_TEMPLATES.filter((p) => ["header", "about", "vision", "contact"].includes(p.category)).map((preset, idx) => ({
-        id: `about-${preset.id}`,
-        title: preset.title,
-        sectionType: preset.category,
-        code: preset.code,
-        sortOrder: idx,
-      })),
-    },
-    {
-      slug: "/courses",
-      title: "Academics",
-      sections: PRESET_SECTION_TEMPLATES.filter((p) => ["header", "courses", "contact"].includes(p.category)).map((preset, idx) => ({
-        id: `courses-${preset.id}`,
-        title: preset.title,
-        sectionType: preset.category,
-        code: preset.code,
-        sortOrder: idx,
-      })),
-    },
-    {
-      slug: "/events",
-      title: "Events",
-      sections: PRESET_SECTION_TEMPLATES.filter((p) => ["header", "events", "contact"].includes(p.category)).map((preset, idx) => ({
-        id: `events-${preset.id}`,
-        title: preset.title,
-        sectionType: preset.category,
-        code: preset.code,
-        sortOrder: idx,
-      })),
-    },
-    {
-      slug: "/contact",
-      title: "Contact",
-      sections: PRESET_SECTION_TEMPLATES.filter((p) => ["header", "contact"].includes(p.category)).map((preset, idx) => ({
-        id: `contact-${preset.id}`,
-        title: preset.title,
-        sectionType: preset.category,
-        code: preset.code,
-        sortOrder: idx,
-      })),
-    },
+    { slug: "/home", title: "Home", sections: [] },
+    { slug: "/about", title: "About Us", sections: [] },
+    { slug: "/courses", title: "Academics", sections: [] },
+    { slug: "/events", title: "Events", sections: [] },
+    { slug: "/contact", title: "Contact", sections: [] },
   ],
 };
 
