@@ -134,25 +134,39 @@ export function Templates() {
 
   const fetchTemplates = async () => {
     try {
-      const listData = await api
-        .get<{ templates: TemplateRow[] }>("/api/v1/admin/templates")
-        .catch(() => api.get<{ templates: TemplateRow[] }>("/admin/templates"))
-        .catch(() => ({ templates: [] }));
-
-      if (Array.isArray(listData?.templates)) {
-        setTemplates(listData.templates);
+      let listData: { templates: TemplateRow[] } | null = null;
+      for (const endpoint of ["/api/v1/admin/templates", "/admin/templates", "/api/admin/templates", "/templates"]) {
+        try {
+          const res = await api.get<{ templates: TemplateRow[] }>(endpoint);
+          if (res && Array.isArray(res.templates)) {
+            listData = res;
+            break;
+          }
+        } catch {}
       }
 
-      const statsData = await api
-        .get<TemplateStats>("/api/v1/admin/templates/stats")
-        .catch(() => api.get<TemplateStats>("/admin/templates/stats"))
-        .catch(() => null);
+      if (listData && Array.isArray(listData.templates)) {
+        setTemplates(listData.templates);
+      } else {
+        setTemplates([]);
+      }
+
+      let statsData: TemplateStats | null = null;
+      for (const endpoint of ["/api/v1/admin/templates/stats", "/admin/templates/stats", "/templates/stats"]) {
+        try {
+          const res = await api.get<TemplateStats>(endpoint);
+          if (res) {
+            statsData = res;
+            break;
+          }
+        } catch {}
+      }
 
       if (statsData) {
         setStats(statsData);
       }
     } catch (_cause) {
-      console.warn("Error loading templates from API:", _cause);
+      setTemplates([]);
     }
   };
 
