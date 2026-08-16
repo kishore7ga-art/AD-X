@@ -14,21 +14,21 @@ const raw = import.meta.env.VITE_API_BASE_URL?.trim();
 
 const getApiBases = (): string[] => {
   const bases: string[] = [];
-  if (raw) bases.push(raw.replace(/\/+$/, ""));
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
-    if (host === "localhost" || host === "127.0.0.1") {
-      bases.push("http://localhost:4000");
-    }
     if (host.includes("meetkishore.in")) {
       bases.push("https://api.meetkishore.in");
+    } else if (host.includes("xite.co.in")) {
       bases.push("https://api.xite.co.in");
+    } else if (host === "localhost" || host === "127.0.0.1") {
+      bases.push("http://localhost:4000");
     }
-    if (host.includes("xite.co.in")) {
-      bases.push("https://api.xite.co.in");
-      bases.push("https://api.meetkishore.in");
-    }
+  }
+  if (raw) bases.push(raw.replace(/\/+$/, ""));
+  if (typeof window !== "undefined") {
     bases.push(window.location.origin);
+    bases.push("https://api.meetkishore.in");
+    bases.push("https://api.xite.co.in");
   }
   bases.push("http://localhost:4000");
   return [...new Set(bases.filter(Boolean))];

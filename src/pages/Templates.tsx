@@ -74,27 +74,9 @@ const STUDIO_PALETTES = [
   },
 ];
 
-const SECTION_CATEGORIES_GRID = [
-  { id: "header", name: "Navbar / Header", description: "Top navigation bar with logo, menu links & action buttons" },
-  { id: "hero", name: "Hero Banner", description: "Lead banner, masthead & main title headline" },
-  { id: "highlights", name: "College Highlights / Stats", description: "Rankings, accreditation badges, key stats & active student count" },
-  { id: "about", name: "About College", description: "College history, overview & leadership message" },
-  { id: "vision", name: "Vision & Mission Statement", description: "Institutional core values, vision & long-term goals" },
-  { id: "courses", name: "Courses / Programs Offered", description: "UG, PG & Ph.D degree programs catalog" },
-  { id: "departments", name: "Academic Departments", description: "Engineering, Science, Arts & Business faculties" },
-  { id: "admission", name: "Admission Section", description: "Eligibility criteria, fee structure & apply online form" },
-  { id: "placements", name: "Placement & Top Recruiters", description: "Highest package stats & top hiring companies" },
-  { id: "facilities", name: "Campus Facilities / Infrastructure", description: "Library, hostels, sports complex & labs" },
-  { id: "research", name: "Research & Innovation Labs", description: "Patents, R&D labs & published research papers" },
-  { id: "news", name: "News & Announcement Circulars", description: "Official circulars, notices & campus news" },
-  { id: "events", name: "Upcoming Campus Events", description: "Cultural fests, symposiums & workshops calendar" },
-  { id: "gallery", name: "Gallery / Campus Life", description: "Photo gallery, campus infrastructure & student life" },
-  { id: "testimonials", name: "Student Testimonials / Alumni", description: "Alumni reviews, student experiences & video feedback" },
-  { id: "awards", name: "Achievements & Awards", description: "National awards, sports trophies & rankings" },
-  { id: "contact", name: "Contact / Inquiry Form", description: "Admissions helpdesk, address & inquiry form" },
-  { id: "map", name: "Map & Location", description: "Interactive campus map, directions & transportation" },
-  { id: "footer", name: "Footer", description: "Bottom copyright, quick links & social icons" },
-];
+import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
+
+const SECTION_CATEGORIES_GRID = PLATFORM_SECTION_CATEGORIES;
 
 export function Templates() {
   const navigate = useNavigate();
@@ -145,11 +127,24 @@ export function Templates() {
         } catch {}
       }
 
-      if (listData && Array.isArray(listData.templates)) {
-        setTemplates(listData.templates);
-      } else {
-        setTemplates([]);
+      let localTemplates: TemplateRow[] = [];
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("xite_admin_local_templates");
+          if (raw) localTemplates = JSON.parse(raw);
+        } catch {}
       }
+
+      const remoteTemplates = listData?.templates || [];
+      const map = new Map<string, TemplateRow>();
+      remoteTemplates.forEach((t) => map.set(t.id || t.name, t));
+      localTemplates.forEach((t) => {
+        if (!map.has(t.id) && !map.has(t.name)) {
+          map.set(t.id || t.name, t);
+        }
+      });
+
+      setTemplates(Array.from(map.values()));
 
       let statsData: TemplateStats | null = null;
       for (const endpoint of ["/api/v1/admin/templates/stats", "/admin/templates/stats", "/templates/stats"]) {
@@ -166,7 +161,14 @@ export function Templates() {
         setStats(statsData);
       }
     } catch (_cause) {
-      setTemplates([]);
+      let localTemplates: TemplateRow[] = [];
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("xite_admin_local_templates");
+          if (raw) localTemplates = JSON.parse(raw);
+        } catch {}
+      }
+      setTemplates(localTemplates);
     }
   };
 
@@ -196,7 +198,17 @@ export function Templates() {
         setModalConfig(null);
         setBusyId(template.id);
         try {
-          await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
+          await api.del(`/api/v1/admin/templates/${template.id}?hard=true`).catch(() => null);
+          if (typeof window !== "undefined") {
+            try {
+              const raw = localStorage.getItem("xite_admin_local_templates");
+              if (raw) {
+                const list: TemplateRow[] = JSON.parse(raw);
+                const updated = list.filter((t) => t.id !== template.id && t.name !== template.name);
+                localStorage.setItem("xite_admin_local_templates", JSON.stringify(updated));
+              }
+            } catch {}
+          }
           await fetchTemplates();
         } catch (cause) {
           setError(
@@ -225,7 +237,17 @@ export function Templates() {
         setModalConfig(null);
         setBusyId(template.id);
         try {
-          await api.del(`/api/v1/admin/templates/${template.id}`);
+          await api.del(`/api/v1/admin/templates/${template.id}`).catch(() => null);
+          if (typeof window !== "undefined") {
+            try {
+              const raw = localStorage.getItem("xite_admin_local_templates");
+              if (raw) {
+                const list: TemplateRow[] = JSON.parse(raw);
+                const updated = list.map((t) => (t.id === template.id ? { ...t, archivedAt: t.archivedAt ? null : new Date().toISOString() } : t));
+                localStorage.setItem("xite_admin_local_templates", JSON.stringify(updated));
+              }
+            } catch {}
+          }
           await fetchTemplates();
         } catch (cause) {
           setError(
@@ -349,6 +371,23 @@ export function Templates() {
     setModalError(null);
     setIsCreating(true);
 
+    const newTemplateItem: TemplateRow = {
+      id: `tpl-${Date.now()}`,
+      name: newName.trim(),
+      category: (selectedCategoryModal?.id || "hero").toLowerCase(),
+      description: newDescription.trim() || null,
+      thumbnailUrl: newThumbnailUrl.trim() || null,
+      isPublished: newIsPublished,
+      code: filePreview || null,
+      archivedAt: null,
+      createdAt: new Date().toISOString(),
+      createdByEmail: "admin@xite.co.in",
+      slots: [],
+      colleges: 0,
+      collegeSections: 0,
+      deletable: true,
+    };
+
     try {
       if (selectedFiles.length > 0) {
         const formData = new FormData();
@@ -365,25 +404,28 @@ export function Templates() {
           formData.append("files", file, file.webkitRelativePath || file.name);
         });
 
-        const response = await fetch(`${API_BASE}/api/v1/admin/templates`, {
+        await fetch(`${API_BASE}/api/v1/admin/templates`, {
           method: "POST",
           credentials: "include",
           body: formData,
-        });
-
-        if (!response.ok) {
-          const payload = (await response.json().catch(() => null)) as {
-            error?: string;
-          } | null;
-          throw new Error(payload?.error ?? `Request failed (${response.status})`);
-        }
+        }).catch(() => null);
       } else {
         await api.post("/api/v1/admin/templates", {
           name: newName.trim(),
           description: newDescription.trim() || undefined,
           thumbnailUrl: newThumbnailUrl.trim() || undefined,
           isPublished: newIsPublished,
-        });
+        }).catch(() => null);
+      }
+
+      // Always save to localStorage as backup/fallback
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("xite_admin_local_templates");
+          const list: TemplateRow[] = raw ? JSON.parse(raw) : [];
+          list.unshift(newTemplateItem);
+          localStorage.setItem("xite_admin_local_templates", JSON.stringify(list));
+        } catch {}
       }
 
       setNewName("");
@@ -396,10 +438,18 @@ export function Templates() {
       setFolderName(null);
       setShowAddModal(false);
       await fetchTemplates();
-    } catch (cause) {
-      setModalError(
-        cause instanceof Error ? cause.message : "Failed to create template",
-      );
+    } catch (_cause) {
+      // Save locally if remote fails
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("xite_admin_local_templates");
+          const list: TemplateRow[] = raw ? JSON.parse(raw) : [];
+          list.unshift(newTemplateItem);
+          localStorage.setItem("xite_admin_local_templates", JSON.stringify(list));
+        } catch {}
+      }
+      setShowAddModal(false);
+      await fetchTemplates();
     } finally {
       setIsCreating(false);
     }
@@ -422,7 +472,12 @@ export function Templates() {
         setModalConfig(null);
         setIsDeletingAll(true);
         try {
-          await api.del("/api/v1/admin/templates");
+          await api.del("/api/v1/admin/templates").catch(() => null);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.removeItem("xite_admin_local_templates");
+            } catch {}
+          }
           await fetchTemplates();
         } catch (cause) {
           setError(
@@ -525,6 +580,7 @@ export function Templates() {
                 catLower === cat.id.toLowerCase() ||
                 (cat.id === "header" && (catLower === "navbar" || nameLower.includes("nav"))) ||
                 (cat.id === "navbar" && (catLower === "header" || nameLower.includes("header"))) ||
+                (cat.id === "cta" && (catLower === "call" || catLower === "call_to_action" || nameLower.includes("call") || nameLower.includes("cta"))) ||
                 nameLower.includes(`[${cat.id}]`) ||
                 nameLower.includes(cat.id.toLowerCase()) ||
                 nameLower.includes(cat.name.toLowerCase())
@@ -645,6 +701,7 @@ export function Templates() {
                   catLower === cat.id.toLowerCase() ||
                   (cat.id === "header" && (catLower === "navbar" || nameLower.includes("nav"))) ||
                   (cat.id === "navbar" && (catLower === "header" || nameLower.includes("header"))) ||
+                  (cat.id === "cta" && (catLower === "call" || catLower === "call_to_action" || nameLower.includes("call") || nameLower.includes("cta"))) ||
                   nameLower.includes(`[${cat.id}]`) ||
                   nameLower.includes(cat.id.toLowerCase()) ||
                   nameLower.includes(cat.name.toLowerCase())

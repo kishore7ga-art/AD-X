@@ -34,6 +34,7 @@ export type LibraryVariant = {
 const SECTION_CATEGORIES = [
   { id: "navbar", name: "Navbar / Header", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   { id: "hero", name: "Hero Banner", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+  { id: "cta", name: "Call to Action (CTA) / Call", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
   { id: "highlights", name: "College Highlights / Stats", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
   { id: "about", name: "About College", bg: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
   { id: "vision", name: "Vision & Mission Statement", bg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" },
