@@ -1,4 +1,4 @@
-import { API_BASES } from "@/env";
+import { API_BASE } from "@/env";
 
 /**
  * Every call this app makes to the API.
@@ -36,41 +36,27 @@ async function request<T>(
   path: string,
   init?: { method?: string; body?: unknown },
 ): Promise<T> {
-  let lastError: ApiError | null = null;
+  let response: Response;
 
-  for (const base of API_BASES) {
-    try {
-      const response = await fetch(`${base}${path}`, {
-        method: init?.method ?? "GET",
-        credentials: "include",
-        ...(init?.body === undefined
-          ? {}
-          : {
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(init.body),
-            }),
-      });
-
-      if (response.ok) {
-        if (response.status === 204) return undefined as T;
-        return (await response.json()) as T;
-      }
-
-      // If 401 or 429, don't try other bases, throw immediately
-      if (response.status === 401 || response.status === 429) {
-        throw new ApiError(await readError(response), response.status);
-      }
-
-      lastError = new ApiError(await readError(response), response.status);
-    } catch (err) {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 429)) {
-        throw err;
-      }
-      lastError = err instanceof ApiError ? err : new ApiError(`Could not reach ${base}`, 0);
-    }
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      method: init?.method ?? "GET",
+      credentials: "include",
+      ...(init?.body === undefined
+        ? {}
+        : {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(init.body),
+          }),
+    });
+  } catch {
+    throw new ApiError(`Could not reach ${API_BASE}`, 0);
   }
 
-  throw lastError || new ApiError(`Could not reach API server. Check network connection or CORS origins.`, 0);
+  if (!response.ok) throw new ApiError(await readError(response), response.status);
+
+  if (response.status === 204) return undefined as T;
+  return (await response.json()) as T;
 }
 
 export const api = {

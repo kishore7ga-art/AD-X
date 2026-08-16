@@ -50,27 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let me: Admin | null = null;
       let status: Setup | null = { configured: true, hasAccounts: true };
 
-      // Try fetching session silently across path variations
-      for (const mePath of ["/api/v1/admin/me", "/admin/me", "/api/admin/me", "/me"]) {
-        try {
-          const res = await api.get<{ admin: Admin }>(mePath);
-          if (res && res.admin) {
-            me = res.admin;
-            break;
-          }
-        } catch {}
-      }
+      try {
+        const res = await api.get<{ admin: Admin }>("/api/v1/admin/me");
+        if (res && res.admin) me = res.admin;
+      } catch {}
 
-      // Try fetching setup status silently across path variations
-      for (const statusPath of ["/api/v1/admin/status", "/admin/status", "/api/admin/status", "/status"]) {
-        try {
-          const res = await api.get<Setup>(statusPath);
-          if (res) {
-            status = res;
-            break;
-          }
-        } catch {}
-      }
+      try {
+        const res = await api.get<Setup>("/api/v1/admin/status");
+        if (res) status = res;
+      } catch {}
 
       if (cancelled) return;
       setAdmin(me);
