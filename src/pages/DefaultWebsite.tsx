@@ -535,7 +535,26 @@ export function DefaultWebsite() {
 
 const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   pages: [
-    { slug: "/home", title: "Home", sections: [] },
+    {
+      slug: "/home",
+      title: "Home",
+      sections: [
+        {
+          id: "preset-header",
+          title: "Navbar / Header",
+          sectionType: "navbar",
+          code: PRESET_SECTION_TEMPLATES.find((p) => p.category === "header" || p.category === "navbar")?.code || `<header style="background: #0d1527; color: #ffffff; padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; font-family: system-ui, sans-serif; width: 100%; box-sizing: border-box;"><span>GREENFIELD UNIVERSITY</span></header>`,
+          sortOrder: 0,
+        },
+        {
+          id: "preset-footer",
+          title: "Footer",
+          sectionType: "footer",
+          code: `<footer style="background: #090d16; color: #94a3b8; padding: 40px 40px; font-family: system-ui, sans-serif; width: 100%; box-sizing: border-box; border-top: 1px solid #1e293b; text-align: center;"><p style="font-size: 13px; font-weight: 700; color: #cbd5e1; margin: 0;">© 2026 Greenfield University. All Rights Reserved.</p></footer>`,
+          sortOrder: 1,
+        },
+      ],
+    },
     { slug: "/about", title: "About Us", sections: [] },
     { slug: "/courses", title: "Academics", sections: [] },
     { slug: "/events", title: "Events", sections: [] },
