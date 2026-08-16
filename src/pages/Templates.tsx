@@ -134,48 +134,25 @@ export function Templates() {
 
   const fetchTemplates = async () => {
     try {
-      const [list, counts] = await Promise.all([
-        api
-          .get<{ templates: TemplateRow[] }>("/api/v1/admin/templates")
-          .catch(() => api.get<{ templates: TemplateRow[] }>("/admin/templates")),
-        api
-          .get<TemplateStats>("/api/v1/admin/templates/stats")
-          .catch(() => api.get<TemplateStats>("/admin/templates/stats")),
-      ]);
-      setTemplates(list.templates ?? []);
-      setStats(
-        counts ?? {
-          templates: { total: 1, published: 1, draft: 0, archived: 0 },
-          library: { total: 19, active: 19, retired: 0 },
-          byType: [],
-          collegesOnTemplates: 1,
-        },
-      );
+      const listData = await api
+        .get<{ templates: TemplateRow[] }>("/api/v1/admin/templates")
+        .catch(() => api.get<{ templates: TemplateRow[] }>("/admin/templates"))
+        .catch(() => ({ templates: [] }));
+
+      if (Array.isArray(listData?.templates)) {
+        setTemplates(listData.templates);
+      }
+
+      const statsData = await api
+        .get<TemplateStats>("/api/v1/admin/templates/stats")
+        .catch(() => api.get<TemplateStats>("/admin/templates/stats"))
+        .catch(() => null);
+
+      if (statsData) {
+        setStats(statsData);
+      }
     } catch (_cause) {
-      // Fallback default reference templates if API returns 404 / 502
-      setTemplates([
-        {
-          id: "reference-university-v1",
-          name: "Reference University Template",
-          description: "Full-featured 19-section college portal template",
-          thumbnailUrl: "/templates/university.jpg",
-          isPublished: true,
-          archivedAt: null,
-          createdAt: new Date().toISOString(),
-          createdByEmail: "admin@xite.co.in",
-          slots: [],
-          colleges: 1,
-          collegeSections: 19,
-          deletable: false,
-          code: "",
-        },
-      ]);
-      setStats({
-        templates: { total: 1, published: 1, draft: 0, archived: 0 },
-        library: { total: 19, active: 19, retired: 0 },
-        byType: [],
-        collegesOnTemplates: 1,
-      });
+      console.warn("Error loading templates from API:", _cause);
     }
   };
 
@@ -529,7 +506,11 @@ export function Templates() {
           {SECTION_CATEGORIES_GRID.map((cat) => {
             const matchingSections = (templates || []).filter((tpl) => {
               const nameLower = (tpl.name || "").toLowerCase();
+              const catLower = (tpl.category || "").toLowerCase();
               return (
+                catLower === cat.id.toLowerCase() ||
+                (cat.id === "header" && (catLower === "navbar" || nameLower.includes("nav"))) ||
+                (cat.id === "navbar" && (catLower === "header" || nameLower.includes("header"))) ||
                 nameLower.includes(`[${cat.id}]`) ||
                 nameLower.includes(cat.id.toLowerCase()) ||
                 nameLower.includes(cat.name.toLowerCase())
@@ -645,7 +626,11 @@ export function Templates() {
               const cat = selectedCategoryModal;
               const matchingSections = (templates || []).filter((tpl) => {
                 const nameLower = (tpl.name || "").toLowerCase();
+                const catLower = (tpl.category || "").toLowerCase();
                 return (
+                  catLower === cat.id.toLowerCase() ||
+                  (cat.id === "header" && (catLower === "navbar" || nameLower.includes("nav"))) ||
+                  (cat.id === "navbar" && (catLower === "header" || nameLower.includes("header"))) ||
                   nameLower.includes(`[${cat.id}]`) ||
                   nameLower.includes(cat.id.toLowerCase()) ||
                   nameLower.includes(cat.name.toLowerCase())
