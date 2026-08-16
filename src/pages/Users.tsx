@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/api/client";
+import { STUDIO_BASE } from "@/env";
 import { Shell } from "@/components/Shell";
 import { ModalDialog } from "@/components/ModalDialog";
 import type { ModalDialogState } from "@/components/ModalDialog";
@@ -233,7 +234,7 @@ export function Users() {
 
                     <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between gap-2">
                       <a
-                        href="http://localhost:3000/editor/mec"
+                        href={`${STUDIO_BASE}/editor/${user.college?.subdomain || "greenfield"}`}
                         target="_blank"
                         rel="noreferrer"
                         className="text-xs font-extrabold text-blue-400 hover:text-blue-300 hover:underline"

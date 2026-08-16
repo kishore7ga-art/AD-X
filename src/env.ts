@@ -32,3 +32,25 @@ const resolvedBase = (() => {
 
 /** Trailing slash trimmed, so `${API_BASE}/api/v1/...` never doubles up. */
 export const API_BASE = resolvedBase.replace(/\/+$/, "");
+
+const rawStudio = import.meta.env.VITE_STUDIO_BASE_URL?.trim();
+const resolvedStudio = (() => {
+  if (rawStudio) return rawStudio;
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") {
+      return "http://localhost:3000";
+    }
+    if (host.includes("meetkishore.in")) {
+      return "https://meetkishore.in";
+    }
+    if (host.includes("xite.co.in")) {
+      return "https://xite.co.in";
+    }
+    return window.location.origin.replace(/^https?:\/\/admin\./, "https://");
+  }
+  return "http://localhost:3000";
+})();
+
+export const STUDIO_BASE = resolvedStudio.replace(/\/+$/, "");
+
