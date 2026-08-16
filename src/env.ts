@@ -12,26 +12,31 @@
  */
 const raw = import.meta.env.VITE_API_BASE_URL?.trim();
 
-const resolvedBase = (() => {
-  if (raw) return raw;
+const getApiBases = (): string[] => {
+  const bases: string[] = [];
+  if (raw) bases.push(raw.replace(/\/+$/, ""));
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (host === "localhost" || host === "127.0.0.1") {
-      return "http://localhost:4000";
+      bases.push("http://localhost:4000");
     }
     if (host.includes("meetkishore.in")) {
-      return "https://api.meetkishore.in";
+      bases.push("https://api.meetkishore.in");
+      bases.push("https://api.xite.co.in");
     }
     if (host.includes("xite.co.in")) {
-      return "https://api.xite.co.in";
+      bases.push("https://api.xite.co.in");
+      bases.push("https://api.meetkishore.in");
     }
-    return window.location.origin;
+    bases.push(window.location.origin);
   }
-  return "http://localhost:4000";
-})();
+  bases.push("http://localhost:4000");
+  return [...new Set(bases.filter(Boolean))];
+};
 
-/** Trailing slash trimmed, so `${API_BASE}/api/v1/...` never doubles up. */
-export const API_BASE = resolvedBase.replace(/\/+$/, "");
+export const API_BASES = getApiBases();
+/** Trailing slash trimmed, primary API base url */
+export const API_BASE = API_BASES[0] || "http://localhost:4000";
 
 const rawStudio = import.meta.env.VITE_STUDIO_BASE_URL?.trim();
 const resolvedStudio = (() => {
