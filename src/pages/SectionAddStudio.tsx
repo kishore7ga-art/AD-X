@@ -222,13 +222,10 @@ export function SectionAddStudio() {
       };
 
       try {
-        for (const endpoint of ["/api/v1/admin/templates", "/admin/templates", "/api/admin/templates", "/templates"]) {
-          try {
-            await api.post(endpoint, payload);
-            break;
-          } catch {}
-        }
-      } catch {}
+        await api.post("/api/v1/admin/templates", payload);
+      } catch (err) {
+        console.error("[SectionAddStudio] Failed to save template:", err);
+      }
 
       // Always save to localStorage so section addition never fails
       if (typeof window !== "undefined") {

@@ -46,8 +46,7 @@ export function Requests() {
       setLoading(true);
       setError(null);
       const data = await api
-        .get<{ requests: AccessRequest[] }>("/api/v1/admin/access-requests?status=ALL")
-        .catch(() => api.get<{ requests: AccessRequest[] }>("/admin/access-requests?status=ALL"));
+        .get<{ requests: AccessRequest[] }>("/api/v1/admin/access-requests?status=ALL");
       setRequests(data.requests || []);
     } catch (_err) {
       setRequests([

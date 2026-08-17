@@ -575,11 +575,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
       try {
         data = await api.get<DefaultWebsiteConfig>("/api/v1/admin/default-website");
       } catch {
-        try {
-          data = await api.get<DefaultWebsiteConfig>("/api/v1/default-website");
-        } catch {
-          data = null;
-        }
+        data = null;
       }
 
       if (!data || !data.pages || data.pages.length === 0) {
@@ -628,12 +624,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     }
 
     try {
-      let updated: DefaultWebsiteConfig | null = null;
-      try {
-        updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", newConfig);
-      } catch {
-        updated = await api.put<DefaultWebsiteConfig>("/api/v1/default-website", newConfig);
-      }
+      const updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", newConfig);
       if (updated && Array.isArray(updated.pages) && updated.pages.length > 0) {
         setConfig(updated);
       }

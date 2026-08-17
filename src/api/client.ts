@@ -1,4 +1,4 @@
-import { API_BASE, API_BASES } from "@/env";
+import { API_BASE } from "@/env";
 
 /**
  * Every call this app makes to the API.
@@ -8,6 +8,10 @@ import { API_BASE, API_BASES } from "@/env";
  * cookie the API sets — there is no token for this app to hold, attach, or
  * accidentally forget — so the only thing a request has to get right is asking the
  * browser to send the cookie. One place to get it right.
+ *
+ * Sends to exactly one API_BASE — no multi-base fallback. The old cascade through
+ * multiple bases (api.xite.co.in, localhost:4000) turned legitimate 404s into
+ * CORS errors and "Failed to fetch" on the UI.
  */
 
 export class ApiError extends Error {
@@ -36,43 +40,24 @@ async function request<T>(
   path: string,
   init?: { method?: string; body?: unknown },
 ): Promise<T> {
-  let lastError: Error | null = null;
-  const bases = API_BASES.length > 0 ? API_BASES : [API_BASE];
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: init?.method ?? "GET",
+    credentials: "include",
+    ...(init?.body === undefined
+      ? {}
+      : {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(init.body),
+        }),
+  });
 
-  for (const base of bases) {
-    try {
-      const response = await fetch(`${base}${path}`, {
-        method: init?.method ?? "GET",
-        credentials: "include",
-        ...(init?.body === undefined
-          ? {}
-          : {
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(init.body),
-            }),
-      });
-
-      if (response.ok) {
-        if (response.status === 204) return undefined as T;
-        return (await response.json()) as T;
-      }
-
-      const errMessage = await readError(response);
-      lastError = new ApiError(errMessage, response.status);
-
-      // If status is not 404 or 500+, break and throw immediately
-      if (response.status !== 404 && response.status < 500) {
-        throw lastError;
-      }
-    } catch (err) {
-      if (err instanceof ApiError && err.status !== 404 && err.status < 500) {
-        throw err;
-      }
-      lastError = err instanceof Error ? err : new ApiError(`Could not reach ${base}`, 0);
-    }
+  if (response.ok) {
+    if (response.status === 204) return undefined as T;
+    return (await response.json()) as T;
   }
 
-  throw lastError ?? new ApiError(`Could not reach API endpoint`, 0);
+  const errMessage = await readError(response);
+  throw new ApiError(errMessage, response.status);
 }
 
 export const api = {

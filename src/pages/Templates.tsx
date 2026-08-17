@@ -116,59 +116,15 @@ export function Templates() {
 
   const fetchTemplates = async () => {
     try {
-      let listData: { templates: TemplateRow[] } | null = null;
-      for (const endpoint of ["/api/v1/admin/templates", "/admin/templates", "/api/admin/templates", "/templates"]) {
-        try {
-          const res = await api.get<{ templates: TemplateRow[] }>(endpoint);
-          if (res && Array.isArray(res.templates)) {
-            listData = res;
-            break;
-          }
-        } catch {}
-      }
+      const listData = await api.get<{ templates: TemplateRow[] }>("/api/v1/admin/templates");
+      setTemplates(listData?.templates || []);
 
-      let localTemplates: TemplateRow[] = [];
-      if (typeof window !== "undefined") {
-        try {
-          const raw = localStorage.getItem("xite_admin_local_templates");
-          if (raw) localTemplates = JSON.parse(raw);
-        } catch {}
-      }
-
-      const remoteTemplates = listData?.templates || [];
-      const map = new Map<string, TemplateRow>();
-      remoteTemplates.forEach((t) => map.set(t.id || t.name, t));
-      localTemplates.forEach((t) => {
-        if (!map.has(t.id) && !map.has(t.name)) {
-          map.set(t.id || t.name, t);
-        }
-      });
-
-      setTemplates(Array.from(map.values()));
-
-      let statsData: TemplateStats | null = null;
-      for (const endpoint of ["/api/v1/admin/templates/stats", "/admin/templates/stats", "/templates/stats"]) {
-        try {
-          const res = await api.get<TemplateStats>(endpoint);
-          if (res) {
-            statsData = res;
-            break;
-          }
-        } catch {}
-      }
-
-      if (statsData) {
-        setStats(statsData);
-      }
+      try {
+        const statsData = await api.get<TemplateStats>("/api/v1/admin/templates/stats");
+        if (statsData) setStats(statsData);
+      } catch {}
     } catch (_cause) {
-      let localTemplates: TemplateRow[] = [];
-      if (typeof window !== "undefined") {
-        try {
-          const raw = localStorage.getItem("xite_admin_local_templates");
-          if (raw) localTemplates = JSON.parse(raw);
-        } catch {}
-      }
-      setTemplates(localTemplates);
+      setTemplates([]);
     }
   };
 
@@ -371,23 +327,6 @@ export function Templates() {
     setModalError(null);
     setIsCreating(true);
 
-    const newTemplateItem: TemplateRow = {
-      id: `tpl-${Date.now()}`,
-      name: newName.trim(),
-      category: (selectedCategoryModal?.id || "hero").toLowerCase(),
-      description: newDescription.trim() || null,
-      thumbnailUrl: newThumbnailUrl.trim() || null,
-      isPublished: newIsPublished,
-      code: filePreview || null,
-      archivedAt: null,
-      createdAt: new Date().toISOString(),
-      createdByEmail: "admin@xite.co.in",
-      slots: [],
-      colleges: 0,
-      collegeSections: 0,
-      deletable: true,
-    };
-
     try {
       if (selectedFiles.length > 0) {
         const formData = new FormData();
@@ -404,28 +343,22 @@ export function Templates() {
           formData.append("files", file, file.webkitRelativePath || file.name);
         });
 
-        await fetch(`${API_BASE}/api/v1/admin/templates`, {
+        const res = await fetch(`${API_BASE}/api/v1/admin/templates`, {
           method: "POST",
           credentials: "include",
           body: formData,
-        }).catch(() => null);
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.error || `Upload failed (${res.status})`);
+        }
       } else {
         await api.post("/api/v1/admin/templates", {
           name: newName.trim(),
           description: newDescription.trim() || undefined,
           thumbnailUrl: newThumbnailUrl.trim() || undefined,
           isPublished: newIsPublished,
-        }).catch(() => null);
-      }
-
-      // Always save to localStorage as backup/fallback
-      if (typeof window !== "undefined") {
-        try {
-          const raw = localStorage.getItem("xite_admin_local_templates");
-          const list: TemplateRow[] = raw ? JSON.parse(raw) : [];
-          list.unshift(newTemplateItem);
-          localStorage.setItem("xite_admin_local_templates", JSON.stringify(list));
-        } catch {}
+        });
       }
 
       setNewName("");
@@ -438,18 +371,8 @@ export function Templates() {
       setFolderName(null);
       setShowAddModal(false);
       await fetchTemplates();
-    } catch (_cause) {
-      // Save locally if remote fails
-      if (typeof window !== "undefined") {
-        try {
-          const raw = localStorage.getItem("xite_admin_local_templates");
-          const list: TemplateRow[] = raw ? JSON.parse(raw) : [];
-          list.unshift(newTemplateItem);
-          localStorage.setItem("xite_admin_local_templates", JSON.stringify(list));
-        } catch {}
-      }
-      setShowAddModal(false);
-      await fetchTemplates();
+    } catch (cause) {
+      setModalError(cause instanceof Error ? cause.message : "Failed to create template");
     } finally {
       setIsCreating(false);
     }

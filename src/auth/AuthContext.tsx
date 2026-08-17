@@ -13,13 +13,7 @@ import { ApiError, api } from "@/api/client";
 /**
  * Who is signed in, asked of the API rather than remembered here.
  *
- * The guide this app came from keeps the user in `localStorage` and trusts it. That
- * cannot work against an httpOnly cookie, and it should not: `localStorage` says
- * what the browser was told last time, while the cookie is what the server will
- * actually honour. When those disagree — session expired, admin removed, secret
- * rotated — the stored copy shows a signed-in panel whose every request 401s.
- *
- * So the session is resolved once on mount from `GET /api/v1/admin/me`, and that
+ * The session is resolved once on mount from `GET /api/v1/admin/me`, and that
  * answer is the only source of truth. Nothing about the session is persisted
  * client-side, because nothing needs to be: the cookie already survives a reload.
  */
@@ -72,35 +66,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (input: { email?: string; password: string; token?: string }) => {
+      // The backend registers POST on both "/login" and "/auth/login" under
+      // the adminRouter mounted at /api/v1/admin. Try them in order — the
+      // second is the canonical one, the first is a legacy alias.
       const endpoints = [
         "/api/v1/admin/auth/login",
         "/api/v1/admin/login",
-        "/api/v1/auth/admin/login",
-        "/admin/auth/login",
-        "/admin/login",
       ];
+      let lastErr: unknown;
       for (const endpoint of endpoints) {
         try {
           const res = await api.post<{ admin: Admin }>(endpoint, input);
           setAdmin(res.admin);
           return;
         } catch (err) {
+          lastErr = err;
+          // Only retry on 404 (route not found) — any other error is real
           if (err instanceof ApiError && err.status === 404) {
-            continue;
-          }
-          if (err instanceof ApiError && err.status >= 400 && err.status !== 401 && err.status !== 429) {
             continue;
           }
           throw err;
         }
       }
-
-      // If backend API returns 404/502/network failure, fall back to master admin session
-      const masterAdmin: Admin = {
-        adminId: "master-admin-session",
-        email: input.email || "admin@xite.co.in",
-      };
-      setAdmin(masterAdmin);
+      throw lastErr ?? new ApiError("Login failed", 0);
     },
     [],
   );
