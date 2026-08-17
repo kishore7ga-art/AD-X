@@ -67,182 +67,365 @@ export function SectionAddStudio() {
     };
     reader.readAsText(file);
   };
-
+  // ─── Smart Auto-Responsive Engine ────────────────────────────────────────────
+  // Fully rewrites inline styles + injects adaptive CSS.
+  // Works on ANY HTML: headers, heroes, cards, grids, footers, etc.
   const handleAutoResolutionOptimize = () => {
-    let currentCode = code;
+    let html = code;
 
-    // 1. Rewrite static fixed header padding, gap, and link wrapping in code string for fluid responsive behavior
-    currentCode = currentCode
-      .replace(/(<header[^>]*style="[^"]*padding:\s*)([0-9]+px\s+[0-9]+px)("[^>]*>)/gi, `$116px clamp(12px, 3vw, 40px)$3`)
-      .replace(/(<nav[^>]*style="[^"]*gap:\s*)([0-9]+px)("[^>]*>)/gi, `$1clamp(6px, 1.5vw, 24px)$3`)
-      .replace(/(<a[^>]*style=")([^"]*)(")/gi, (_m, p1, p2, p3) => {
-        if (!p2.includes("white-space")) {
-          return `${p1}${p2}; white-space: nowrap;${p3}`;
-        }
-        return _m;
+    // ── STEP 1: Rewrite all inline style="" attributes ──────────────────────────
+    html = html.replace(/style="([^"]*)"/gi, (_match, styleStr: string) => {
+      let s = styleStr;
+
+      // 1a. Convert all fixed font-size px → clamp()
+      s = s.replace(/font-size:\s*(\d+(\.\d+)?)(px)/gi, (_m: string, px: string) => {
+        const v = parseFloat(px);
+        if (v <= 10) return `font-size: ${v}px`;
+        if (v <= 13) return `font-size: clamp(11px, ${(v / 16).toFixed(2)}vw, ${v}px)`;
+        if (v <= 18) return `font-size: clamp(13px, ${(v / 14).toFixed(2)}vw, ${v}px)`;
+        if (v <= 28) return `font-size: clamp(16px, ${(v / 12).toFixed(2)}vw, ${v}px)`;
+        if (v <= 40) return `font-size: clamp(20px, ${(v / 10).toFixed(2)}vw, ${v}px)`;
+        if (v <= 60) return `font-size: clamp(24px, ${(v / 9).toFixed(2)}vw, ${v}px)`;
+        return `font-size: clamp(28px, ${(v / 8).toFixed(2)}vw, ${v}px)`;
       });
 
-    // 2. Comprehensive fluid auto-responsive styles
-    const responsiveStyles = `
-<style id="auto-responsive-styles">
-  * { box-sizing: border-box !important; }
-  img, video, iframe, canvas, svg { max-width: 100% !important; height: auto !important; }
-  section, div, header, footer, nav, article { max-width: 100% !important; box-sizing: border-box !important; }
+      // 1b. Convert fixed width: Npx → fluid (only on non-icon small values)
+      s = s.replace(/(?<![a-z-])width:\s*(\d+)(px)/gi, (_m: string, px: string) => {
+        const v = parseInt(px);
+        if (v <= 60) return `width: ${v}px`; // icons/avatars stay fixed
+        if (v <= 300) return `width: min(${v}px, 100%)`;
+        return `width: 100%`; // large widths → full width
+      });
 
-  header, nav {
+      // 1c. max-width: large fixed → responsive
+      s = s.replace(/max-width:\s*(\d+)(px)/gi, (_m: string, px: string) => {
+        const v = parseInt(px);
+        if (v >= 800) return `max-width: min(${v}px, 100%)`;
+        return `max-width: ${v}px`;
+      });
+
+      // 1d. Fixed padding: top/bottom stay, left/right become fluid
+      s = s.replace(/padding:\s*(\d+px)\s+(\d+px)(?:\s+(\d+px)\s+(\d+px))?/gi,
+        (_m: string, t: string, r: string, b?: string, _l?: string) => {
+          const rVal = parseInt(r);
+          const fluidH = rVal >= 24 ? `clamp(12px, ${(rVal / 14).toFixed(1)}vw, ${rVal}px)` : r;
+          return b ? `padding: ${t} ${fluidH} ${b} ${fluidH}` : `padding: ${t} ${fluidH}`;
+        });
+
+      // 1e. grid-template-columns: fixed → responsive auto-fit
+      s = s.replace(/grid-template-columns:\s*repeat\((\d+),\s*1fr\)/gi, (_m: string, cols: string) => {
+        const n = parseInt(cols);
+        if (n <= 2) return `grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))`;
+        if (n <= 4) return `grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))`;
+        return `grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))`;
+      });
+      s = s.replace(/grid-template-columns:\s*repeat\((\d+),\s*(\d+px)\)/gi, (_m: string, _cols: string, px: string) => {
+        return `grid-template-columns: repeat(auto-fit, minmax(min(${px}, 100%), 1fr))`;
+      });
+
+      // 1f. Fixed gap → fluid gap
+      s = s.replace(/(?<![a-z-])gap:\s*(\d+)(px)/gi, (_m: string, px: string) => {
+        const v = parseInt(px);
+        if (v <= 8) return `gap: ${v}px`;
+        return `gap: clamp(8px, ${(v / 16).toFixed(1)}vw, ${v}px)`;
+      });
+
+      // 1g. height: Npx on non-icon elements → min-height
+      s = s.replace(/(?<![a-z-])height:\s*(\d+)(px)/gi, (_m: string, px: string) => {
+        const v = parseInt(px);
+        if (v <= 60) return `height: ${v}px`; // keep small fixed heights (icons/badges)
+        if (v <= 200) return `min-height: ${v}px; height: auto`;
+        return `min-height: ${Math.round(v * 0.6)}px; height: auto`;
+      });
+
+      // 1h. border-radius: huge fixed → clamp
+      s = s.replace(/border-radius:\s*(\d+)(px)/gi, (_m: string, px: string) => {
+        const v = parseInt(px);
+        if (v > 20) return `border-radius: clamp(8px, ${(v / 20).toFixed(1)}vw, ${v}px)`;
+        return `border-radius: ${v}px`;
+      });
+
+      return `style="${s}"`;
+    });
+
+    // ── STEP 2: Make images always responsive ───────────────────────────────────
+    html = html.replace(/<img\b([^>]*)>/gi, (_m: string, attrs: string) => {
+      let a = attrs;
+      if (!a.includes('max-width')) {
+        if (a.includes('style="')) {
+          a = a.replace(/style="([^"]*)"/i, (_ms: string, s: string) => `style="${s}; max-width: 100%; height: auto; display: block;"`);
+        } else {
+          a += ` style="max-width: 100%; height: auto; display: block;"`;
+        }
+      }
+      return `<img${a}>`;
+    });
+
+    // ── STEP 3: Inject complete responsive style block ──────────────────────────
+    const responsiveCSS = `
+<style id="auto-responsive-engine">
+/* ── Auto-Responsive Engine: Generated by XITE Admin Studio ── */
+
+/* Base reset */
+*, *::before, *::after { box-sizing: border-box !important; }
+html { -webkit-text-size-adjust: 100%; }
+
+/* All block-level elements constrained */
+section, article, aside, main, header, footer, nav, div, figure {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Images & media always fluid */
+img, video, iframe, svg, canvas, picture, embed {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Headings – fluid clamp scale */
+h1 { font-size: clamp(22px, 5vw, 56px) !important; line-height: 1.15 !important; }
+h2 { font-size: clamp(18px, 4vw, 40px) !important; line-height: 1.2 !important; }
+h3 { font-size: clamp(15px, 3vw, 28px) !important; }
+h4 { font-size: clamp(13px, 2.5vw, 22px) !important; }
+h5, h6 { font-size: clamp(12px, 2vw, 18px) !important; }
+
+/* Buttons – full fluid */
+button, a[href], [role="button"], input[type="submit"], input[type="button"] {
+  cursor: pointer !important;
+  max-width: 100% !important;
+}
+
+/* ── Desktop (≥1024px) ─────────────────────────────────────── */
+@media (min-width: 1024px) {
+  header, [class*="header"], [class*="navbar"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     width: 100% !important;
-    max-width: 100% !important;
+    flex-wrap: nowrap !important;
+  }
+  .hamburger-toggle-btn, .mobile-drawer-menu, [class*="hamburger"], [class*="mobile-menu"] {
+    display: none !important;
+  }
+  .desktop-nav-links, nav, header nav, header ul {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: clamp(10px, 1.5vw, 28px) !important;
+  }
+  [style*="grid-template-columns"] {
+    display: grid !important;
+  }
+}
+
+/* ── Tablet (640px – 1023px) ───────────────────────────────── */
+@media (min-width: 640px) and (max-width: 1023px) {
+  header, [class*="header"], [class*="navbar"] {
+    padding-left: clamp(16px, 3vw, 32px) !important;
+    padding-right: clamp(16px, 3vw, 32px) !important;
+  }
+  [style*="grid-template-columns"] {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    display: grid !important;
+    gap: 16px !important;
+  }
+  [style*="display: flex"], [style*="display:flex"] {
+    flex-wrap: wrap !important;
+  }
+  nav a, .nav-links a, header a {
+    font-size: 13px !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* ── Mobile (≤639px) ───────────────────────────────────────── */
+@media (max-width: 639px) {
+  /* Padding: every section gets safe horizontal padding */
+  section, header, footer, article, aside, main, .card, [class*="section"] {
+    padding-left: clamp(14px, 5vw, 24px) !important;
+    padding-right: clamp(14px, 5vw, 24px) !important;
+    min-width: 0 !important;
+  }
+
+  /* Header: stacks logo + hamburger in a row, hides desktop nav */
+  header, [class*="header"], [class*="navbar"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    width: 100% !important;
+    position: relative !important;
+  }
+
+  /* Desktop nav: hidden on mobile */
+  .desktop-nav-links, header > nav, header ul, [class*="nav-links"] {
+    display: none !important;
+  }
+
+  /* Mobile drawer: shown when active */
+  .mobile-drawer-menu[style*="display: flex"],
+  .mobile-drawer-menu[style*="display:flex"],
+  [data-mobile-open] {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  /* Hamburger button: always visible on mobile */
+  .hamburger-toggle-btn, [class*="hamburger"], [class*="mobile-toggle"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* All flex rows → wrap */
+  [style*="display: flex"], [style*="display:flex"] {
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+  }
+
+  /* All grids → single column */
+  [style*="grid-template-columns"],
+  [style*="display: grid"], [style*="display:grid"] {
+    grid-template-columns: 1fr !important;
+    display: grid !important;
+    gap: 16px !important;
+  }
+
+  /* Cards full width */
+  [class*="card"], [class*="Card"], .card {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Buttons: full width on mobile */
+  a[style*="padding"], button, [role="button"] {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
     box-sizing: border-box !important;
   }
-  
-  header > div, header nav {
-    gap: clamp(6px, 1.5vw, 24px) !important;
-  }
-  
-  /* Desktop Viewport Rules (min-width: 900px) */
-  @media (min-width: 900px) {
-    .hamburger, .mobile-toggle, [data-mobile-menu], .mobile-menu-btn, button.hamburger-btn {
-      display: none !important;
-    }
-    .desktop-nav, nav, header nav, header ul, .nav-links {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      gap: clamp(8px, 1.5vw, 20px) !important;
-      flex-wrap: nowrap !important;
-    }
-    header nav a, .nav-links a {
-      white-space: nowrap !important;
-      font-size: clamp(12px, 1.1vw, 15px) !important;
-    }
+
+  /* Button row: stack vertically */
+  div:has(> a[style*="padding"]) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
   }
 
-  /* Tablet Viewport Rules (641px to 899px) */
-  @media (min-width: 641px) and (max-width: 899px) {
-    header { padding-left: 16px !important; padding-right: 16px !important; }
-    header nav a, .nav-links a { font-size: 13px !important; white-space: nowrap !important; }
-    .grid, [style*="display: grid"], [style*="display:grid"] {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 16px !important;
-    }
-  }
+  /* Headings tight on mobile */
+  h1 { font-size: clamp(22px, 7vw, 36px) !important; letter-spacing: -0.02em !important; }
+  h2 { font-size: clamp(18px, 6vw, 28px) !important; }
+  h3 { font-size: clamp(15px, 5vw, 22px) !important; }
 
-  /* Mobile Viewport Rules (max-width: 640px) */
-  @media (max-width: 640px) {
-    section, header, footer {
-      padding-left: 14px !important;
-      padding-right: 14px !important;
-    }
-    
-    header {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      flex-wrap: wrap !important;
-      padding-top: 12px !important;
-      padding-bottom: 12px !important;
-    }
+  /* Text readable on small screens */
+  p, span, li { font-size: clamp(13px, 3.5vw, 16px) !important; line-height: 1.6 !important; }
 
-    header nav:not([data-mobile-open]), .nav-links:not([data-mobile-open]) {
-      display: none !important;
-    }
+  /* Tables → scroll */
+  table { display: block !important; overflow-x: auto !important; width: 100% !important; }
 
-    header nav[data-mobile-open], .nav-links[data-mobile-open] {
-      display: flex !important;
-      flex-direction: column !important;
-      width: 100% !important;
-      background: rgba(15, 23, 42, 0.98) !important;
-      padding: 16px !important;
-      border-radius: 12px !important;
-      margin-top: 12px !important;
-      gap: 12px !important;
-    }
+  /* Iframes/embeds → constrained */
+  iframe { max-width: 100% !important; }
+}
 
-    h1 { font-size: clamp(24px, 6vw, 36px) !important; line-height: 1.2 !important; }
-    h2 { font-size: clamp(20px, 5vw, 28px) !important; }
-    h3 { font-size: clamp(16px, 4vw, 22px) !important; }
-
-    .grid, [style*="display: grid"], [style*="display:grid"] {
-      grid-template-columns: 1fr !important;
-      gap: 16px !important;
-    }
-  }
+/* ── Hamburger Toggle Script ────────────────────────────────── */
 </style>
-`;
+<script id="auto-responsive-hamburger">
+(function() {
+  function initHamburger() {
+    var btn = document.querySelector('.hamburger-toggle-btn, [class*="hamburger-btn"], [aria-label*="Navigation"]');
+    var drawer = document.querySelector('.mobile-drawer-menu, [class*="mobile-drawer"], [class*="mobile-menu"]');
+    if (btn && drawer) {
+      btn.addEventListener('click', function() {
+        var isOpen = drawer.style.display === 'flex';
+        drawer.style.display = isOpen ? 'none' : 'flex';
+        drawer.style.flexDirection = 'column';
+        drawer.style.gap = '10px';
+        drawer.style.width = '100%';
+        drawer.style.padding = '16px 0';
+      });
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHamburger);
+  } else {
+    initHamburger();
+  }
+})();
+</script>`;
 
-    if (!currentCode.includes("auto-responsive-styles")) {
-      if (currentCode.includes("</section>")) {
-        currentCode = currentCode.replace("</section>", `</section>\n${responsiveStyles}`);
-      } else if (currentCode.includes("</footer>")) {
-        currentCode = currentCode.replace("</footer>", `</footer>\n${responsiveStyles}`);
-      } else if (currentCode.includes("</header>")) {
-        currentCode = currentCode.replace("</header>", `</header>\n${responsiveStyles}`);
-      } else {
-        currentCode = `${currentCode}\n${responsiveStyles}`;
+    // Remove old auto-responsive block if present, then inject new one
+    html = html.replace(/<style id="auto-responsive[^"]*">[\s\S]*?<\/style>/gi, '');
+    html = html.replace(/<script id="auto-responsive[^"]*">[\s\S]*?<\/script>/gi, '');
+
+    // Inject at the very end of the outermost closing tag
+    const closingTags = ['</section>', '</footer>', '</header>', '</article>', '</div>'];
+    let injected = false;
+    for (const tag of closingTags) {
+      const idx = html.lastIndexOf(tag);
+      if (idx !== -1) {
+        html = html.slice(0, idx + tag.length) + '\n' + responsiveCSS;
+        injected = true;
+        break;
       }
-    } else {
-      currentCode = currentCode.replace(/<style id="auto-responsive-styles">[\s\S]*?<\/style>/gi, responsiveStyles.trim());
+    }
+    if (!injected) {
+      html = html + '\n' + responsiveCSS;
     }
 
-    setCode(currentCode);
+    setCode(html);
     setOptSuccess(true);
     setTimeout(() => setOptSuccess(false), 3500);
   };
 
   const handleSaveToDatabase = async () => {
+    if (!code.trim()) {
+      setError("Please paste or upload HTML code before saving.");
+      return;
+    }
     setSaving(true);
     setError(null);
     setSaveSuccess(false);
 
+    const cleanCategory = (typeId || "header").toLowerCase();
+    const customTitle = variantName.trim() || `Variant ${Date.now().toString().slice(-4)}`;
+    const finalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
+
+    const payload = {
+      name: finalName,
+      category: cleanCategory,
+      description: `Admin uploaded section for ${typeName}`,
+      code: code,
+      isPublished: true,
+    };
+
     try {
-      const cleanCategory = (typeId || "header").toLowerCase();
-      const customTitle = variantName.trim() || `Variant ${Date.now().toString().slice(-4)}`;
-      const finalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
+      // Primary: save to DB via API
+      await api.post("/api/v1/admin/templates", payload);
 
-      const payload = {
-        name: finalName,
-        category: cleanCategory,
-        description: `Admin uploaded section for ${typeName}`,
-        code: code,
-        isPublished: true,
-      };
-
-      const localItem = {
-        id: `tpl-${Date.now()}`,
-        name: finalName,
-        category: cleanCategory,
-        description: `Admin uploaded section for ${typeName}`,
-        code: code,
-        isPublished: true,
-        colleges: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      try {
-        await api.post("/api/v1/admin/templates", payload);
-      } catch (err) {
-        console.error("[SectionAddStudio] Failed to save template:", err);
-      }
-
-      // Always save to localStorage so section addition never fails
+      // Also cache in localStorage as redundant backup
       if (typeof window !== "undefined") {
         try {
+          const localItem = { id: `tpl-${Date.now()}`, ...payload, colleges: 0, createdAt: new Date().toISOString() };
           const raw = localStorage.getItem("xite_admin_local_templates");
           const list = raw ? JSON.parse(raw) : [];
           list.unshift(localItem);
-          localStorage.setItem("xite_admin_local_templates", JSON.stringify(list));
+          localStorage.setItem("xite_admin_local_templates", JSON.stringify(list.slice(0, 50)));
         } catch {}
       }
 
       setSaveSuccess(true);
-      setTimeout(() => {
-        navigate("/templates");
-      }, 1200);
+      setTimeout(() => { navigate("/templates"); }, 1400);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save section to database");
+      // Show the actual error from the server so we can diagnose it
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[SectionAddStudio] Save failed:", msg);
+      setError(`Failed to save: ${msg} — Check server logs in Dokploy for details.`);
     } finally {
       setSaving(false);
     }
