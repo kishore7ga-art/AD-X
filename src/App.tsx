@@ -24,9 +24,14 @@ import { Users } from "@/pages/Users";
  * origin and an unreachable API as the one thing the browser will actually tell us.
  */
 export function App() {
+  const basename =
+    typeof window !== "undefined" && window.location.pathname.startsWith("/admin")
+      ? "/admin"
+      : "/";
+
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
