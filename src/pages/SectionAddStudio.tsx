@@ -392,6 +392,23 @@ button, a[href], [role="button"], input[type="submit"], input[type="button"] {
     setError(null);
     setSaveSuccess(false);
 
+    // Extract <body> content from full HTML documents.
+    // Admin sometimes pastes an entire page — we only want the section/body HTML.
+    let cleanCode = code.trim();
+    if (/^<!DOCTYPE/i.test(cleanCode) || /<html[\s>]/i.test(cleanCode)) {
+      const bodyMatch = cleanCode.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      if (bodyMatch?.[1]) {
+        cleanCode = bodyMatch[1].trim();
+      } else {
+        cleanCode = cleanCode
+          .replace(/^<!DOCTYPE[^>]*>/i, '')
+          .replace(/<html[^>]*>/i, '')
+          .replace(/<\/html>/i, '')
+          .replace(/<head[\s\S]*?<\/head>/i, '')
+          .trim();
+      }
+    }
+
     const cleanCategory = (typeId || "header").toLowerCase();
     const customTitle = variantName.trim() || `Variant ${Date.now().toString().slice(-4)}`;
     const finalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
@@ -400,7 +417,7 @@ button, a[href], [role="button"], input[type="submit"], input[type="button"] {
       name: finalName,
       category: cleanCategory,
       description: `Admin uploaded section for ${typeName}`,
-      code: code,
+      code: cleanCode,
       isPublished: true,
     };
 
