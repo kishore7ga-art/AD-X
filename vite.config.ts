@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "./",
+  base: "/admin/",
   plugins: [react(), tailwindcss()],
   resolve: {
     // Same `@/` convention as xite-F and xite-B, so ported files keep their
