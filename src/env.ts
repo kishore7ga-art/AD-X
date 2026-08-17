@@ -1,11 +1,8 @@
 /**
  * Where the API is.
  *
- * Resolves dynamically based on domain:
- * - *.xite.co.in -> https://api.xite.co.in
- * - *.meetkishore.in -> https://api.meetkishore.in
- * - localhost -> http://localhost:4000
- * Primary default is https://api.xite.co.in
+ * Production API Base: https://api.xite.co.in
+ * Local Development Base: http://localhost:4000
  */
 const raw = import.meta.env.VITE_API_BASE_URL?.trim();
 
@@ -13,12 +10,6 @@ function resolveApiBase(): string {
   if (raw) return raw.replace(/\/+$/, "");
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
-    if (host.includes("meetkishore.in")) {
-      return "https://api.meetkishore.in";
-    }
-    if (host.includes("xite.co.in")) {
-      return "https://api.xite.co.in";
-    }
     if (host === "localhost" || host === "127.0.0.1") {
       return "http://localhost:4000";
     }
@@ -34,12 +25,6 @@ const resolvedStudio = (() => {
   if (rawStudio) return rawStudio;
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
-    if (host.includes("meetkishore.in")) {
-      return "https://meetkishore.in";
-    }
-    if (host.includes("xite.co.in")) {
-      return "https://xite.co.in";
-    }
     if (host === "localhost" || host === "127.0.0.1") {
       return "http://localhost:3000";
     }
