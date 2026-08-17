@@ -117,13 +117,40 @@ export function Templates() {
   const fetchTemplates = async () => {
     try {
       const listData = await api.get<{ templates: TemplateRow[] }>("/api/v1/admin/templates");
-      setTemplates(listData?.templates || []);
+      const fromDb = listData?.templates || [];
+
+      // Merge DB results with any localStorage-only entries not yet in DB
+      let localExtras: TemplateRow[] = [];
+      try {
+        const raw = localStorage.getItem("xite_admin_local_templates");
+        if (raw) {
+          const localList: TemplateRow[] = JSON.parse(raw);
+          const dbIds = new Set(fromDb.map((t) => t.name));
+          localExtras = localList.filter((t) => !dbIds.has(t.name));
+        }
+      } catch {}
+
+      const merged = [...fromDb, ...localExtras];
+      setTemplates(merged);
+
+      // Cache to localStorage so refresh works even if API is briefly down
+      try {
+        localStorage.setItem("xite_admin_templates_cache", JSON.stringify(merged));
+      } catch {}
 
       try {
         const statsData = await api.get<TemplateStats>("/api/v1/admin/templates/stats");
         if (statsData) setStats(statsData);
       } catch {}
     } catch (_cause) {
+      // API failed — try loading from localStorage cache so UI doesn't go blank
+      try {
+        const cached = localStorage.getItem("xite_admin_templates_cache");
+        if (cached) {
+          setTemplates(JSON.parse(cached));
+          return;
+        }
+      } catch {}
       setTemplates([]);
     }
   };
