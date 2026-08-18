@@ -32,6 +32,7 @@ export function TemplateEdit() {
   const [aiFixSuccess, setAiFixSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewWidth, setPreviewWidth] = useState<string>("1200px");
+  const [viewMode, setViewMode] = useState<"split" | "preview" | "code">("split");
 
   // Compute preview: if full HTML doc, extract <style> from <head> + body content
   const previewCode = (() => {
@@ -420,93 +421,142 @@ export function TemplateEdit() {
           </span>
         </label>
 
-        {/* Split View Studio: Left (Live Preview), Right (Code Editor) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[60vh]">
+        {/* View Mode Switcher Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-neutral-950 p-3 rounded-2xl border border-white/10">
+          <div className="flex items-center gap-1.5 bg-black p-1 rounded-xl border border-white/10">
+            <button
+              type="button"
+              onClick={() => setViewMode("split")}
+              className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
+                viewMode === "split" ? "bg-white text-black shadow-md" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <span>↔️</span>
+              <span>Split View</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("preview")}
+              className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
+                viewMode === "preview" ? "bg-blue-600 text-white shadow-md shadow-blue-600/30" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <span>👁️</span>
+              <span>Full Preview</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("code")}
+              className={`px-3.5 py-1.5 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
+                viewMode === "code" ? "bg-neutral-800 text-white shadow-md" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <span>💻</span>
+              <span>Code Only</span>
+            </button>
+          </div>
 
-          {/* Left Side: Live Preview Canvas */}
-          <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-            <div className="p-3 border-b border-white/10 bg-neutral-900 flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-white" />
-                <span className="text-xs font-extrabold text-white tracking-wide uppercase">Live Section Preview</span>
+          <div className="text-[11px] font-mono text-neutral-400 font-bold">
+            {viewMode === "preview" ? "Full Width Preview Canvas Active" : viewMode === "code" ? "Full Width Code Editor Active" : "Side-by-Side Split View"}
+          </div>
+        </div>
+
+        {/* Dynamic Studio Layout: Split, Full Preview, or Code Only */}
+        <div className={`grid gap-6 min-h-[65vh] ${
+          viewMode === "split" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+        }`}>
+
+          {/* Live Preview Canvas */}
+          {(viewMode === "split" || viewMode === "preview") && (
+            <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-3 border-b border-white/10 bg-neutral-900 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-white" />
+                  <span className="text-xs font-extrabold text-white tracking-wide uppercase">
+                    Live Section Preview {viewMode === "preview" && "(Full Width)"}
+                  </span>
+                </div>
+                
+                {/* Device Resolution Switcher */}
+                <div className="flex items-center gap-1.5 bg-slate-950/95 p-2 px-3 rounded-full border border-slate-800/90 shadow-inner">
+                  {[
+                    { label: "🖥️ Desktop (1200px)", width: "1200px" },
+                    { label: "📱 Tablet (768px)", width: "768px" },
+                    { label: "📱 Mobile (375px)", width: "375px" },
+                  ].map((item) => {
+                    const isActive = previewWidth === item.width;
+                    return (
+                      <button
+                        key={item.width}
+                        type="button"
+                        onClick={() => setPreviewWidth(item.width)}
+                        className={`relative text-[11px] font-bold px-3.5 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap active:scale-95 ${
+                          isActive
+                            ? "text-white font-extrabold"
+                            : "text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium"
+                        }`}
+                      >
+                        {isActive && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full shadow-md shadow-blue-600/30 border border-blue-400/30 pointer-events-none" />
+                        )}
+                        <span className="relative z-10">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               
-              {/* Device Resolution Switcher */}
-              <div className="flex items-center gap-1.5 bg-slate-950/95 p-2 px-3 rounded-full border border-slate-800/90 shadow-inner">
-                {[
-                  { label: "🖥️ Desktop (1200px)", width: "1200px" },
-                  { label: "📱 Tablet (768px)", width: "768px" },
-                  { label: "📱 Mobile (375px)", width: "375px" },
-                ].map((item) => {
-                  const isActive = previewWidth === item.width;
-                  return (
-                    <button
-                      key={item.width}
-                      type="button"
-                      onClick={() => setPreviewWidth(item.width)}
-                      className={`relative text-[11px] font-bold px-3.5 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap active:scale-95 ${
-                        isActive
-                          ? "text-white font-extrabold"
-                          : "text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium"
-                      }`}
-                    >
-                      {isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full shadow-md shadow-blue-600/30 border border-blue-400/30 pointer-events-none" />
-                      )}
-                      <span className="relative z-10">{item.label}</span>
-                    </button>
-                  );
-                })}
+              <div className="flex-1 bg-neutral-900 p-4 overflow-auto flex items-center justify-center min-h-[480px] transition-all">
+                <div
+                  style={{ width: previewWidth, maxWidth: "100%" }}
+                  className="h-full min-h-[440px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-neutral-800 overflow-hidden"
+                >
+                  <iframe
+                    title="Section Preview"
+                    srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>body{margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body>' + previewCode + '</body></html>'}
+                    className="w-full h-full min-h-[440px] bg-black"
+                    sandbox="allow-scripts"
+                  />
+                </div>
               </div>
             </div>
-            
-            <div className="flex-1 bg-neutral-900 p-4 overflow-auto flex items-center justify-center min-h-[420px] transition-all">
-              <div
-                style={{ width: previewWidth, maxWidth: "100%" }}
-                className="h-full min-h-[400px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-neutral-800 overflow-hidden"
-              >
-                <iframe
-                  title="Section Preview"
-                  srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>body{margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body>' + previewCode + '</body></html>'}
-                  className="w-full h-full min-h-[400px] bg-black"
-                  sandbox="allow-scripts"
+          )}
+
+          {/* Code File Editor */}
+          {(viewMode === "split" || viewMode === "code") && (
+            <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-3 border-b border-white/10 bg-neutral-900 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileCode className="w-4 h-4 text-white" />
+                  <span className="text-xs font-extrabold text-white tracking-wide uppercase">
+                    Section Source Code {viewMode === "code" && "(Full Width)"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleAutoResponsive()}
+                  disabled={aiFixing}
+                  className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+                    aiFixSuccess
+                      ? "text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 hover:bg-emerald-500 hover:text-black"
+                      : "text-violet-300 bg-violet-500/20 border border-violet-500/40 hover:bg-violet-500 hover:text-black"
+                  }`}
+                >
+                  {aiFixing ? "⏳ Applying Fix..." : aiFixSuccess ? "✓ Responsive Applied" : "⚡ Auto Responsive Fix"}
+                </button>
+              </div>
+              <div className="flex-1 p-3 bg-black">
+                <textarea
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="Paste or write HTML/JSX section code here..."
+                  spellCheck={false}
+                  className="w-full h-full min-h-[440px] bg-black text-neutral-200 font-mono text-xs p-4 rounded-xl border border-neutral-900 focus:outline-none focus:border-white leading-relaxed resize-none"
+                  style={{ fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace" }}
                 />
-
               </div>
             </div>
-          </div>
-
-          {/* Right Side: Code File Editor */}
-          <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-            <div className="p-3 border-b border-white/10 bg-neutral-900 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileCode className="w-4 h-4 text-white" />
-                <span className="text-xs font-extrabold text-white tracking-wide uppercase">Section Source Code</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => void handleAutoResponsive()}
-                disabled={aiFixing}
-                className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
-                  aiFixSuccess
-                    ? "text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 hover:bg-emerald-500 hover:text-black"
-                    : "text-violet-300 bg-violet-500/20 border border-violet-500/40 hover:bg-violet-500 hover:text-black"
-                }`}
-              >
-                {aiFixing ? "⏳ Applying Fix..." : aiFixSuccess ? "✓ Responsive Applied" : "⚡ Auto Responsive Fix"}
-              </button>
-            </div>
-            <div className="flex-1 p-3 bg-black">
-              <textarea
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="Paste or write HTML/JSX section code here..."
-                spellCheck={false}
-                className="w-full h-full min-h-[400px] bg-black text-neutral-200 font-mono text-xs p-4 rounded-xl border border-neutral-900 focus:outline-none focus:border-white leading-relaxed resize-none"
-                style={{ fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace" }}
-              />
-            </div>
-          </div>
+          )}
 
         </div>
 
