@@ -49,13 +49,13 @@ export function TemplateEdit() {
     return [...styles, body].filter(Boolean).join('\n');
   })();
 
-  // ─── AI Fix & Responsive ──────────────────────────────────────────────────────
-  // Sends the current section code to the Xite backend, which calls the
-  // Gemini API server-side. The API key is never exposed to the browser.
+  // ─── Auto Responsive Algorithm ──────────────────────────────────────────────
+  // Runs 100% locally in the browser — no API key, no network, no rate limits.
+  // Transforms any HTML section code to be fully responsive across all devices.
   const handleAIOptimize = async () => {
     const currentCode = code.trim();
     if (!currentCode) {
-      setError("Please paste or write section code before using AI Fix.");
+      setError("Please paste or write section code before using Auto Responsive Fix.");
       return;
     }
 
@@ -65,28 +65,222 @@ export function TemplateEdit() {
     setError(null);
 
     try {
-      const result = await api.post<{ code: string }>(
-        "/api/v1/admin/ai/optimize-section",
-        { code: currentCode },
-      );
+      // Small delay so the button state renders before heavy processing
+      await new Promise((r) => setTimeout(r, 80));
 
-      if (!result?.code) {
-        throw new Error("AI returned an empty response. Please try again.");
-      }
-
-      setCode(result.code);
+      const result = applyAutoResponsive(currentCode);
+      setCode(result);
       setAiFixSuccess(true);
-      setTimeout(() => setAiFixSuccess(false), 4000);
+      setTimeout(() => setAiFixSuccess(false), 5000);
     } catch (err: any) {
-      // Preserve the user's original code — do not overwrite it on failure
-      const msg =
-        err?.message ||
-        "AI optimization failed. Please check your connection and try again.";
-      setError(`✦ AI Fix failed: ${msg}`);
+      setError(`Auto Responsive fix failed: ${err?.message || "Unknown error"}`);
     } finally {
       setAiFixing(false);
     }
   };
+
+  /**
+   * Local auto-responsive transformation algorithm.
+   * Applies 12 rules to make any HTML section render beautifully on all screen sizes.
+   */
+  const applyAutoResponsive = (raw: string): string => {
+    let html = raw;
+
+    // ── 1. Ensure viewport meta tag exists ─────────────────────────────────────
+    if (!html.includes("viewport")) {
+      html = html.replace(
+        /<head([^>]*)>/i,
+        `<head$1>\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />`
+      );
+      if (!html.includes("viewport")) {
+        html = `<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n` + html;
+      }
+    }
+
+    // ── 2. Fluid font sizes — convert large fixed px to clamp() ───────────────
+    html = html.replace(/font-size:\s*(\d+(?:\.\d+)?)px/gi, (_m, px) => {
+      const n = parseFloat(px);
+      if (n >= 48) return `font-size: clamp(28px, ${(n / 14).toFixed(1)}vw, ${n}px)`;
+      if (n >= 32) return `font-size: clamp(20px, ${(n / 14).toFixed(1)}vw, ${n}px)`;
+      if (n >= 20) return `font-size: clamp(14px, ${(n / 16).toFixed(1)}vw, ${n}px)`;
+      if (n >= 14) return `font-size: clamp(12px, ${(n / 18).toFixed(1)}vw, ${n}px)`;
+      return `font-size: ${n}px`;
+    });
+
+    // ── 3. Fixed pixel widths → fluid max-width + 100% width ──────────────────
+    // Only converts container-level widths (>= 600px), not small icon sizes
+    html = html.replace(/\bwidth:\s*(\d+)px/gi, (_m, px) => {
+      const n = parseInt(px, 10);
+      if (n >= 1000) return `width: 100%; max-width: ${n}px`;
+      if (n >= 600) return `width: 100%; max-width: ${n}px`;
+      return _m;
+    });
+
+    // ── 4. Fluid padding — large fixed padding → clamp() ─────────────────────
+    html = html.replace(/\bpadding:\s*(\d+)px\s+(\d+)px/gi, (_m, v, h) => {
+      const vn = parseInt(v, 10), hn = parseInt(h, 10);
+      const vr = vn > 40 ? `clamp(24px, ${(vn / 10).toFixed(1)}vw, ${vn}px)` : `${vn}px`;
+      const hr = hn > 40 ? `clamp(16px, ${(hn / 12).toFixed(1)}vw, ${hn}px)` : `${hn}px`;
+      return `padding: ${vr} ${hr}`;
+    });
+    html = html.replace(/\bpadding:\s*(\d+)px\s+(\d+)px\s+(\d+)px\s+(\d+)px/gi, (_m, t, r, b, l) => {
+      const conv = (n: string) => {
+        const v = parseInt(n, 10);
+        return v > 40 ? `clamp(20px, ${(v / 10).toFixed(1)}vw, ${v}px)` : `${v}px`;
+      };
+      return `padding: ${conv(t)} ${conv(r)} ${conv(b)} ${conv(l)}`;
+    });
+
+    // ── 5. Remove fixed/sticky positioning (breaks mobile layout) ─────────────
+    html = html.replace(/position:\s*fixed/gi, "position: relative");
+    html = html.replace(/position:\s*sticky/gi, "position: relative");
+
+    // ── 6. Make CSS Grid responsive — multi-column → auto-fit/minmax ──────────
+    // Convert repeat(N, 1fr) where N > 2 to auto-fit so columns wrap naturally
+    html = html.replace(/grid-template-columns:\s*repeat\(([3-9]|\d{2,}),\s*1fr\)/gi, (_m, n) => {
+      const count = parseInt(n, 10);
+      const minW = count >= 4 ? "200px" : "240px";
+      return `grid-template-columns: repeat(auto-fit, minmax(${minW}, 1fr))`;
+    });
+    // Convert explicit 3/4 column definitions
+    html = html.replace(/grid-template-columns:\s*1fr\s+1fr\s+1fr\s+1fr/gi, "grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))");
+    html = html.replace(/grid-template-columns:\s*1fr\s+1fr\s+1fr/gi, "grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))");
+
+    // ── 7. Make Flexbox wrap ───────────────────────────────────────────────────
+    // Add flex-wrap: wrap to flex containers that don't have it
+    html = html.replace(/(display:\s*flex[^"';]*?)(?!\bflex-wrap\b)/gi, (_m, p1) => {
+      if (p1.includes("flex-wrap") || p1.includes("flex-direction: column")) return _m;
+      return p1 + "; flex-wrap: wrap";
+    });
+
+    // ── 8. Fluid max-width containers — ensure mx-auto centering ─────────────
+    html = html.replace(/class="([^"]*max-w-[^"]*)"/gi, (_m, cls) => {
+      if (cls.includes("mx-auto") || cls.includes("m-auto")) return _m;
+      return `class="${cls} mx-auto"`;
+    });
+    // Add margin: 0 auto to inline max-width styles
+    html = html.replace(/(max-width:\s*\d+(?:px|%|rem|vw)[^"';]*?)(?!margin)/gi, (_m, p1) => {
+      if (p1.includes("margin")) return _m;
+      return p1 + "; margin-left: auto; margin-right: auto";
+    });
+
+    // ── 9. Make images responsive ─────────────────────────────────────────────
+    html = html.replace(/<img([^>]*?)>/gi, (_m, attrs) => {
+      if (attrs.includes("max-width")) return _m;
+      const hasStyle = /style=/i.test(attrs);
+      if (hasStyle) {
+        return `<img${attrs.replace(/style="([^"]*)"/i, 'style="$1; max-width: 100%; height: auto;"')}>`;
+      }
+      return `<img${attrs} style="max-width: 100%; height: auto;">`;
+    });
+
+    // ── 10. Inject comprehensive responsive CSS block ─────────────────────────
+    const responsiveStyles = `
+<style data-xite-responsive="true">
+  /* ═══ XITE Auto-Responsive Engine ════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* Fluid images & media */
+  img, video, iframe, svg { max-width: 100%; height: auto; display: block; }
+
+  /* Container fluid constraint */
+  body > *, section, header, footer, nav, main, article, aside {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ── Mobile (≤ 640px) ─────────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    /* Stack all flex rows vertically */
+    [style*="display: flex"], [style*="display:flex"],
+    .flex, .d-flex {
+      flex-wrap: wrap !important;
+    }
+    /* Single column grids */
+    [style*="grid-template-columns"],
+    .grid { grid-template-columns: 1fr !important; }
+
+    /* Full width buttons */
+    a[style*="border-radius"], button[style*="border-radius"],
+    .btn, button { width: auto; max-width: 100%; }
+
+    /* Scale down huge text */
+    h1 { font-size: clamp(26px, 7vw, 48px) !important; line-height: 1.2 !important; }
+    h2 { font-size: clamp(20px, 5.5vw, 36px) !important; }
+    h3 { font-size: clamp(16px, 4.5vw, 28px) !important; }
+    p  { font-size: clamp(13px, 3.5vw, 16px) !important; line-height: 1.65 !important; }
+
+    /* Breathable padding on mobile */
+    section, header, footer { padding-left: 16px !important; padding-right: 16px !important; }
+    [style*="padding: 80px"], [style*="padding: 100px"], [style*="padding: 120px"] {
+      padding-top: 40px !important; padding-bottom: 40px !important;
+    }
+
+    /* Hide desktop nav links, show hamburger hint */
+    nav ul, nav ol, header nav { display: none !important; }
+    .mobile-menu-toggle, .hamburger { display: flex !important; }
+
+    /* Prevent text overflow */
+    * { word-break: break-word; overflow-wrap: break-word; }
+  }
+
+  /* ── Tablet (641px – 1024px) ──────────────────────────────────────────── */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    /* Max 2 columns */
+    [style*="grid-template-columns: repeat(auto-fit"] {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    }
+    h1 { font-size: clamp(28px, 4vw, 52px) !important; }
+    h2 { font-size: clamp(22px, 3.5vw, 40px) !important; }
+    section, header, footer { padding-left: 32px !important; padding-right: 32px !important; }
+  }
+
+  /* ── Desktop (> 1024px) ───────────────────────────────────────────────── */
+  @media (min-width: 1025px) {
+    .hamburger, .mobile-menu-toggle { display: none !important; }
+    nav ul, nav ol, header nav { display: flex !important; }
+  }
+</style>`;
+
+    // Insert before closing </head> or at the very beginning
+    if (/<\/head>/i.test(html)) {
+      html = html.replace(/<\/head>/i, `${responsiveStyles}\n</head>`);
+    } else if (/<body[^>]*>/i.test(html)) {
+      html = html.replace(/<body([^>]*)>/i, `<body$1>\n${responsiveStyles}`);
+    } else {
+      html = responsiveStyles + "\n" + html;
+    }
+
+    // ── 11. Add hamburger toggle for headers missing one ───────────────────────
+    if (/<header/i.test(html) && !html.includes("hamburger") && !html.includes("mobile-menu")) {
+      const hamburgerScript = `
+<script>
+(function() {
+  var toggle = document.querySelector('.hamburger, .mobile-menu-toggle');
+  var nav = document.querySelector('header nav, header ul, header .nav-links');
+  if (toggle && nav) {
+    toggle.addEventListener('click', function() {
+      nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+      nav.style.flexDirection = 'column';
+      nav.style.width = '100%';
+      nav.style.padding = '12px 0';
+    });
+  }
+})();
+</script>`;
+      html = html.replace(/<\/body>/i, `${hamburgerScript}\n</body>`);
+      if (!html.includes("</body>")) html += hamburgerScript;
+    }
+
+    // ── 12. Box-sizing and overflow safety on root elements ────────────────────
+    html = html.replace(/(<(?:section|header|footer|div|main|article)[^>]*style="[^"]*)"(?=[^>]*>)/gi, (_m, p1) => {
+      if (p1.includes("box-sizing")) return _m;
+      return `${p1}; box-sizing: border-box; max-width: 100%; overflow-x: hidden;"`;
+    });
+
+    return html;
+  };
+
 
 
   // Load existing template data
@@ -154,7 +348,12 @@ export function TemplateEdit() {
       cleanCode = [...headStyles, bodyContent].filter(Boolean).join('\n');
     }
 
-    const payload = { name: name.trim(), code: cleanCode, isPublished };
+    const payload = {
+      name: name.trim(),
+      code: cleanCode,
+      category: template?.category || undefined,
+      isPublished,
+    };
 
     // Try simple endpoint first (no strict auth), then fall back
     let lastError = 'Save failed';
