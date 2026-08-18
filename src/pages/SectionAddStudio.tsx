@@ -53,6 +53,22 @@ export function SectionAddStudio() {
   const [error, setError] = useState<string | null>(null);
   const [previewWidth, setPreviewWidth] = useState<string>("1200px");
 
+  // Compute preview code: if full HTML doc, extract styles + body for clean preview
+  const previewCode = (() => {
+    const raw = code.trim();
+    if (!/^<!DOCTYPE/i.test(raw) && !/<html[\s>]/i.test(raw)) return raw;
+    const headMatch = raw.match(/<head[\s\S]*?<\/head>/i);
+    const styles: string[] = [];
+    if (headMatch) {
+      const sr = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+      let m;
+      while ((m = sr.exec(headMatch[0])) !== null) styles.push(`<style>${m[1]}</style>`);
+    }
+    const bodyMatch = raw.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    const body = bodyMatch?.[1]?.trim() || raw.replace(/^<!DOCTYPE[^>]*>/i,'').replace(/<html[^>]*>/i,'').replace(/<\/html>/i,'').replace(/<head[\s\S]*?<\/head>/i,'').trim();
+    return [...styles, body].filter(Boolean).join('\n');
+  })();
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -389,13 +405,26 @@ button, a[href], [role="button"], input[type="submit"], input[type="button"] {
     setError(null);
     setSaveSuccess(false);
 
-    // Extract body content from full HTML documents
+    // Extract body content from full HTML documents — also preserve <style> from <head>
     let cleanCode = code.trim();
     if (/^<!DOCTYPE/i.test(cleanCode) || /<html[\s>]/i.test(cleanCode)) {
+      // Extract all <style> blocks from <head> so CSS is preserved
+      const headMatch = cleanCode.match(/<head[\s\S]*?<\/head>/i);
+      const headStyles: string[] = [];
+      if (headMatch) {
+        const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+        let m;
+        while ((m = styleRegex.exec(headMatch[0])) !== null) {
+          headStyles.push(`<style>${m[1]}</style>`);
+        }
+      }
+      // Extract body content
       const bodyMatch = cleanCode.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      cleanCode = bodyMatch?.[1]?.trim() || cleanCode
+      const bodyContent = bodyMatch?.[1]?.trim() || cleanCode
         .replace(/^<!DOCTYPE[^>]*>/i, '').replace(/<html[^>]*>/i, '')
         .replace(/<\/html>/i, '').replace(/<head[\s\S]*?<\/head>/i, '').trim();
+      // Combine: styles first, then body HTML
+      cleanCode = [...headStyles, bodyContent].filter(Boolean).join('\n');
     }
 
     const cleanCategory = (typeId || 'header').toLowerCase();
@@ -583,10 +612,11 @@ button, a[href], [role="button"], input[type="submit"], input[type="button"] {
               >
                 <iframe
                   title="Section Preview"
-                  srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>body{margin:0;padding:0;background:#0d1527;color:#ffffff;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body>' + code + '</body></html>'}
+                  srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>body{margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body>' + previewCode + '</body></html>'}
                   className="w-full h-full min-h-[400px] bg-black"
                   sandbox="allow-scripts"
                 />
+
               </div>
             </div>
           </div>
