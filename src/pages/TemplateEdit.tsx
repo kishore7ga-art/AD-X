@@ -28,6 +28,8 @@ export function TemplateEdit() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [optSuccess, setOptSuccess] = useState(false);
+  const [aiFixing, setAiFixing] = useState(false);
+  const [aiFixSuccess, setAiFixSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewWidth, setPreviewWidth] = useState<string>("1200px");
 
@@ -47,129 +49,45 @@ export function TemplateEdit() {
     return [...styles, body].filter(Boolean).join('\n');
   })();
 
-  // Auto-Resolution Code Optimizer
-  const handleAutoResolutionOptimize = () => {
-    let currentCode = code;
-
-    // 1. Rewrite static fixed header padding, gap, and link wrapping in code string for fluid responsive behavior
-    currentCode = currentCode
-      .replace(/(<header[^>]*style="[^"]*padding:\s*)([0-9]+px\s+[0-9]+px)("[^>]*>)/gi, `$116px clamp(12px, 3vw, 40px)$3`)
-      .replace(/(<nav[^>]*style="[^"]*gap:\s*)([0-9]+px)("[^>]*>)/gi, `$1clamp(6px, 1.5vw, 24px)$3`)
-      .replace(/(<a[^>]*style=")([^"]*)(")/gi, (_m, p1, p2, p3) => {
-        if (!p2.includes("white-space")) {
-          return `${p1}${p2}; white-space: nowrap;${p3}`;
-        }
-        return _m;
-      });
-
-    // 2. Comprehensive fluid auto-responsive styles
-    const responsiveStyles = `
-<style id="auto-responsive-styles">
-  * { box-sizing: border-box !important; }
-  img, video, iframe, canvas, svg { max-width: 100% !important; height: auto !important; }
-  section, div, header, footer, nav, article { max-width: 100% !important; box-sizing: border-box !important; }
-
-  header, nav {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  
-  header > div, header nav {
-    gap: clamp(6px, 1.5vw, 24px) !important;
-  }
-  
-  /* Desktop Viewport Rules (min-width: 900px) */
-  @media (min-width: 900px) {
-    .hamburger, .mobile-toggle, [data-mobile-menu], .mobile-menu-btn, button.hamburger-btn {
-      display: none !important;
-    }
-    .desktop-nav, nav, header nav, header ul, .nav-links {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      gap: clamp(8px, 1.5vw, 20px) !important;
-      flex-wrap: nowrap !important;
-    }
-    header nav a, .nav-links a {
-      white-space: nowrap !important;
-      font-size: clamp(12px, 1.1vw, 15px) !important;
-    }
-  }
-
-  /* Tablet Viewport Rules (641px to 899px) */
-  @media (min-width: 641px) and (max-width: 899px) {
-    header { padding-left: 16px !important; padding-right: 16px !important; }
-    header nav a, .nav-links a { font-size: 13px !important; white-space: nowrap !important; }
-    .grid, [style*="display: grid"], [style*="display:grid"] {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 16px !important;
-    }
-  }
-
-  /* Mobile Viewport Rules (max-width: 640px) */
-  @media (max-width: 640px) {
-    section, header, footer {
-      padding-left: 14px !important;
-      padding-right: 14px !important;
-    }
-    
-    header {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      flex-wrap: wrap !important;
-      padding-top: 12px !important;
-      padding-bottom: 12px !important;
+  // ─── AI Fix & Responsive ──────────────────────────────────────────────────────
+  // Sends the current section code to the Xite backend, which calls the
+  // Gemini API server-side. The API key is never exposed to the browser.
+  const handleAIOptimize = async () => {
+    const currentCode = code.trim();
+    if (!currentCode) {
+      setError("Please paste or write section code before using AI Fix.");
+      return;
     }
 
-    header nav:not([data-mobile-open]), .nav-links:not([data-mobile-open]) {
-      display: none !important;
-    }
+    setAiFixing(true);
+    setAiFixSuccess(false);
+    setOptSuccess(false);
+    setError(null);
 
-    header nav[data-mobile-open], .nav-links[data-mobile-open] {
-      display: flex !important;
-      flex-direction: column !important;
-      width: 100% !important;
-      background: rgba(15, 23, 42, 0.98) !important;
-      padding: 16px !important;
-      border-radius: 12px !important;
-      margin-top: 12px !important;
-      gap: 12px !important;
-    }
+    try {
+      const result = await api.post<{ code: string }>(
+        "/api/v1/admin/ai/optimize-section",
+        { code: currentCode },
+      );
 
-    h1 { font-size: clamp(24px, 6vw, 36px) !important; line-height: 1.2 !important; }
-    h2 { font-size: clamp(20px, 5vw, 28px) !important; }
-    h3 { font-size: clamp(16px, 4vw, 22px) !important; }
-
-    .grid, [style*="display: grid"], [style*="display:grid"] {
-      grid-template-columns: 1fr !important;
-      gap: 16px !important;
-    }
-  }
-</style>
-`;
-
-    if (!currentCode.includes("auto-responsive-styles")) {
-      if (currentCode.includes("</section>")) {
-        currentCode = currentCode.replace("</section>", `</section>\n${responsiveStyles}`);
-      } else if (currentCode.includes("</footer>")) {
-        currentCode = currentCode.replace("</footer>", `</footer>\n${responsiveStyles}`);
-      } else if (currentCode.includes("</header>")) {
-        currentCode = currentCode.replace("</header>", `</header>\n${responsiveStyles}`);
-      } else {
-        currentCode = `${currentCode}\n${responsiveStyles}`;
+      if (!result?.code) {
+        throw new Error("AI returned an empty response. Please try again.");
       }
-    } else {
-      currentCode = currentCode.replace(/<style id="auto-responsive-styles">[\s\S]*?<\/style>/gi, responsiveStyles.trim());
-    }
 
-    setCode(currentCode);
-    setOptSuccess(true);
-    setTimeout(() => setOptSuccess(false), 3500);
+      setCode(result.code);
+      setAiFixSuccess(true);
+      setTimeout(() => setAiFixSuccess(false), 4000);
+    } catch (err: any) {
+      // Preserve the user's original code — do not overwrite it on failure
+      const msg =
+        err?.message ||
+        "AI optimization failed. Please check your connection and try again.";
+      setError(`✦ AI Fix failed: ${msg}`);
+    } finally {
+      setAiFixing(false);
+    }
   };
+
 
   // Load existing template data
   useEffect(() => {
@@ -314,11 +232,18 @@ export function TemplateEdit() {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={handleAutoResolutionOptimize}
-              className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer"
-              title="Automatically optimize code layout & responsive CSS rules for Desktop, Tablet, and Mobile devices"
+              onClick={() => void handleAIOptimize()}
+              disabled={aiFixing}
+              className={`flex items-center gap-2 text-black font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+                aiFixSuccess
+                  ? "bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-300 hover:to-green-400"
+                  : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-400 hover:to-purple-500"
+              }`}
+              title="Send this section code to Gemini AI for responsive fixes — backend-secured, API key never exposed to browser"
             >
-              <span>⚡ Auto Resolution Code Edit</span>
+              <span>
+                {aiFixing ? "⏳ AI Fixing..." : aiFixSuccess ? "✓ AI Fixed" : "✦ AI Fix & Responsive"}
+              </span>
             </button>
 
             <button
@@ -337,6 +262,13 @@ export function TemplateEdit() {
           <div className="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs font-bold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-red-400" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {aiFixSuccess && (
+          <div className="p-4 rounded-xl bg-violet-950/60 border border-violet-700 text-violet-200 text-xs font-bold flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-violet-400" />
+            <span>✦ AI Fix complete! The section has been optimized for Desktop (1200px), Tablet (768px), and Mobile (375px). Review and save when ready.</span>
           </div>
         )}
 
@@ -468,10 +400,15 @@ export function TemplateEdit() {
               </div>
               <button
                 type="button"
-                onClick={handleAutoResolutionOptimize}
-                className="text-[10px] font-black uppercase tracking-wider text-amber-300 bg-amber-500/20 border border-amber-500/40 px-2.5 py-1 rounded-lg hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
+                onClick={() => void handleAIOptimize()}
+                disabled={aiFixing}
+                className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+                  aiFixSuccess
+                    ? "text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 hover:bg-emerald-500 hover:text-black"
+                    : "text-violet-300 bg-violet-500/20 border border-violet-500/40 hover:bg-violet-500 hover:text-black"
+                }`}
               >
-                ⚡ Auto Resolution Code Edit
+                {aiFixing ? "⏳ AI Fixing..." : aiFixSuccess ? "✓ AI Fixed" : "✦ AI Fix & Responsive"}
               </button>
             </div>
             <div className="flex-1 p-3 bg-black">
