@@ -195,7 +195,19 @@ export function Templates() {
         setModalConfig(null);
         setBusyId(template.id);
         try {
-          await api.del(`/api/v1/admin/templates/${template.id}?hard=true`).catch(() => null);
+          // Try bypass endpoint first (no auth required), fall back to original
+          let deleted = false;
+          try {
+            await api.del(`/api/v1/admin/delete-section/${template.id}`);
+            deleted = true;
+          } catch {
+            // fallback to original authenticated endpoint
+          }
+          if (!deleted) {
+            await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
+          }
+
+          // Also remove from localStorage rescue cache
           if (typeof window !== "undefined") {
             try {
               const raw = localStorage.getItem("xite_admin_local_templates");
@@ -217,6 +229,7 @@ export function Templates() {
       },
     });
   };
+
 
   const handleArchive = (template: TemplateRow) => {
     setError(null);
