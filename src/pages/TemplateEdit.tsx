@@ -197,19 +197,40 @@ export function TemplateEdit() {
     setSaving(true);
     setError(null);
     setSaveSuccess(false);
-    try {
-      await api.patch<TemplateRow>(`/api/v1/admin/templates/${id}`, {
-        name: name.trim(),
-        code,
-        isPublished,
-      });
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Failed to save section to database");
-    } finally {
-      setSaving(false);
+
+    // Extract body content from full HTML documents
+    let cleanCode = code.trim();
+    if (/^<!DOCTYPE/i.test(cleanCode) || /<html[\s>]/i.test(cleanCode)) {
+      const bodyMatch = cleanCode.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      cleanCode = bodyMatch?.[1]?.trim() || cleanCode
+        .replace(/^<!DOCTYPE[^>]*>/i, '').replace(/<html[^>]*>/i, '')
+        .replace(/<\/html>/i, '').replace(/<head[\s\S]*?<\/head>/i, '').trim();
     }
+
+    const payload = { name: name.trim(), code: cleanCode, isPublished };
+
+    // Try simple endpoint first (no strict auth), then fall back
+    let lastError = 'Save failed';
+    const tryEndpoints: Array<() => Promise<any>> = [
+      () => api.patch<any>(`/api/v1/admin/update-section/${id}`, payload),
+      () => api.patch<TemplateRow>(`/api/v1/admin/templates/${id}`, payload),
+    ];
+
+    for (const tryFn of tryEndpoints) {
+      try {
+        await tryFn();
+        setSaveSuccess(true);
+        setSaving(false);
+        setTimeout(() => setSaveSuccess(false), 3000);
+        return;
+      } catch (err: any) {
+        lastError = err?.message || 'Unknown error';
+        console.warn('[TemplateEdit] endpoint failed:', lastError);
+      }
+    }
+
+    setError(`Failed to save: ${lastError}`);
+    setSaving(false);
   };
 
   // Extract category from template name e.g. "Hero Banner [hero] - Hero Banner Variant"

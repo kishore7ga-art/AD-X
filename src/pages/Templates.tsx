@@ -133,6 +133,20 @@ export function Templates() {
       const merged = [...fromDb, ...localExtras];
       setTemplates(merged);
 
+      // Merge any localStorage rescue templates (saved when API was down)
+      try {
+        const localRaw = localStorage.getItem('xite_admin_local_templates');
+        if (localRaw) {
+          const localList: any[] = JSON.parse(localRaw);
+          // Only add locals that aren't already in API response  
+          setTemplates(prev => {
+            const ids = new Set((prev || []).map((t: any) => t.id || t.name));
+            const extras = localList.filter((t: any) => !ids.has(t.id) && !ids.has(t.name));
+            return extras.length > 0 ? [...(prev || []), ...extras] : (prev || []);
+          });
+        }
+      } catch {}
+
       // Cache to localStorage so refresh works even if API is briefly down
       try {
         localStorage.setItem("xite_admin_templates_cache", JSON.stringify(merged));
