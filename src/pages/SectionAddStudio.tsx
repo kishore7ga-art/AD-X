@@ -384,68 +384,68 @@ button, a[href], [role="button"], input[type="submit"], input[type="button"] {
   };
 
   const handleSaveToDatabase = async () => {
-    if (!code.trim()) {
-      setError("Please paste or upload HTML code before saving.");
-      return;
-    }
+    if (!code.trim()) { setError('Please paste HTML code first.'); return; }
     setSaving(true);
     setError(null);
     setSaveSuccess(false);
 
-    // Extract <body> content from full HTML documents.
-    // Admin sometimes pastes an entire page — we only want the section/body HTML.
+    // Extract body content from full HTML documents
     let cleanCode = code.trim();
     if (/^<!DOCTYPE/i.test(cleanCode) || /<html[\s>]/i.test(cleanCode)) {
       const bodyMatch = cleanCode.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      if (bodyMatch?.[1]) {
-        cleanCode = bodyMatch[1].trim();
-      } else {
-        cleanCode = cleanCode
-          .replace(/^<!DOCTYPE[^>]*>/i, '')
-          .replace(/<html[^>]*>/i, '')
-          .replace(/<\/html>/i, '')
-          .replace(/<head[\s\S]*?<\/head>/i, '')
-          .trim();
-      }
+      cleanCode = bodyMatch?.[1]?.trim() || cleanCode
+        .replace(/^<!DOCTYPE[^>]*>/i, '').replace(/<html[^>]*>/i, '')
+        .replace(/<\/html>/i, '').replace(/<head[\s\S]*?<\/head>/i, '').trim();
     }
 
-    const cleanCategory = (typeId || "header").toLowerCase();
+    const cleanCategory = (typeId || 'header').toLowerCase();
     const customTitle = variantName.trim() || `Variant ${Date.now().toString().slice(-4)}`;
     const finalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
 
-    const payload = {
-      name: finalName,
-      category: cleanCategory,
-      description: `Admin uploaded section for ${typeName}`,
-      code: cleanCode,
-      isPublished: true,
-    };
+    const payload = { name: finalName, category: cleanCategory, description: `Admin section for ${typeName}`, code: cleanCode, isPublished: true };
 
-    try {
-      // Primary: save to DB via API
-      await api.post("/api/v1/admin/templates", payload);
+    // Try the simple endpoint first, then fall back to full endpoint
+    const endpoints = [
+      '/api/v1/admin/save-section',
+      '/api/v1/admin/templates',
+    ];
 
-      // Also cache in localStorage as redundant backup
-      if (typeof window !== "undefined") {
+    let lastError = 'All save endpoints failed';
+    for (const endpoint of endpoints) {
+      try {
+        const result = await api.post<any>(endpoint, payload);
+        // Success!
+        // Save to localStorage as backup too
         try {
-          const localItem = { id: `tpl-${Date.now()}`, ...payload, colleges: 0, createdAt: new Date().toISOString() };
-          const raw = localStorage.getItem("xite_admin_local_templates");
+          const cached = { id: result?.id || `tpl-${Date.now()}`, ...payload, colleges: 0, createdAt: new Date().toISOString() };
+          const raw = localStorage.getItem('xite_admin_local_templates');
           const list = raw ? JSON.parse(raw) : [];
-          list.unshift(localItem);
-          localStorage.setItem("xite_admin_local_templates", JSON.stringify(list.slice(0, 50)));
+          list.unshift(cached);
+          localStorage.setItem('xite_admin_local_templates', JSON.stringify(list.slice(0, 50)));
+          localStorage.setItem('xite_admin_templates_cache', JSON.stringify([cached, ...list].slice(0, 50)));
         } catch {}
+        setSaveSuccess(true);
+        setSaving(false);
+        setTimeout(() => navigate('/templates'), 1400);
+        return;
+      } catch (err: any) {
+        const msg = err?.response?.data?.error || err?.message || 'Unknown error';
+        console.warn(`[SectionAddStudio] ${endpoint} failed:`, msg);
+        lastError = msg;
       }
-
-      setSaveSuccess(true);
-      setTimeout(() => { navigate("/templates"); }, 1400);
-    } catch (err) {
-      // Show the actual error from the server so we can diagnose it
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("[SectionAddStudio] Save failed:", msg);
-      setError(`Failed to save: ${msg} — Check server logs in Dokploy for details.`);
-    } finally {
-      setSaving(false);
     }
+    
+    // Both failed — save to localStorage as rescue
+    try {
+      const rescued = { id: `tpl-${Date.now()}`, ...payload, colleges: 0, createdAt: new Date().toISOString() };
+      const raw = localStorage.getItem('xite_admin_local_templates');
+      const list = raw ? JSON.parse(raw) : [];
+      list.unshift(rescued);
+      localStorage.setItem('xite_admin_local_templates', JSON.stringify(list.slice(0, 50)));
+    } catch {}
+    
+    setError(`Save failed: ${lastError} — The section was saved locally. It will sync to DB when the server is fixed.`);
+    setSaving(false);
   };
 
   return (

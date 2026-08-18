@@ -40,24 +40,36 @@ async function request<T>(
   path: string,
   init?: { method?: string; body?: unknown },
 ): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: init?.method ?? "GET",
-    credentials: "include",
-    ...(init?.body === undefined
-      ? {}
-      : {
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(init.body),
-        }),
-  });
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      method: init?.method ?? "GET",
+      credentials: "include",
+      signal: controller.signal,
+      ...(init?.body === undefined
+        ? {}
+        : {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(init.body),
+          }),
+    });
 
-  if (response.ok) {
-    if (response.status === 204) return undefined as T;
-    return (await response.json()) as T;
+    if (response.ok) {
+      if (response.status === 204) return undefined as T;
+      return (await response.json()) as T;
+    }
+
+    const errMessage = await readError(response);
+    throw new ApiError(errMessage, response.status);
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      throw new ApiError("Request timed out after 15 seconds", 408);
+    }
+    throw error;
+  } finally {
+    clearTimeout(id);
   }
-
-  const errMessage = await readError(response);
-  throw new ApiError(errMessage, response.status);
 }
 
 export const api = {
