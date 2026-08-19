@@ -211,26 +211,43 @@ export function SectionAddStudio() {
     setError(null);
     setSaveSuccess(false);
 
-    // Extract body content from full HTML documents — also preserve <style> from <head>
+    // Extract body content from full HTML documents — also preserve <link>, <style>, and <script> from <head>
     let cleanCode = code.trim();
     if (/^<!DOCTYPE/i.test(cleanCode) || /<html[\s>]/i.test(cleanCode)) {
-      // Extract all <style> blocks from <head> so CSS is preserved
       const headMatch = cleanCode.match(/<head[\s\S]*?<\/head>/i);
-      const headStyles: string[] = [];
+      const headAssets: string[] = [];
       if (headMatch) {
-        const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
-        let m;
-        while ((m = styleRegex.exec(headMatch[0])) !== null) {
-          headStyles.push(`<style>${m[1]}</style>`);
+        const linkRegex = /<link[^>]+>/gi;
+        let l;
+        while ((l = linkRegex.exec(headMatch[0])) !== null) {
+          headAssets.push(l[0]);
+        }
+        const styleRegex = /<style[^>]*>[\s\S]*?<\/style>/gi;
+        let s;
+        while ((s = styleRegex.exec(headMatch[0])) !== null) {
+          headAssets.push(s[0]);
+        }
+        const scriptRegex = /<script[^>]*>[\s\S]*?<\/script>/gi;
+        let sc;
+        while ((sc = scriptRegex.exec(headMatch[0])) !== null) {
+          headAssets.push(sc[0]);
         }
       }
-      // Extract body content
-      const bodyMatch = cleanCode.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      const bodyContent = bodyMatch?.[1]?.trim() || cleanCode
-        .replace(/^<!DOCTYPE[^>]*>/i, '').replace(/<html[^>]*>/i, '')
-        .replace(/<\/html>/i, '').replace(/<head[\s\S]*?<\/head>/i, '').trim();
-      // Combine: styles first, then body HTML
-      cleanCode = [...headStyles, bodyContent].filter(Boolean).join('\n');
+      const bodyMatch = cleanCode.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
+      let bodyContent = "";
+      if (bodyMatch) {
+        const bodyAttrs = bodyMatch[1]?.trim() || "";
+        const inner = bodyMatch[2]?.trim() || "";
+        bodyContent = bodyAttrs ? `<div class="xite-body-wrapper" ${bodyAttrs}>${inner}</div>` : inner;
+      } else {
+        bodyContent = cleanCode
+          .replace(/^<!DOCTYPE[^>]*>/i, '')
+          .replace(/<html[^>]*>/i, '')
+          .replace(/<\/html>/i, '')
+          .replace(/<head[\s\S]*?<\/head>/i, '')
+          .trim();
+      }
+      cleanCode = [...headAssets, bodyContent].filter(Boolean).join('\n');
     }
 
     const cleanCategory = (typeId || 'header').toLowerCase();
