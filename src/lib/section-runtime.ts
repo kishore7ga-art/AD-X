@@ -200,10 +200,6 @@ export function sectionResponsiveCss(scope: string | null): string {
   const q = (condition: string) => `@container ${SECTION_CONTAINER_NAME} (${condition})`;
   const { mobile, tablet, nav } = SECTION_BREAKPOINTS;
 
-  /** Desktop canvas widths, written inline by hand, that no longer fit. */
-  const FIXED_WIDE = [1200, 1280, 1366, 1440, 1536, 1600, 1920]
-    .flatMap((px) => [`[style*="width: ${px}px"]`, `[style*="width:${px}px"]`]);
-
   /** Vertical rhythm authored for a desktop viewport. */
   const TALL_PADDING = [80, 96, 100, 120, 140, 160]
     .flatMap((px) => [
@@ -228,6 +224,23 @@ ${q(`max-width: ${nav}px`)} {
   ${sel(".desktop-nav-links")} { display: none !important; }
   ${sel(".hamburger-toggle-btn")} { display: inline-flex !important; }
   ${sel(".mobile-drawer-menu.active")} { display: block !important; }
+
+  /* Headers that do not use the class convention above still have to fit.
+     Most of the real library builds its navigation as a plain flex row of
+     <nav><ul><li>, which the contract never touched — so those headers ran
+     straight off the side of the page at tablet width and below, by as much as
+     220px. They wrap instead. Wrapping rather than hiding, because a section
+     with no hamburger has nowhere to put the links: a nav on two lines is
+     usable, a nav past the edge of the screen is not. */
+  ${list("header nav", "header ul", "header > div", "nav ul", "footer ul", "footer nav")} {
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+  }
+
+  /* A flex child will not shrink below its content unless it is told it may. */
+  ${list("header nav > *", "header ul > *", "nav ul > *")} {
+    min-width: 0 !important;
+  }
 }
 
 /* ── Tablet ─────────────────────────────────────────────────────────────────
@@ -235,9 +248,22 @@ ${q(`max-width: ${nav}px`)} {
    fit as many columns as the space honestly allows instead of keeping the four
    they were authored with. */
 ${q(`max-width: ${tablet}px`)} {
-  ${list(...FIXED_WIDE, '[style*="max-width: 1200px"]', '[style*="max-width:1200px"]')} {
-    width: 100% !important;
+  /* Any inline width, whatever it says.
+     This was a list of the widths somebody had thought of — 1200, 1280, 1366,
+     1440, 1536, 1600, 1920 — and the real section library is full of 980, 1024,
+     1100, 1120, 1300, 1350, 1380, 1420 and 1560, none of which it matched. An
+     enumeration is a list of the sections that happen to work today; matching on
+     the *presence* of a width is what makes this hold for sections nobody has
+     written yet. Max-width rather than width, so nothing is stretched — an
+     element narrower than the space keeps the size it asked for. */
+  ${sel('[style*="width"]')}, ${sel("[width]")} {
     max-width: 100% !important;
+  }
+
+  /* A min-width larger than the screen is the one declaration max-width cannot
+     save you from: it wins, and the layout overflows anyway. */
+  ${sel('[style*="min-width"]')} {
+    min-width: 0 !important;
   }
 
   ${list("section", "header", "footer", "main", "nav", "article", "aside")} {
@@ -306,6 +332,18 @@ ${q(`max-width: ${mobile}px`)} {
   /* Last line of defence. Clip rather than hidden, so nothing becomes a scroll
      container and sticky positioning keeps working. */
   ${list("section", "header", "footer", "main", "nav")} { overflow-x: clip; }
+
+  /* A white-space: nowrap is a promise the screen cannot keep. It is right on a
+     desktop nav that must stay on one line and fatal at 375px, where the line
+     simply leaves the page — and the real library carries seventeen of them.
+     Buttons and badges keep it: they are short by nature, and wrapping them
+     looks broken in a way overflowing does not. */
+  ${list("p", "li", "td", "th", "h1", "h2", "h3", "h4", "h5", "h6")}[style*="nowrap"],
+  ${sel('nav [style*="nowrap"]')},
+  ${sel('header [style*="nowrap"]')},
+  ${sel('footer [style*="nowrap"]')} {
+    white-space: normal !important;
+  }
 
   /* A long URL or an unbroken word should wrap, not overflow. */
   ${list("p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "a", "span", "td", "th")} {

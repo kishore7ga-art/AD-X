@@ -48,18 +48,23 @@ export function Requests() {
       const data = await api
         .get<{ requests: AccessRequest[] }>("/api/v1/admin/access-requests?status=ALL");
       setRequests(data.requests || []);
-    } catch (_err) {
-      setRequests([
-        {
-          id: "req-demo-01",
-          email: "director@madrasengineering.ac.in",
-          name: "Dr. R. Sundaram",
-          collegeName: "Madras Engineering College",
-          status: "PENDING",
-          hasPassword: true,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+    } catch (err) {
+      /**
+       * Say that the list could not be loaded, rather than inventing one.
+       *
+       * This used to answer *any* failure — an expired admin session, a network
+       * error, a 500 — by replacing the queue with a single hardcoded request
+       * for a college that does not exist. Somebody watching this screen for new
+       * signups saw a plausible-looking row and no real ones, with nothing to
+       * suggest the call had failed at all. Between that and the API answering
+       * "received" for requests it had failed to write, a submission could go
+       * missing at either end without anyone seeing an error.
+       */
+      setError(
+        err instanceof Error
+          ? `Could not load access requests: ${err.message}`
+          : "Could not load access requests.",
+      );
     } finally {
       setLoading(false);
     }
@@ -67,6 +72,14 @@ export function Requests() {
 
   useEffect(() => {
     void fetchRequests();
+
+    /**
+     * The queue is something a person watches while people are signing up, so it
+     * refreshes itself. Fifteen seconds is short enough to feel live and long
+     * enough that an idle tab is not a load generator.
+     */
+    const timer = setInterval(() => void fetchRequests(), 15_000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleApprove = (reqItem: AccessRequest) => {
