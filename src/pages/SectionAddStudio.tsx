@@ -53,7 +53,7 @@ export function SectionAddStudio() {
   const [aiFixing, setAiFixing] = useState(false);
   const [aiFixSuccess, setAiFixSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewWidth, setPreviewWidth] = useState<string>("1200px");
+  const [previewWidth, setPreviewWidth] = useState<string>("100%");
   const [viewMode, setViewMode] = useState<"split" | "preview" | "code">("split");
 
   // Compute preview code: if full HTML doc, extract styles + body for clean preview
@@ -445,12 +445,21 @@ export function SectionAddStudio() {
                 <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-xl border border-white/10">
                   <button
                     type="button"
+                    onClick={() => setPreviewWidth("100%")}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                      previewWidth === "100%" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    🖥️ Full Canvas (100%)
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setPreviewWidth("1200px")}
                     className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                       previewWidth === "1200px" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
                     }`}
                   >
-                    🖥️ Desktop (1200px)
+                    💻 Desktop (1200px)
                   </button>
                   <button
                     type="button"
@@ -473,15 +482,15 @@ export function SectionAddStudio() {
                 </div>
               </div>
 
-              <div className="flex-1 p-4 bg-neutral-900/50 flex items-center justify-center overflow-auto min-h-[480px]">
+              <div className="flex-1 p-3 bg-neutral-900/50 flex items-center justify-center overflow-auto min-h-[480px]">
                 <div
                   style={{ width: previewWidth, maxWidth: "100%" }}
-                  className="h-full min-h-[440px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-neutral-800 overflow-hidden"
+                  className="h-full w-full min-h-[440px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-neutral-800 overflow-hidden"
                 >
                   <iframe
                     title="Section Preview"
-                    srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>body{margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body>' + previewCode + '</body></html>'}
-                    className="w-full h-full min-h-[440px] bg-black"
+                    srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body style="margin:0;padding:0;width:100%;min-height:100%;">' + previewCode + '</body></html>'}
+                    className="w-full h-full min-h-[440px] bg-black border-0"
                     sandbox="allow-scripts"
                   />
                 </div>
