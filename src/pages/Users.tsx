@@ -162,114 +162,157 @@ export function Users() {
   return (
     <Shell title="Users & Accounts">
       <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-night-line pb-4">
+        {/* Top Header & Action Filter Bar */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-bold text-chalk">Registered College Staff Users</h2>
-            <p className="text-xs text-chalk-dim/60">
-              Manage accounts, tenant assignments, set passwords, and manage login access.
+            <h2 className="text-base font-extrabold text-slate-900">Registered College Accounts</h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Manage accounts, tenant assignments, set passwords, and monitor login access.
             </p>
           </div>
+
           <button
             type="button"
             onClick={() => void fetchUsers()}
-            className="rounded-lg border border-night-line px-3 py-1.5 text-xs font-semibold text-chalk-dim transition hover:border-chalk-dim/40 hover:text-chalk"
+            className="rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition shadow-xs cursor-pointer"
           >
-            Refresh List
+            🔄 Refresh List
           </button>
         </div>
 
+        {/* 3 Stats Overview for Users */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-slate-500">Total User Accounts</span>
+            <div className="mt-3 flex items-baseline justify-between">
+              <span className="text-3xl font-black text-slate-900 tabular-nums">{users.length}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                Registered
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-emerald-600">Active Colleges</span>
+            <div className="mt-3 flex items-baseline justify-between">
+              <span className="text-3xl font-black text-slate-900 tabular-nums">
+                {users.filter((u) => u.status === "ACTIVE").length}
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Live
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-cyan-600">Platform Sync</span>
+            <div className="mt-3 flex items-baseline justify-between">
+              <span className="text-3xl font-black text-slate-900 tabular-nums">100%</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
+                Auto-Saved
+              </span>
+            </div>
+          </div>
+        </div>
+
         {error && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-xs text-red-400">
+          <div className="rounded-2xl bg-red-50 border border-red-200 p-4 text-xs font-bold text-red-700">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div className="py-12 text-center text-xs text-chalk-dim/50">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
             Loading accounts...
           </div>
         ) : users.length === 0 ? (
-          <div className="py-12 text-center text-xs text-chalk-dim/50">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
             No registered users found.
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* User Website Cards / Boxes Grid */}
-            <div className="space-y-3">
-              <h3 className="text-xs font-black tracking-widest text-neutral-400 uppercase">
-                Accepted User Websites ({users.length})
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-extrabold tracking-wider text-slate-500 uppercase">
+                Active College Websites ({users.length})
               </h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="rounded-2xl p-5 bg-[#11161d] border border-emerald-500/30 hover:border-emerald-500/60 shadow-lg flex flex-col justify-between space-y-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-                        <span className="text-xs font-black text-white">{user.email}</span>
-                      </div>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2.5 py-0.5 rounded-full uppercase">
-                        {user.status}
-                      </span>
-                    </div>
+            </div>
 
-                    <div>
-                      <h4 className="text-base font-extrabold text-white">{user.college?.name || "Campus Website"}</h4>
-                      <p className="text-xs text-neutral-400 font-mono mt-0.5">
-                        https://{user.college?.subdomain || "greenfield"}.edu.in
-                      </p>
-                      <div className="mt-3 p-3 rounded-xl bg-neutral-900/80 border border-neutral-800 text-xs font-mono text-neutral-300 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-neutral-500">Auto-Saved Pages:</span>
-                          <span className="text-emerald-400 font-bold">11 Pages Active</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-neutral-500">Live Database Sync:</span>
-                          <span className="text-emerald-400 font-bold">Connected (Auto-Saved)</span>
-                        </div>
-                      </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {users.map((user) => (
+                <div
+                  key={user.id}
+                  className="rounded-3xl p-5 bg-white border border-slate-200/80 hover:border-cyan-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs shadow-emerald-500/50 animate-pulse" />
+                      <span className="text-xs font-extrabold text-slate-900 font-mono">{user.email}</span>
                     </div>
+                    <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase border ${
+                      user.status === "ACTIVE"
+                        ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+                        : "text-slate-600 bg-slate-100 border-slate-200"
+                    }`}>
+                      {user.status}
+                    </span>
+                  </div>
 
-                    <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between gap-2">
-                      <a
-                        href={`${STUDIO_BASE}/editor/${user.college?.subdomain || "greenfield"}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs font-extrabold text-blue-400 hover:text-blue-300 hover:underline"
-                      >
-                        Open Editor Studio ↗
-                      </a>
-                      <div className="flex items-center gap-2">
-                        <button
-                          disabled={updatingId === user.id}
-                          onClick={() => void changePassword(user)}
-                          className="text-xs font-bold text-neutral-300 hover:text-white px-2.5 py-1 bg-neutral-800 rounded-lg cursor-pointer disabled:opacity-50"
-                        >
-                          🔑 Password
-                        </button>
-                        <button
-                          disabled={updatingId === user.id}
-                          onClick={() => void toggleStatus(user)}
-                          className={`text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer disabled:opacity-50 ${
-                            user.status === "ACTIVE" ? "text-amber-400 hover:bg-amber-950/40" : "text-emerald-400 hover:bg-emerald-950/40"
-                          }`}
-                        >
-                          {updatingId === user.id ? "Updating…" : user.status === "ACTIVE" ? "Disable" : "Enable"}
-                        </button>
-                        <button
-                          disabled={updatingId === user.id}
-                          onClick={() => void deleteUserAccount(user)}
-                          className="text-xs font-bold text-rose-400 hover:bg-rose-950/60 bg-rose-950/30 border border-rose-800/40 px-2.5 py-1 rounded-lg cursor-pointer disabled:opacity-50"
-                        >
-                          🗑️ Delete
-                        </button>
+                  <div>
+                    <h4 className="text-base font-extrabold text-slate-900">{user.college?.name || "Campus Website"}</h4>
+                    <p className="text-xs text-cyan-600 font-mono mt-0.5">
+                      https://{user.college?.subdomain || "greenfield"}.edu.in
+                    </p>
+                    <div className="mt-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-mono text-slate-600 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Auto-Saved Pages:</span>
+                        <span className="text-emerald-600 font-bold">11 Pages Active</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Database Sync:</span>
+                        <span className="text-emerald-600 font-bold">Connected (Auto-Saved)</span>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                    <a
+                      href={`${STUDIO_BASE}/editor/${user.college?.subdomain || "greenfield"}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-extrabold text-cyan-600 hover:text-cyan-700 hover:underline"
+                    >
+                      Open Editor Studio ↗
+                    </a>
+                    <div className="flex items-center gap-2">
+                      <button
+                        disabled={updatingId === user.id}
+                        onClick={() => void changePassword(user)}
+                        className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
+                      >
+                        🔑 Password
+                      </button>
+                      <button
+                        disabled={updatingId === user.id}
+                        onClick={() => void toggleStatus(user)}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer disabled:opacity-50 transition-colors ${
+                          user.status === "ACTIVE"
+                            ? "text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200"
+                            : "text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"
+                        }`}
+                      >
+                        {updatingId === user.id ? "Updating…" : user.status === "ACTIVE" ? "Disable" : "Enable"}
+                      </button>
+                      <button
+                        disabled={updatingId === user.id}
+                        onClick={() => void deleteUserAccount(user)}
+                        className="text-xs font-bold text-rose-600 hover:bg-rose-100 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

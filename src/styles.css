@@ -1,38 +1,26 @@
 @import "tailwindcss";
 
-/* ---------------------------------------------------------------------------
-   The panel's surface, copied from xite-F's marketing tokens.
-
-   Only the dark set, and only the names the /admin route actually used —
-   `night`, `chalk`, `accent`. The light `paper`/`ink` ramp and the mesh
-   gradient stops are deliberately not here: nothing in this app breaks out
-   onto a light surface, and an unused token is a decision somebody later has
-   to reverse-engineer.
-
-   These are literal values rather than `var()` indirection, so this file is
-   the whole answer. If xite-F's palette moves, this does not follow
-   automatically — which is honest about what it is: a second copy, like
-   `src/lib/sections/` already is between the two existing repos.
-   --------------------------------------------------------------------------- */
 @theme {
-  --color-night: #0e0e10;
-  --color-night-raised: #17171a;
-  --color-night-line: #2a2a2e;
-  --color-chalk: #ffffff;
-  --color-chalk-dim: #98989f;
-  --color-accent: #146ef5;
-  --color-accent-hover: #0d5bd1;
+  --color-night: #f8fafc;
+  --color-night-raised: #ffffff;
+  --color-night-line: #e2e8f0;
+  --color-chalk: #0f172a;
+  --color-chalk-dim: #64748b;
+  --color-accent: #0284c7;
+  --color-accent-hover: #0369a1;
+  --color-brand-cyan: #06b6d4;
 }
 
-/* The panel has one surface and does not follow OS light mode — an admin
-   screen that repaints itself white is a surprise, not a feature. */
 html {
-  background: var(--color-night);
-  color-scheme: dark;
+  background: #f8fafc;
+  color: #0f172a;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-color: #f8fafc;
+  color: #0f172a;
 }

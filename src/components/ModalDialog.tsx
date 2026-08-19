@@ -49,30 +49,26 @@ export function ModalDialog({
       case "danger":
         return {
           icon: Trash2,
-          iconBg: "bg-rose-500/20 text-rose-400 border-rose-500/30",
-          btnBg: "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-950/50",
-          borderGlow: "border-rose-500/30 shadow-[0_0_30px_rgba(244,63,94,0.15)]",
+          iconBg: "bg-rose-50 text-rose-600 border-rose-200",
+          btnBg: "bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/30",
         };
       case "warning":
         return {
           icon: AlertTriangle,
-          iconBg: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-          btnBg: "bg-amber-600 hover:bg-amber-500 text-white shadow-amber-950/50",
-          borderGlow: "border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.15)]",
+          iconBg: "bg-amber-50 text-amber-600 border-amber-200",
+          btnBg: "bg-amber-600 hover:bg-amber-700 text-white shadow-sm shadow-amber-600/30",
         };
       case "success":
         return {
           icon: CheckCircle2,
-          iconBg: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-          btnBg: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50",
-          borderGlow: "border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.15)]",
+          iconBg: "bg-emerald-50 text-emerald-600 border-emerald-200",
+          btnBg: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/30",
         };
       default:
         return {
           icon: type === "prompt" ? Lock : Info,
-          iconBg: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-          btnBg: "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-950/50",
-          borderGlow: "border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.15)]",
+          iconBg: "bg-cyan-50 text-cyan-600 border-cyan-200",
+          btnBg: "bg-cyan-600 hover:bg-cyan-700 text-white shadow-sm shadow-cyan-600/30",
         };
     }
   };
@@ -81,9 +77,9 @@ export function ModalDialog({
   const IconComponent = style.icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-night/85 backdrop-blur-md animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
       <div
-        className={`w-full max-w-md bg-night-card border ${style.borderGlow} rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-chalk`}
+        className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-slate-900"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -92,15 +88,15 @@ export function ModalDialog({
               <IconComponent className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-chalk tracking-tight">{title}</h3>
-              <p className="text-xs text-chalk-dim/70 mt-0.5 leading-relaxed">{message}</p>
+              <h3 className="text-base font-extrabold text-slate-900 tracking-tight">{title}</h3>
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{message}</p>
             </div>
           </div>
 
           {onCancel && (
             <button
               onClick={onCancel}
-              className="text-chalk-dim/50 hover:text-chalk p-1 transition cursor-pointer"
+              className="text-slate-400 hover:text-slate-700 p-1 transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -117,19 +113,19 @@ export function ModalDialog({
                 placeholder={placeholder || "Enter text..."}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
-                className="w-full bg-night border border-night-line rounded-xl px-4 py-3 text-xs font-semibold text-chalk outline-none focus:border-chalk transition shadow-inner"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-slate-900 outline-none focus:border-cyan-500 focus:bg-white transition shadow-inner"
               />
             </div>
           </form>
         )}
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-night-line">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
           {type !== "alert" && onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-5 py-2.5 rounded-xl border border-night-line text-xs font-bold text-chalk-dim hover:text-chalk hover:border-chalk-dim/40 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
             >
               {cancelText}
             </button>
@@ -139,7 +135,7 @@ export function ModalDialog({
             type="button"
             onClick={() => handleConfirm()}
             disabled={type === "prompt" && !inputVal.trim()}
-            className={`px-6 py-2.5 rounded-xl text-xs font-black shadow-lg transition cursor-pointer disabled:opacity-50 ${style.btnBg}`}
+            className={`px-5 py-2 rounded-xl text-xs font-black shadow-md transition cursor-pointer disabled:opacity-50 ${style.btnBg}`}
           >
             {confirmText}
           </button>

@@ -814,15 +814,15 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         </div>
 
         {/* Header & Master Save Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-night-line bg-night-card p-6 shadow-xl">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+              <span className="rounded-full bg-cyan-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-cyan-600 border border-cyan-200">
                 New-User Template
               </span>
-              <h2 className="text-xl font-black tracking-tight text-chalk">Default Website For New Colleges</h2>
+              <h2 className="text-xl font-black tracking-tight text-slate-900">Default Website For New Colleges</h2>
             </div>
-            <p className="mt-1 text-xs text-chalk-dim/70 max-w-2xl">
+            <p className="mt-1 text-xs text-slate-500 max-w-2xl">
               Each section box below defines the <strong>starting website layout</strong> that is copied to a new user when they first sign up. Existing users&apos; websites are independent and unaffected.
             </p>
           </div>
@@ -830,19 +830,19 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
             type="button"
             onClick={handleSave}
             disabled={saving || loading}
-            className="flex items-center gap-2 rounded-xl bg-chalk px-6 py-3 text-xs font-black text-night shadow-lg transition hover:bg-chalk/90 active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 px-6 py-3 text-xs font-extrabold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            <span>{saving ? "Saving Changes..." : "Save Default Template"}</span>
+            <span>{saving ? "Saving Changes..." : "Save Default Template ⚡"}</span>
           </button>
         </div>
 
         {/* Status Notification */}
         {statusMsg ? (
           <div
-            className={`rounded-xl border p-4 text-xs font-semibold ${
+            className={`rounded-2xl border p-4 text-xs font-semibold ${
               statusMsg.type === "success"
-                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                : "border-rose-500/30 bg-rose-500/10 text-rose-400"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-rose-200 bg-rose-50 text-rose-700"
             }`}
           >
             {statusMsg.text}
@@ -850,13 +850,13 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         ) : null}
 
         {loading ? (
-          <div className="rounded-2xl border border-night-line bg-night-card p-16 text-center text-xs font-semibold text-chalk-dim/60">
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-16 text-center text-xs font-semibold text-slate-400">
             Loading Master Website Boxes...
           </div>
         ) : (
           <div className="space-y-6">
             {/* Multi-Page Navigation Bar */}
-            <div className="flex items-center gap-2 border-b border-night-line pb-3 overflow-x-auto">
+            <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3 overflow-x-auto">
               {(config || FALLBACK_DEFAULT_CONFIG).pages.map((page) => {
                 const isActive = page.slug === activeSlug;
                 return (
@@ -864,16 +864,16 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     key={page.slug}
                     type="button"
                     onClick={() => setActiveSlug(page.slug)}
-                    className={`flex items-center gap-2.5 rounded-xl px-5 py-3 text-xs font-black transition ${
+                    className={`flex items-center gap-2.5 rounded-2xl px-5 py-3 text-xs font-extrabold transition cursor-pointer ${
                       isActive
-                        ? "bg-chalk text-night shadow-md scale-[1.02]"
-                        : "border border-night-line bg-night-card text-chalk-dim/70 hover:border-chalk-dim/40 hover:text-chalk"
+                        ? "bg-white text-slate-900 shadow-xs border border-slate-200/80 scale-[1.02]"
+                        : "border border-transparent bg-slate-100/70 text-slate-500 hover:border-slate-200 hover:text-slate-900"
                     }`}
                   >
                     <span>{page.title}</span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        isActive ? "bg-night/15 text-night" : "bg-night text-chalk-dim/60 border border-night-line"
+                        isActive ? "bg-cyan-50 text-cyan-700 border border-cyan-200" : "bg-slate-200 text-slate-600"
                       }`}
                     >
                       {page.sections.length} Boxes

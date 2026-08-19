@@ -144,26 +144,27 @@ export function Requests() {
   return (
     <Shell title="Access Requests">
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-night-line pb-4">
+        {/* Top Header & Action Filter Bar */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-bold text-chalk">User Access Requests</h2>
-            <p className="text-xs text-chalk-dim/60">
-              Review, approve (accept), or reject incoming registration access requests.
+            <h2 className="text-base font-extrabold text-slate-900">User Access Requests</h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Review, approve (accept), or reject incoming college registration requests.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Filter Pills */}
-            <div className="flex rounded-xl bg-night border border-night-line p-1 text-xs">
+            <div className="flex rounded-2xl bg-slate-100 p-1 text-xs border border-slate-200/60">
               {(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((status) => (
                 <button
                   key={status}
                   type="button"
                   onClick={() => setFilter(status)}
-                  className={`rounded-lg px-3 py-1 font-bold transition ${
+                  className={`rounded-xl px-3.5 py-1.5 font-bold transition cursor-pointer ${
                     filter === status
-                      ? "bg-chalk text-night shadow-xs"
-                      : "text-chalk-dim/60 hover:text-chalk"
+                      ? "bg-white text-slate-900 shadow-xs border border-slate-200/60"
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   {status}
@@ -174,25 +175,62 @@ export function Requests() {
             <button
               type="button"
               onClick={() => void fetchRequests()}
-              className="rounded-lg border border-night-line px-3 py-1.5 text-xs font-semibold text-chalk-dim transition hover:border-chalk-dim/40 hover:text-chalk"
+              className="rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 transition shadow-xs cursor-pointer"
             >
-              Refresh
+              🔄 Refresh
             </button>
           </div>
         </div>
 
+        {/* 3 Stats Overview for Requests */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-slate-500">Total Requests</span>
+            <div className="mt-3 flex items-baseline justify-between">
+              <span className="text-3xl font-black text-slate-900 tabular-nums">{requests.length}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                All time
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-amber-600">Pending Review</span>
+            <div className="mt-3 flex items-baseline justify-between">
+              <span className="text-3xl font-black text-slate-900 tabular-nums">
+                {requests.filter((r) => r.status === "PENDING").length}
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                Action needed
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-emerald-600">Approved Colleges</span>
+            <div className="mt-3 flex items-baseline justify-between">
+              <span className="text-3xl font-black text-slate-900 tabular-nums">
+                {requests.filter((r) => r.status === "APPROVED").length}
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Active
+              </span>
+            </div>
+          </div>
+        </div>
+
         {error && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-xs text-red-400">
+          <div className="rounded-2xl bg-red-50 border border-red-200 p-4 text-xs font-bold text-red-700">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div className="py-12 text-center text-xs text-chalk-dim/50">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
             Loading access requests...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-xs text-chalk-dim/50">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
             No access requests found matching "{filter}".
           </div>
         ) : (
@@ -200,41 +238,46 @@ export function Requests() {
             {filtered.map((req) => (
               <div
                 key={req.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-night-line bg-night-soft p-5 transition hover:border-chalk-dim/30"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 transition-all hover:shadow-sm hover:border-cyan-300"
               >
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-chalk">{req.name}</span>
+                    <span className="text-sm font-extrabold text-slate-900">{req.name}</span>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
                         req.status === "PENDING"
-                          ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                          ? "bg-amber-50 text-amber-700 border border-amber-200"
                           : req.status === "APPROVED"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-red-500/10 text-red-400 border border-red-500/20"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-rose-50 text-rose-700 border border-rose-200"
                       }`}
                     >
                       {req.status}
                     </span>
                     {req.hasPassword ? (
-                      <span className="inline-flex items-center rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-0.5 text-[10px] font-bold">
+                      <span className="inline-flex items-center rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 px-2.5 py-0.5 text-[10px] font-bold">
                         🔑 Password set
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-slate-800 text-slate-400 border border-slate-700/50 px-2.5 py-0.5 text-[10px] font-bold">
+                      <span className="inline-flex items-center rounded-full bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-0.5 text-[10px] font-bold">
                         ⚡ Default password
                       </span>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-chalk-dim/70">
-                    <span>{req.email}</span>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                    <span className="font-semibold text-slate-700">{req.email}</span>
+                    {req.collegeName && (
+                      <span className="font-bold text-slate-900">
+                        &bull; {req.collegeName}
+                      </span>
+                    )}
                     {req.organization && (
-                      <span className="font-semibold text-chalk-dim">
+                      <span className="font-medium text-slate-600">
                         &bull; {req.organization}
                       </span>
                     )}
-                    <span className="text-[11px] font-mono text-chalk-dim/40">
+                    <span className="text-[11px] font-mono text-slate-400">
                       {new Date(req.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -244,7 +287,7 @@ export function Requests() {
                   </div>
 
                   {req.message && (
-                    <p className="mt-2 text-xs text-chalk-dim/80 bg-night p-2.5 rounded-xl border border-night-line italic">
+                    <p className="mt-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 italic">
                       "{req.message}"
                     </p>
                   )}
@@ -258,7 +301,7 @@ export function Requests() {
                         type="button"
                         disabled={processingId === req.id}
                         onClick={() => void handleApprove(req)}
-                        className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-night transition hover:bg-emerald-400 disabled:opacity-50 shadow-md"
+                        className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 px-4 py-2 text-xs font-extrabold text-white transition disabled:opacity-50 shadow-sm cursor-pointer"
                       >
                         {processingId === req.id ? "Processing..." : "Accept (Approve)"}
                       </button>
@@ -267,13 +310,13 @@ export function Requests() {
                         type="button"
                         disabled={processingId === req.id}
                         onClick={() => void handleReject(req.id, req.name)}
-                        className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-bold text-red-400 transition hover:bg-red-500/20 disabled:opacity-50"
+                        className="rounded-2xl border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3.5 py-2 text-xs font-extrabold text-rose-600 transition disabled:opacity-50 cursor-pointer"
                       >
                         Reject
                       </button>
                     </>
                   ) : (
-                    <div className="text-right text-[11px] text-chalk-dim/50">
+                    <div className="text-right text-[11px] text-slate-400 font-mono">
                       Reviewed by {req.reviewedByEmail || "Admin"}
                     </div>
                   )}
