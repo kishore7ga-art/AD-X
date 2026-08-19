@@ -4,6 +4,7 @@ import { Upload, Save, ArrowLeft, Eye, FileCode, CheckCircle, AlertCircle } from
 import { Shell } from "@/components/Shell";
 import { AddSectionButton } from "@/components/AddSectionButton";
 import { api } from "@/api/client";
+import { buildSectionPreviewDocument } from "@/lib/section-runtime";
 
 const DEFAULT_STARTER_CODE = `<!-- Section Component: Hero Banner -->
 <section style="background: #ffffff; color: #0f172a; padding: 80px 24px 60px 24px; text-align: center; font-family: system-ui, sans-serif; width: 100%; box-sizing: border-box; border-bottom: 1px solid #e2e8f0;">
@@ -588,7 +589,7 @@ export function SectionAddStudio() {
                 >
                   <iframe
                     title="Section Preview"
-                    srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body style="margin:0;padding:0;width:100%;min-height:100%;">' + previewCode + '</body></html>'}
+                    srcDoc={buildSectionPreviewDocument(previewCode)}
                     className="w-full flex-1 min-h-[480px] bg-black border-0"
                     sandbox="allow-scripts"
                   />

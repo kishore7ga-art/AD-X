@@ -9,6 +9,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import { buildSectionPreviewDocument } from "@/lib/section-runtime";
 
 import { api } from "@/api/client";
 import type { TemplateRow } from "@/api/types";
@@ -561,7 +562,7 @@ export function TemplateEdit() {
                 >
                   <iframe
                     title="Section Preview"
-                    srcDoc={'<!DOCTYPE html><html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style>html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:system-ui,-apple-system,sans-serif;}*{box-sizing:border-box;}</style></head><body style="margin:0;padding:0;width:100%;min-height:100%;">' + previewCode + '</body></html>'}
+                    srcDoc={buildSectionPreviewDocument(previewCode)}
                     className="w-full flex-1 min-h-[480px] bg-black border-0"
                     sandbox="allow-scripts"
                   />
