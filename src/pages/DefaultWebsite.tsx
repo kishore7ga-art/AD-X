@@ -4,7 +4,19 @@ import { api } from "@/api/client";
 import { ModalDialog } from "@/components/ModalDialog";
 import { AddSectionButton } from "@/components/AddSectionButton";
 import type { ModalDialogState } from "@/components/ModalDialog";
-import { buildSectionPreviewDocument } from "@/lib/section-runtime";
+import {
+  SECTION_DEVICE_PRESETS,
+  buildSectionPreviewDocument,
+  normalizeSectionCode,
+  type SectionDevicePreset,
+} from "@/lib/section-runtime";
+
+/** The device ladder, as the preview's toggle. */
+const DEVICE_TOGGLES: { group: SectionDevicePreset["group"]; label: string }[] = [
+  { group: "desktop", label: "🖥️ Desktop" },
+  { group: "tablet", label: "📐 Tablet" },
+  { group: "mobile", label: "📱 Mobile" },
+];
 
 export type DefaultWebsiteSection = {
   id: string;
@@ -390,8 +402,11 @@ function SectionLivePreviewIframe({
 }: {
   code: string;
   title?: string;
-  viewMode?: "desktop" | "mobile";
+  viewMode?: SectionDevicePreset["group"];
 }) {
+  // Widths come from the one device ladder in `@/lib/section-runtime`, so the
+  // Admin's "Tablet" is the editor's "Tablet" is the site preview's "Tablet".
+  const frameWidth = SECTION_DEVICE_PRESETS.find((preset) => preset.group === viewMode)?.width ?? "100%";
   // The document is built by `@/lib/section-runtime`, which the published site
   // builds its own environment from as well. This preview is the reference
   // rendering — a section that looks right here has to look identical live — and
@@ -402,10 +417,11 @@ function SectionLivePreviewIframe({
   return (
     <div
       className={`w-full transition-all duration-300 ${
-        viewMode === "mobile"
-          ? "max-w-[375px] mx-auto border-4 border-slate-700 rounded-3xl overflow-hidden shadow-2xl my-2 min-h-[480px]"
-          : "w-full min-h-[400px] rounded-2xl overflow-hidden border border-night-line bg-black"
+        viewMode === "desktop"
+          ? "w-full min-h-[400px] rounded-2xl overflow-hidden border border-night-line bg-black"
+          : "mx-auto border-4 border-slate-700 rounded-3xl overflow-hidden shadow-2xl my-2 min-h-[480px]"
       }`}
+      style={viewMode === "desktop" ? undefined : { maxWidth: frameWidth }}
     >
       <iframe
         title="Live Section Sandbox"
@@ -436,34 +452,22 @@ export function DefaultWebsite() {
   const [newTitle, setNewTitle] = useState("");
   const [newType, setNewType] = useState("hero");
   const [newCode, setNewCode] = useState("");
-  const [editViewMode, setEditViewMode] = useState<"desktop" | "mobile">("desktop");
+  const [editViewMode, setEditViewMode] = useState<SectionDevicePreset["group"]>("desktop");
 
+  /**
+   * Brings a section up to date with the responsive engine.
+   *
+   * What was here rewrote the markup: every `width: NNNpx` over 360 became
+   * `width: 100%`, every `display: flex` gained `flex-wrap: wrap` at *all*
+   * widths, and every `<img>` was given a `style` attribute — in front of the
+   * one the author had already written, which HTML then discarded. Desktop
+   * layouts were being altered to fix mobile, permanently, in stored data.
+   *
+   * The engine does this in CSS now, only below the tablet breakpoint and
+   * without touching what is saved.
+   */
   function autoFormatResponsiveCode(rawCode: string): string {
-    if (!rawCode) return rawCode;
-    let code = rawCode;
-
-    // Replace fixed px widths with max-width: 100% & box-sizing: border-box
-    code = code.replace(/width:\s*(\d{3,4})px/gi, (match, p1) => {
-      const num = parseInt(p1, 10);
-      if (num > 360) {
-        return "max-width: 100%; width: 100%; box-sizing: border-box;";
-      }
-      return match;
-    });
-
-    // Ensure flex containers wrap responsively on all screens
-    code = code.replace(/display:\s*flex;?/gi, "display: flex; flex-wrap: wrap; ");
-
-    // Ensure images are responsive
-    code = code.replace(/<img /gi, '<img style="max-width: 100%; height: auto;" ');
-
-    // Add box-sizing: border-box & max-width: 100% to section/footer tags
-    if (!code.includes("box-sizing")) {
-      code = code.replace(/<section style="/i, '<section style="box-sizing: border-box; max-width: 100%; ');
-      code = code.replace(/<footer style="/i, '<footer style="box-sizing: border-box; max-width: 100%; ');
-    }
-
-    return code;
+    return normalizeSectionCode(rawCode);
   }
 
 const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
@@ -986,24 +990,18 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
 
                     {/* Viewport Width Toggles */}
                     <div className="flex items-center gap-1 bg-night border border-night-line rounded-lg p-1">
-                      <button
-                        type="button"
-                        onClick={() => setEditViewMode("desktop")}
-                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
-                          editViewMode === "desktop" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
-                        }`}
-                      >
-                        🖥️ Desktop
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditViewMode("mobile")}
-                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
-                          editViewMode === "mobile" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
-                        }`}
-                      >
-                        📱 Mobile
-                      </button>
+                      {DEVICE_TOGGLES.map((device) => (
+                        <button
+                          key={device.group}
+                          type="button"
+                          onClick={() => setEditViewMode(device.group)}
+                          className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                            editViewMode === device.group ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
+                          }`}
+                        >
+                          {device.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
@@ -1241,24 +1239,18 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
 
                     {/* Viewport Width Toggles */}
                     <div className="flex items-center gap-1 bg-night border border-night-line rounded-lg p-1">
-                      <button
-                        type="button"
-                        onClick={() => setEditViewMode("desktop")}
-                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
-                          editViewMode === "desktop" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
-                        }`}
-                      >
-                        🖥️ Desktop
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditViewMode("mobile")}
-                        className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
-                          editViewMode === "mobile" ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
-                        }`}
-                      >
-                        📱 Mobile
-                      </button>
+                      {DEVICE_TOGGLES.map((device) => (
+                        <button
+                          key={device.group}
+                          type="button"
+                          onClick={() => setEditViewMode(device.group)}
+                          className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                            editViewMode === device.group ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
+                          }`}
+                        >
+                          {device.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 

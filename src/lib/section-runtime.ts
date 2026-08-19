@@ -33,6 +33,72 @@
  *  a compiled build cannot know class names that arrive as runtime strings. */
 export const SECTION_RUNTIME_TAILWIND_CDN_SRC = "https://cdn.tailwindcss.com";
 
+/**
+ * The container every section is measured against.
+ *
+ * Not the viewport. A section is rendered at three different widths on three
+ * different surfaces — full width on a published site, inside a 375px frame in
+ * the editor, inside an iframe in the Admin — and only in the first two does the
+ * viewport happen to be the width the section actually gets. In the editor's
+ * mobile mode the viewport is the whole browser window, so `@media (max-width:
+ * 900px)` does not fire and a 375px-wide canvas renders the *desktop* navbar,
+ * while the Admin's iframe (whose viewport really is 375px) shows the mobile one.
+ * Same section, same breakpoint, two answers.
+ *
+ * Querying the container instead gives one answer everywhere, because the
+ * container is the box the section occupies on every surface.
+ */
+export const SECTION_CONTAINER_NAME = "xite";
+
+/**
+ * Every width the platform makes a decision at, in one place.
+ *
+ * These were previously spread across five files and disagreed: the navbar
+ * swapped at 900, the Admin's auto-responsive engine used 1024 and 640, and the
+ * device switchers offered their own ladders. A section could therefore be
+ * "tablet" to one part of the system and "desktop" to another.
+ *
+ * `nav` keeps its historical 900 deliberately — headers have been authored
+ * against it, and moving it would restyle sections nobody asked to change.
+ */
+export const SECTION_BREAKPOINTS = {
+  /** At or below: one column, fluid type, wrapped rows. */
+  mobile: 640,
+  /** At or below: fewer columns, contained widths, trimmed spacing. */
+  tablet: 1024,
+  /** At or below: hamburger. Above: the desktop nav. */
+  nav: 900,
+} as const;
+
+export type SectionDevicePreset = {
+  id: string;
+  label: string;
+  /** A CSS width for the canvas. "100%" means "however wide the page is". */
+  width: string;
+  group: "desktop" | "tablet" | "mobile";
+};
+
+/**
+ * The device ladder the Admin preview, the editor and the site preview all offer.
+ *
+ * One list, so "Tablet" means the same width in all three and a section checked
+ * in one is checked in the others.
+ */
+export const SECTION_DEVICE_PRESETS: readonly SectionDevicePreset[] = [
+  { id: "full", label: "Full Width (100%)", width: "100%", group: "desktop" },
+  { id: "desktop-wide", label: "Desktop Widescreen", width: "1200px", group: "desktop" },
+  { id: "desktop-compact", label: "Desktop Compact", width: "1024px", group: "desktop" },
+  { id: "tablet", label: "Tablet", width: "768px", group: "tablet" },
+  { id: "tablet-mini", label: "Tablet Mini", width: "640px", group: "tablet" },
+  { id: "mobile", label: "Mobile M", width: "375px", group: "mobile" },
+  { id: "mobile-large", label: "Mobile L", width: "425px", group: "mobile" },
+];
+
+/** The widths in one device group, in the order the switchers cycle through them. */
+export function sectionDeviceWidths(group: SectionDevicePreset["group"]): string[] {
+  return SECTION_DEVICE_PRESETS.filter((preset) => preset.group === group).map((p) => p.width);
+}
+
 /** Stylesheets the environment loads, in order. */
 export const SECTION_RUNTIME_STYLESHEET_HREFS: readonly string[] = [
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
@@ -80,6 +146,11 @@ ${at} ::-webkit-scrollbar { display: revert; width: revert; height: revert; }
   return `
 ${universal} { box-sizing: border-box; }${hostReset}
 ${root} { margin: 0; padding: 0; background-color: #09090b; color: #ffffff; font-family: "Inter", system-ui, sans-serif; width: 100%; min-height: 100%; }
+
+/* The box every section is measured against. On the canvas rather than on the
+   root element: containment on <html> would make it the containing block for
+   fixed-position descendants, which is a layout change nobody asked for. */
+${at ?? "body"} { container: ${SECTION_CONTAINER_NAME} / inline-size; }
 ${sel(".container")} { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px; box-sizing: border-box; }
 ${sel(".footer-bottom")} { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 13px; }
 ${sel(".legal-links")} { display: flex; flex-wrap: wrap; gap: 16px; }
@@ -90,20 +161,156 @@ ${sel("a")} { color: inherit; }
 
 /* Media the author dropped in at its natural size must not push the page sideways. */
 ${sel("video")}, ${sel("svg")}, ${sel("iframe")} { max-width: 100%; }
+`.trim();
+}
 
-/* The responsive navbar contract. Header sections ship a desktop nav, an "Apply"
-   button and a hamburger; which of the three is visible is the environment's call,
-   not the section's, so that every header behaves the same way at the same width. */
-@media (min-width: 901px) {
+/**
+ * The responsive engine.
+ *
+ * Sections are authored as desktop HTML with inline styles — `width: 1200px`,
+ * `grid-template-columns: repeat(4, 1fr)`, `font-size: 56px`, `padding: 80px`.
+ * Nothing in that markup knows about a phone, and asking whoever writes the next
+ * section to remember is how a platform ends up with two hundred sections and no
+ * two of them responsive in the same way.
+ *
+ * So the environment does it. Three properties make that safe:
+ *
+ * 1. **Desktop is untouched.** Every rule lives inside a container query with a
+ *    max-width. Above ${SECTION_BREAKPOINTS.tablet}px the engine emits nothing,
+ *    so the layout the author approved is the layout that ships.
+ *
+ * 2. **It only reaches markup that needs it.** The selectors match on inline
+ *    `style` attributes — `[style*="grid-template-columns"]` — which is exactly
+ *    the hand-written desktop CSS that cannot adapt. A section built with
+ *    Tailwind classes carries its own responsive variants and is left alone.
+ *
+ * 3. **`!important`, deliberately.** An inline style outranks every stylesheet
+ *    rule that is not important, and inline styles are the entire problem here.
+ *    This is the one place in the codebase where it is the right tool.
+ *
+ * Sizes are in `cqi` — 1% of the container's inline size — rather than `vw`, so a
+ * heading in a 375px editor frame is the size it will be on a 375px phone.
+ *
+ * @param scope  As `sectionRuntimeCss`: a selector, or `null` for a document.
+ */
+export function sectionResponsiveCss(scope: string | null): string {
+  const at = scope ? `:where(${scope})` : null;
+  const sel = (selector: string) => (at ? `${at} ${selector}` : selector);
+  const list = (...selectors: string[]) => selectors.map(sel).join(",\n  ");
+  const q = (condition: string) => `@container ${SECTION_CONTAINER_NAME} (${condition})`;
+  const { mobile, tablet, nav } = SECTION_BREAKPOINTS;
+
+  /** Desktop canvas widths, written inline by hand, that no longer fit. */
+  const FIXED_WIDE = [1200, 1280, 1366, 1440, 1536, 1600, 1920]
+    .flatMap((px) => [`[style*="width: ${px}px"]`, `[style*="width:${px}px"]`]);
+
+  /** Vertical rhythm authored for a desktop viewport. */
+  const TALL_PADDING = [80, 96, 100, 120, 140, 160]
+    .flatMap((px) => [
+      `[style*="padding: ${px}px"]`,
+      `[style*="padding:${px}px"]`,
+      `[style*="padding-top: ${px}px"]`,
+      `[style*="padding-top:${px}px"]`,
+    ]);
+
+  return `
+/* ── The navbar contract ────────────────────────────────────────────────────
+   Header sections ship a desktop nav, an action button and a hamburger, and
+   which of the three is visible is the environment's call rather than each
+   section's — so that every header behaves the same way at the same width. */
+${q(`min-width: ${nav + 1}px`)} {
   ${sel(".desktop-nav-links")} { display: flex !important; visibility: visible !important; opacity: 1 !important; }
   ${sel(".desktop-apply-btn")} { display: inline-flex !important; visibility: visible !important; }
   ${sel(".hamburger-toggle-btn")} { display: none !important; }
   ${sel(".mobile-drawer-menu:not(.active)")} { display: none !important; }
 }
-@media (max-width: 900px) {
+${q(`max-width: ${nav}px`)} {
   ${sel(".desktop-nav-links")} { display: none !important; }
   ${sel(".hamburger-toggle-btn")} { display: inline-flex !important; }
   ${sel(".mobile-drawer-menu.active")} { display: block !important; }
+}
+
+/* ── Tablet ─────────────────────────────────────────────────────────────────
+   Nothing collapses yet. Fixed desktop widths give up their pixels, and grids
+   fit as many columns as the space honestly allows instead of keeping the four
+   they were authored with. */
+${q(`max-width: ${tablet}px`)} {
+  ${list(...FIXED_WIDE, '[style*="max-width: 1200px"]', '[style*="max-width:1200px"]')} {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  ${list("section", "header", "footer", "main", "nav", "article", "aside")} {
+    max-width: 100% !important;
+  }
+
+  /* auto-fit rather than a fixed count: a 2-up stays 2-up, a 4-up becomes 3 or
+     2 as the space decides, and a grid added next year is handled already. */
+  ${sel('[style*="grid-template-columns"]')} {
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)) !important;
+  }
+
+  /* Below this width the pointer is a finger. A nav or footer link is a line of
+     text about 20px tall, which is under every touch-target guideline there is;
+     it costs nothing to give it the few pixels. Inline links inside prose are
+     left alone — they are exempt, and padding them would overlap the lines
+     above and below. */
+  ${list(
+    "nav a",
+    "header a",
+    "footer a",
+    ".legal-links a",
+    ".desktop-nav-links a",
+    ".mobile-drawer-menu a",
+  )} {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
+
+  ${sel('[style*="gap: 48px"]')}, ${sel('[style*="gap:48px"]')} { gap: 32px !important; }
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────────────
+   One column, fluid type, and spacing that leaves room for content. */
+${q(`max-width: ${mobile}px`)} {
+  ${sel('[style*="grid-template-columns"]')} { grid-template-columns: 1fr !important; }
+
+  /* Rows of buttons, stat blocks and nav items wrap instead of overflowing. */
+  ${sel('[style*="display: flex"]:not([style*="flex-direction: column"])')},
+  ${sel('[style*="display:flex"]:not([style*="flex-direction:column"])')} {
+    flex-wrap: wrap !important;
+  }
+
+  /* Headline scale, tied to the container so the editor's 375px frame and a
+     375px phone agree to the pixel. */
+  ${sel("h1")} { font-size: clamp(26px, 7.4cqi, 44px) !important; line-height: 1.18 !important; }
+  ${sel("h2")} { font-size: clamp(21px, 5.6cqi, 34px) !important; line-height: 1.24 !important; }
+  ${sel("h3")} { font-size: clamp(18px, 4.4cqi, 26px) !important; line-height: 1.3 !important; }
+
+  /* Desktop gutters are wider than a phone can spare. */
+  ${list("section", "header", "footer", "main", ".container")} {
+    padding-left: clamp(16px, 4.5cqi, 24px) !important;
+    padding-right: clamp(16px, 4.5cqi, 24px) !important;
+  }
+
+  ${list(...TALL_PADDING)} {
+    padding-top: clamp(32px, 9cqi, 48px) !important;
+    padding-bottom: clamp(32px, 9cqi, 48px) !important;
+  }
+
+  /* A table is the one element that cannot be made to fit; let it scroll itself
+     rather than dragging the page sideways with it. */
+  ${sel("table")} { display: block !important; width: 100% !important; overflow-x: auto !important; }
+
+  /* Last line of defence. Clip rather than hidden, so nothing becomes a scroll
+     container and sticky positioning keeps working. */
+  ${list("section", "header", "footer", "main", "nav")} { overflow-x: clip; }
+
+  /* A long URL or an unbroken word should wrap, not overflow. */
+  ${list("p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "a", "span", "td", "th")} {
+    overflow-wrap: break-word;
+  }
 }
 `.trim();
 }
@@ -128,11 +335,22 @@ export function extractStylesAndBody(rawCode: string): {
   let headCss = "";
   let headLinks = "";
 
-  // Extract all <style>...</style> blocks
-  code = code.replace(/<style[\s\S]*?>([\s\S]*?)<\/style>/gi, (_, cssContent: string) => {
-    headCss += "\n" + cssContent;
-    return "";
-  });
+  // Extract all <style>...</style> blocks.
+  //
+  // Except one: sections edited before the engine existed carry a baked-in copy
+  // of an older auto-responsive stylesheet, stamped `data-xite-auto-responsive`
+  // by the Admin's "make responsive" button. It is a frozen fork of the engine —
+  // viewport-based, its own breakpoints — and leaving it in means those sections
+  // are responsive in a way no new section is, forever. It is dropped so every
+  // section, old and new, is handled by the one engine that can still be fixed.
+  code = code.replace(
+    /<style([^>]*)>([\s\S]*?)<\/style>/gi,
+    (_full, attrs: string, cssContent: string) => {
+      if (/data-xite-auto-responsive/i.test(attrs)) return "";
+      headCss += "\n" + cssContent;
+      return "";
+    },
+  );
 
   // Extract all stylesheet <link> tags
   code = code.replace(/<link[\s\S]*?>/gi, (linkTag: string) => {
@@ -174,6 +392,39 @@ export function extractStylesAndBody(rawCode: string): {
 }
 
 /**
+ * Rewrites a section's own width-based `@media` rules as container queries.
+ *
+ * A section that ships `@media (max-width: 900px) { .nav { display: none } }` is
+ * asking "is the space I am in narrower than 900px?" — and on two of the three
+ * surfaces the viewport is not that space. In the editor's 375px frame the
+ * viewport is the whole window, so the rule never fires and the mobile check
+ * shows a desktop navbar; in the Admin's iframe the viewport *is* 375px, so it
+ * does. The author's intent is the container in both cases, so that is what it
+ * gets asked about.
+ *
+ * Only conditions made entirely of width features are translated. Anything else
+ * — `print`, `prefers-reduced-motion`, `orientation`, `hover` — is about the
+ * device rather than the space, and is left exactly as written.
+ */
+export function viewportMediaToContainer(css: string): string {
+  return css.replace(/@media([^{]+)\{/gi, (full, rawCondition: string) => {
+    const condition = rawCondition.trim();
+
+    // Drop a leading media type: everything here is a screen.
+    const withoutType = condition.replace(/^(?:only\s+)?(?:screen|all)(?:\s+and\s+)?/i, "").trim();
+    if (!withoutType) return full;
+
+    const clauses = withoutType.split(/\s+and\s+/i).map((clause) => clause.trim());
+    const isWidthClause = (clause: string) =>
+      /^\(\s*(?:min-|max-)?width\s*:\s*[^)]+\)$/i.test(clause);
+
+    if (!clauses.every(isWidthClause)) return full;
+
+    return `@container ${SECTION_CONTAINER_NAME} ${clauses.join(" and ")} {`;
+  });
+}
+
+/**
  * Remaps `html`/`body` selectors in a section's own CSS onto the element that
  * plays the body's part inline.
  *
@@ -187,6 +438,45 @@ export function remapDocumentSelectors(css: string, scope: string): string {
     .replace(/(^|[\s,{}])html\s*,\s*body\s*\{/gi, `$1${scope} {`)
     .replace(/(^|[\s,{}])body\s*\{/gi, `$1${scope} {`)
     .replace(/(^|[\s,{}])html\s*\{/gi, `$1${scope} {`);
+}
+
+/**
+ * Brings a section's stored code up to date with the engine.
+ *
+ * Sections edited before the engine existed were put through a "make responsive"
+ * button that wrote its own stylesheet *into the section* and, in one of its two
+ * versions, rewrote the markup. Both are now the engine's job, done centrally to
+ * every section on every surface — so what those passes left behind is no longer
+ * help, it is a second opinion that cannot be updated.
+ *
+ * Non-destructive by design: it removes what an automated pass added and changes
+ * nothing an author wrote.
+ */
+export function normalizeSectionCode(rawCode: string): string {
+  if (!rawCode) return rawCode;
+  let code = rawCode;
+
+  // The frozen fork of the engine.
+  code = code.replace(/<style[^>]*data-xite-auto-responsive[^>]*>[\s\S]*?<\/style>\s*/gi, "");
+
+  // `<img style="max-width: 100%; height: auto;" style="…author…">`. HTML keeps
+  // the *first* attribute of a duplicated pair, so this silently threw away
+  // whatever the author had written — every such image has been rendering
+  // unstyled since. The engine caps image width anyway, so the injected one goes.
+  code = code.replace(
+    /(<img\b[^>]*?)\sstyle="max-width:\s*100%;\s*height:\s*auto;"\s*(?=[^>]*\sstyle=)/gi,
+    "$1 ",
+  );
+
+  // A full document that will be previewed on its own still wants this.
+  if (/<head[\s>]/i.test(code) && !/name=["']viewport["']/i.test(code)) {
+    code = code.replace(
+      /<head\b([^>]*)>/i,
+      `<head$1>\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />`,
+    );
+  }
+
+  return code;
 }
 
 /**
@@ -216,7 +506,10 @@ export function buildSectionPreviewDocument(
     headLinks ? "  " + headLinks : "",
     "  <style>",
     sectionRuntimeCss(null),
-    headCss ? "    /* Extracted User Custom Web CSS */\n" + headCss : "",
+    sectionResponsiveCss(null),
+    headCss
+      ? "    /* Extracted User Custom Web CSS */\n" + viewportMediaToContainer(headCss)
+      : "",
     "  </style>",
     "</head>",
     "<body>",

@@ -4,7 +4,7 @@ import { Upload, Save, ArrowLeft, Eye, FileCode, CheckCircle, AlertCircle } from
 import { Shell } from "@/components/Shell";
 import { AddSectionButton } from "@/components/AddSectionButton";
 import { api } from "@/api/client";
-import { buildSectionPreviewDocument } from "@/lib/section-runtime";
+import { buildSectionPreviewDocument, normalizeSectionCode } from "@/lib/section-runtime";
 
 const DEFAULT_STARTER_CODE = `<!-- Section Component: Hero Banner -->
 <section style="background: #ffffff; color: #0f172a; padding: 80px 24px 60px 24px; text-align: center; font-family: system-ui, sans-serif; width: 100%; box-sizing: border-box; border-bottom: 1px solid #e2e8f0;">
@@ -121,89 +121,16 @@ export function SectionAddStudio() {
    * Desktop UI (> 1024px) is the source of truth and remains 100% UNTOUCHED.
    * Media queries ensure fluid layout on tablet (<= 1024px) and mobile (<= 640px).
    */
-  const applyAutoResponsive = (raw: string): string => {
-    let html = raw.trim();
-    if (!html) return "";
-
-    // 1. Ensure viewport meta tag exists if full HTML doc
-    if (/<head[\s>]/i.test(html) && !html.includes("viewport")) {
-      html = html.replace(
-        /<head([^>]*)>/i,
-        `<head$1>\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />`
-      );
-    }
-
-    // 2. Comprehensive non-destructive responsive containment style block.
-    // Desktop layout, fonts, shapes, and colors are 100% untouched.
-    const responsiveStyles = `<style data-xite-auto-responsive="true">
-  /* ═══ XITE Non-Destructive Auto-Responsive Engine ═══ */
-  *, *::before, *::after { box-sizing: border-box; }
-  img, video, iframe, svg { max-width: 100%; height: auto; }
-  
-  /* Prevent horizontal scroll blowout on all viewports */
-  body, section, header, footer, main, nav { max-width: 100%; overflow-x: hidden; }
-
-  /* ── Tablet Viewport (<= 1024px) ── */
-  @media (max-width: 1024px) {
-    [style*="width: 1200px"], [style*="width:1200px"],
-    [style*="width: 1280px"], [style*="width:1280px"],
-    [style*="width: 1440px"], [style*="width:1440px"],
-    [style*="max-width: 1200px"], [style*="max-width: 1280px"],
-    [style*="max-width: 1440px"] {
-      width: 100% !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-    }
-  }
-
-  /* ── Mobile Viewport (<= 640px) ── */
-  @media (max-width: 640px) {
-    /* Auto wrap flex containers that would otherwise overflow horizontally */
-    [style*="display: flex"]:not([style*="flex-direction: column"]),
-    [style*="display:flex"]:not([style*="flex-direction: column"]) {
-      flex-wrap: wrap !important;
-    }
-
-    /* Convert multi-column grid layouts to single-column on mobile */
-    [style*="grid-template-columns"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* Constrain huge desktop headings to fluid scale on mobile */
-    h1 { font-size: clamp(24px, 6.5vw, 42px) !important; line-height: 1.2 !important; }
-    h2 { font-size: clamp(20px, 5.2vw, 34px) !important; line-height: 1.25 !important; }
-    h3 { font-size: clamp(17px, 4.2vw, 26px) !important; }
-
-    /* Fluid horizontal padding for mobile viewports */
-    section, header, footer {
-      padding-left: clamp(14px, 4vw, 24px) !important;
-      padding-right: clamp(14px, 4vw, 24px) !important;
-    }
-
-    /* Scale down excessively large vertical section paddings on mobile */
-    [style*="padding: 80px"], [style*="padding: 100px"], [style*="padding: 120px"],
-    [style*="padding-top: 80px"], [style*="padding-top: 100px"], [style*="padding-top: 120px"],
-    [style*="padding:80px"], [style*="padding:100px"], [style*="padding:120px"] {
-      padding-top: 40px !important;
-      padding-bottom: 40px !important;
-    }
-  }
-</style>`;
-
-    // Remove any previously inserted auto-responsive block to avoid duplicates
-    html = html.replace(/<style data-xite-auto-responsive="true">[\s\S]*?<\/style>/gi, "").trim();
-
-    // Insert clean responsive styles at head or start of body/HTML
-    if (/<\/head>/i.test(html)) {
-      html = html.replace(/<\/head>/i, `${responsiveStyles}\n</head>`);
-    } else if (/<body[^>]*>/i.test(html)) {
-      html = html.replace(/<body([^>]*)>/i, `<body$1>\n${responsiveStyles}`);
-    } else {
-      html = `${responsiveStyles}\n${html}`;
-    }
-
-    return html;
-  };
+  /**
+   * Brings a section up to date with the responsive engine.
+   *
+   * This used to write ~70 lines of media queries into the section itself, and
+   * an identical copy of them lived in the other studio screen. Two forks of an
+   * engine, frozen into every section they touched: a fix to either one reached
+   * nothing already saved. The engine now runs centrally, on every section and
+   * every surface, so all this has to do is clear out what the old passes left.
+   */
+  const applyAutoResponsive = (raw: string): string => normalizeSectionCode(raw);
 
 
   const handleSaveToDatabase = async () => {
@@ -361,7 +288,7 @@ export function SectionAddStudio() {
         {aiFixSuccess && (
           <div className="p-4 rounded-xl bg-violet-950/60 border border-violet-700 text-violet-200 text-xs font-bold flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-violet-400" />
-            <span>⚡ Auto Responsive complete! The section has been optimized for Desktop (1200px), Tablet (768px), and Mobile (375px). Review and save when ready.</span>
+            <span>⚡ Section normalised. Responsive behaviour is applied automatically at every breakpoint — on this preview, in the editor and on the published site — so there is nothing to bake in here. Review and save when ready.</span>
           </div>
         )}
 
