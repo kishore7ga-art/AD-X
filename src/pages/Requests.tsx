@@ -25,7 +25,10 @@ export function Requests() {
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"ALL" | "PENDING" | "APPROVED" | "REJECTED">("ALL");
+  // Opens on the requests that need a decision. "ALL" put 800 already-handled
+  // rows in front of the handful waiting on somebody.
+  const [filter, setFilter] = useState<"ALL" | "PENDING" | "APPROVED" | "REJECTED">("PENDING");
+  const [search, setSearch] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
 
@@ -149,9 +152,24 @@ export function Requests() {
     });
   };
 
+  /**
+   * Status, then search.
+   *
+   * The queue holds over a thousand rows, the great majority of them seed and
+   * test addresses, and the only control on the screen was a status tab. A
+   * genuine new request landed at the top of a list nobody could scan and was
+   * reported as "not appearing in the admin panel" — it was there, it was first,
+   * and it was indistinguishable from a thousand rows of noise.
+   */
+  const needle = search.trim().toLowerCase();
   const filtered = requests.filter((r) => {
-    if (filter === "ALL") return true;
-    return r.status === filter;
+    if (filter !== "ALL" && r.status !== filter) return false;
+    if (!needle) return true;
+    return (
+      r.email.toLowerCase().includes(needle) ||
+      (r.name || "").toLowerCase().includes(needle) ||
+      (r.collegeName || "").toLowerCase().includes(needle)
+    );
   });
 
   return (
@@ -238,13 +256,26 @@ export function Requests() {
           </div>
         )}
 
+        <div className="flex items-center gap-3">
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by email, name or college…"
+            className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 shadow-xs outline-none focus:border-slate-400"
+          />
+          <span className="shrink-0 text-[11px] font-bold text-slate-500">
+            {filtered.length} of {requests.length}
+          </span>
+        </div>
+
         {loading ? (
           <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
             Loading access requests...
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
-            No access requests found matching "{filter}".
+            No access requests match {needle ? `"${search}"` : `"${filter}"`}.
           </div>
         ) : (
           <div className="space-y-3">
