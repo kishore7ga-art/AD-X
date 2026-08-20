@@ -1,26 +1,147 @@
 @import "tailwindcss";
 
+/**
+ * The Studio's surface.
+ *
+ * Dark, warm and layered: a near-black ground with amber light sitting on top of
+ * it, and panels that read as frosted glass rather than as filled boxes. The
+ * palette lives entirely in these tokens, so the pages did not need rewriting to
+ * follow it — `bg-night`, `text-chalk`, `border-night-line` and `bg-accent` were
+ * already in use throughout and simply point somewhere new.
+ *
+ * Two deliberate choices worth naming:
+ *
+ * The ground is #0B0B0F, not #000. Pure black smears on OLED during scroll, and
+ * it leaves nowhere below the panels to go — a raised surface can only read as
+ * lifted if the page is not already at zero.
+ *
+ * Amber is the only accent, and it is spent on actions and live values. Body
+ * text stays on the warm greys: #F59E0B against this ground clears AA for large
+ * text and UI, but not for small copy, so it is never used to say anything the
+ * reader has to squint at.
+ */
 @theme {
-  --color-night: #f8fafc;
-  --color-night-raised: #ffffff;
-  --color-night-line: #e2e8f0;
-  --color-chalk: #0f172a;
-  --color-chalk-dim: #64748b;
-  --color-accent: #0284c7;
-  --color-accent-hover: #0369a1;
-  --color-brand-cyan: #06b6d4;
+  /* Grounds */
+  --color-night: #0b0b0f;
+  --color-night-raised: #141419;
+  --color-night-line: #26262e;
+
+  /* Ink */
+  --color-chalk: #f5f5f4;
+  --color-chalk-dim: #a8a29e;
+
+  /* One accent, warm */
+  --color-accent: #f59e0b;
+  --color-accent-hover: #fbbf24;
+  --color-brand-cyan: #fb923c;
 }
 
 html {
-  background: #f8fafc;
-  color: #0f172a;
-  color-scheme: light;
+  background: #0b0b0f;
+  color: #f5f5f4;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #0b0b0f;
+  color: #f5f5f4;
+  min-height: 100vh;
+}
+
+/**
+ * Ambient light.
+ *
+ * Two soft amber pools, fixed behind everything and never interactive. They are
+ * what stops a flat dark page reading as grey card-on-grey — the panels have
+ * something to be lit *by*, so their edges catch and the depth is real rather
+ * than drawn on with borders.
+ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(60rem 40rem at 78% -10%, rgba(245, 158, 11, 0.16), transparent 60%),
+    radial-gradient(45rem 35rem at 8% 8%, rgba(251, 146, 60, 0.09), transparent 55%);
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/**
+ * Frosted panel.
+ *
+ * A translucent fill over the ambient light rather than an opaque one, so the
+ * glow behind it shows through and the panel belongs to the page. The hairline
+ * inset highlight along the top edge is what sells glass: real glass catches
+ * light on its upper lip.
+ */
+.glass {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
+    0 12px 32px -12px rgba(0, 0, 0, 0.7);
+}
+
+.glass-raised {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.09),
+    0 16px 40px -12px rgba(0, 0, 0, 0.75);
+}
+
+/** The accent, as a surface. Used for the active nav item and primary actions. */
+.accent-fill {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: #1c1310;
+  box-shadow: 0 8px 24px -8px rgba(245, 158, 11, 0.55);
+}
+
+/* Scrollbars belong to the surface too; the default light one cuts a hole in it. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+  background-clip: content-box;
+}
+
+/* Focus has to stay visible on a dark ground, and amber is the one thing that
+   reads against it at a glance. */
+:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

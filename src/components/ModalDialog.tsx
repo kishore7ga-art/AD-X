@@ -67,8 +67,8 @@ export function ModalDialog({
       default:
         return {
           icon: type === "prompt" ? Lock : Info,
-          iconBg: "bg-cyan-50 text-cyan-600 border-cyan-200",
-          btnBg: "bg-cyan-600 hover:bg-cyan-700 text-white shadow-sm shadow-cyan-600/30",
+          iconBg: "bg-amber-50 text-amber-600 border-amber-200",
+          btnBg: "bg-amber-600 hover:bg-amber-700 text-white shadow-sm shadow-amber-600/30",
         };
     }
   };
@@ -77,9 +77,9 @@ export function ModalDialog({
   const IconComponent = style.icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-night backdrop-blur-sm animate-in fade-in duration-150">
       <div
-        className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-slate-900"
+        className="w-full max-w-md bg-white/[0.045] border border-night-line rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-chalk"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -88,15 +88,15 @@ export function ModalDialog({
               <IconComponent className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 tracking-tight">{title}</h3>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{message}</p>
+              <h3 className="text-base font-extrabold text-chalk tracking-tight">{title}</h3>
+              <p className="text-xs text-chalk-dim mt-0.5 leading-relaxed">{message}</p>
             </div>
           </div>
 
           {onCancel && (
             <button
               onClick={onCancel}
-              className="text-slate-400 hover:text-slate-700 p-1 transition cursor-pointer"
+              className="text-chalk-dim hover:text-chalk p-1 transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -113,19 +113,19 @@ export function ModalDialog({
                 placeholder={placeholder || "Enter text..."}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-slate-900 outline-none focus:border-cyan-500 focus:bg-white transition shadow-inner"
+                className="w-full bg-white/[0.03] border border-night-line rounded-xl px-4 py-3 text-xs font-semibold text-chalk outline-none focus:border-amber-500 focus:bg-white/[0.045] transition shadow-inner"
               />
             </div>
           </form>
         )}
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-night-line">
           {type !== "alert" && onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-night-line text-xs font-bold text-chalk-dim hover:bg-white/[0.03] transition cursor-pointer"
             >
               {cancelText}
             </button>

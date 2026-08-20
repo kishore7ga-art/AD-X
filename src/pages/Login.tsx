@@ -93,7 +93,7 @@ export function Login() {
 
       <div className="relative z-10 w-full max-w-md">
         {/* Main Card */}
-        <div className="rounded-3xl border border-slate-800/80 bg-slate-900/70 p-8 sm:p-10 backdrop-blur-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] ring-1 ring-white/5">
+        <div className="rounded-3xl border border-slate-800/80 bg-night p-8 sm:p-10 backdrop-blur-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] ring-1 ring-white/5">
           {/* Header */}
           <div className="text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-[11px] font-bold tracking-wider text-blue-400 uppercase">
@@ -108,7 +108,7 @@ export function Login() {
             <h1 className="mt-4 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
               Welcome Back
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-slate-400 font-medium">
+            <p className="mt-2 text-xs sm:text-sm text-chalk-dim font-medium">
               Enter your admin credentials to access the control panel.
             </p>
           </div>
@@ -139,11 +139,11 @@ export function Login() {
           {/* Form */}
           <form onSubmit={submit} className="mt-6 space-y-5">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-chalk-dim mb-2">
                 Admin Email (Optional)
               </label>
               <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-chalk-dim">
                   <Mail className="h-4 w-4" />
                 </div>
                 <input
@@ -157,11 +157,11 @@ export function Login() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-chalk-dim mb-2">
                 Master Password
               </label>
               <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-chalk-dim">
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
@@ -177,7 +177,7 @@ export function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-chalk-dim hover:text-chalk-dim transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -186,11 +186,11 @@ export function Login() {
 
             {needsToken ? (
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-chalk-dim mb-2">
                   Authenticator Code
                 </label>
                 <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-chalk-dim">
                     <KeyRound className="h-4 w-4" />
                   </div>
                   <input
@@ -232,7 +232,7 @@ export function Login() {
             >
               {pending ? (
                 <span className="inline-flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-night-line border-t-white" />
                   Verifying...
                 </span>
               ) : retryCountdown ? (
@@ -248,7 +248,7 @@ export function Login() {
         </div>
 
         {/* Footer */}
-        <p className="mt-8 text-center text-xs text-slate-600 font-medium">
+        <p className="mt-8 text-center text-xs text-chalk-dim font-medium">
           XITE SaaS Platform &copy; {new Date().getFullYear()} &bull; Secure Control Room
         </p>
       </div>
@@ -271,12 +271,12 @@ function Setup({
         <Sparkles className="h-4 w-4" />
         <span>{title}</span>
       </div>
-      <p className="mt-1 text-xs leading-relaxed text-slate-300">{body}</p>
+      <p className="mt-1 text-xs leading-relaxed text-chalk-dim">{body}</p>
       <ol className="mt-3 space-y-1.5 border-t border-amber-500/20 pt-3">
         {steps.map((step, index) => (
-          <li key={step} className="flex gap-2 text-xs text-slate-400">
+          <li key={step} className="flex gap-2 text-xs text-chalk-dim">
             <span className="font-bold text-amber-400">{index + 1}.</span>
-            <span className="font-mono text-[11px] text-slate-300">{step}</span>
+            <span className="font-mono text-[11px] text-chalk-dim">{step}</span>
           </li>
         ))}
       </ol>

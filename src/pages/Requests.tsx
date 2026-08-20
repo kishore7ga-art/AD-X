@@ -176,17 +176,17 @@ export function Requests() {
     <Shell title="Access Requests">
       <div className="space-y-6">
         {/* Top Header & Action Filter Bar */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white/[0.045] rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-extrabold text-slate-900">User Access Requests</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-base font-extrabold text-chalk">User Access Requests</h2>
+            <p className="text-xs text-chalk-dim mt-0.5">
               Review, approve (accept), or reject incoming college registration requests.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Filter Pills */}
-            <div className="flex rounded-2xl bg-slate-100 p-1 text-xs border border-slate-200/60">
+            <div className="flex rounded-2xl bg-white/[0.06] p-1 text-xs border border-night-line">
               {(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((status) => (
                 <button
                   key={status}
@@ -194,8 +194,8 @@ export function Requests() {
                   onClick={() => setFilter(status)}
                   className={`rounded-xl px-3.5 py-1.5 font-bold transition cursor-pointer ${
                     filter === status
-                      ? "bg-white text-slate-900 shadow-xs border border-slate-200/60"
-                      : "text-slate-500 hover:text-slate-900"
+                      ? "bg-white/[0.045] text-chalk shadow-xs border border-night-line"
+                      : "text-chalk-dim hover:text-chalk"
                   }`}
                 >
                   {status}
@@ -206,7 +206,7 @@ export function Requests() {
             <button
               type="button"
               onClick={() => void fetchRequests()}
-              className="rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 transition shadow-xs cursor-pointer"
+              className="rounded-2xl border border-night-line bg-white/[0.045] hover:bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
             >
               🔄 Refresh
             </button>
@@ -215,20 +215,20 @@ export function Requests() {
 
         {/* 3 Stats Overview for Requests */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-slate-500">Total Requests</span>
+          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-chalk-dim">Total Requests</span>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-slate-900 tabular-nums">{requests.length}</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+              <span className="text-3xl font-black text-chalk tabular-nums">{requests.length}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.06] text-chalk border border-night-line">
                 All time
               </span>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
             <span className="text-xs font-extrabold text-amber-600">Pending Review</span>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-slate-900 tabular-nums">
+              <span className="text-3xl font-black text-chalk tabular-nums">
                 {requests.filter((r) => r.status === "PENDING").length}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
@@ -237,10 +237,10 @@ export function Requests() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
             <span className="text-xs font-extrabold text-emerald-600">Approved Colleges</span>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-slate-900 tabular-nums">
+              <span className="text-3xl font-black text-chalk tabular-nums">
                 {requests.filter((r) => r.status === "APPROVED").length}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -262,19 +262,19 @@ export function Requests() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by email, name or college…"
-            className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 shadow-xs outline-none focus:border-slate-400"
+            className="flex-1 rounded-2xl border border-night-line bg-white/[0.045] px-4 py-2.5 text-xs font-medium text-chalk placeholder:text-chalk-dim shadow-xs outline-none focus:border-slate-400"
           />
-          <span className="shrink-0 text-[11px] font-bold text-slate-500">
+          <span className="shrink-0 text-[11px] font-bold text-chalk-dim">
             {filtered.length} of {requests.length}
           </span>
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
+          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             Loading access requests...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
+          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             No access requests match {needle ? `"${search}"` : `"${filter}"`}.
           </div>
         ) : (
@@ -282,11 +282,11 @@ export function Requests() {
             {filtered.map((req) => (
               <div
                 key={req.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 transition-all hover:shadow-sm hover:border-cyan-300"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-night-line bg-white/[0.045] p-5 transition-all hover:shadow-sm hover:border-amber-300"
               >
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-extrabold text-slate-900">{req.name}</span>
+                    <span className="text-sm font-extrabold text-chalk">{req.name}</span>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
                         req.status === "PENDING"
@@ -299,29 +299,29 @@ export function Requests() {
                       {req.status}
                     </span>
                     {req.hasPassword ? (
-                      <span className="inline-flex items-center rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 px-2.5 py-0.5 text-[10px] font-bold">
+                      <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold">
                         🔑 Password set
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-0.5 text-[10px] font-bold">
+                      <span className="inline-flex items-center rounded-full bg-white/[0.06] text-chalk-dim border border-night-line px-2.5 py-0.5 text-[10px] font-bold">
                         ⚡ Default password
                       </span>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                    <span className="font-semibold text-slate-700">{req.email}</span>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-chalk-dim">
+                    <span className="font-semibold text-chalk">{req.email}</span>
                     {req.collegeName && (
-                      <span className="font-bold text-slate-900">
+                      <span className="font-bold text-chalk">
                         &bull; {req.collegeName}
                       </span>
                     )}
                     {req.organization && (
-                      <span className="font-medium text-slate-600">
+                      <span className="font-medium text-chalk-dim">
                         &bull; {req.organization}
                       </span>
                     )}
-                    <span className="text-[11px] font-mono text-slate-400">
+                    <span className="text-[11px] font-mono text-chalk-dim">
                       {new Date(req.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -331,7 +331,7 @@ export function Requests() {
                   </div>
 
                   {req.message && (
-                    <p className="mt-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 italic">
+                    <p className="mt-2 text-xs text-chalk-dim bg-white/[0.03] p-3 rounded-2xl border border-night-line italic">
                       "{req.message}"
                     </p>
                   )}
@@ -345,7 +345,7 @@ export function Requests() {
                         type="button"
                         disabled={processingId === req.id}
                         onClick={() => void handleApprove(req)}
-                        className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 px-4 py-2 text-xs font-extrabold text-white transition disabled:opacity-50 shadow-sm cursor-pointer"
+                        className="rounded-2xl bg-gradient-to-r from-emerald-500 to-orange-500 hover:from-emerald-600 hover:to-orange-600 px-4 py-2 text-xs font-extrabold text-white transition disabled:opacity-50 shadow-sm cursor-pointer"
                       >
                         {processingId === req.id ? "Processing..." : "Accept (Approve)"}
                       </button>
@@ -360,7 +360,7 @@ export function Requests() {
                       </button>
                     </>
                   ) : (
-                    <div className="text-right text-[11px] text-slate-400 font-mono">
+                    <div className="text-right text-[11px] text-chalk-dim font-mono">
                       Reviewed by {req.reviewedByEmail || "Admin"}
                     </div>
                   )}

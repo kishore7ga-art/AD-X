@@ -27,21 +27,21 @@ export function AddSectionModal({
   const current = SECTION_TYPES_LIST.find((s) => s.id === selectedType) || SECTION_TYPES_LIST[0]!;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm text-slate-900 font-sans">
-      <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-6 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-night backdrop-blur-sm text-chalk font-sans">
+      <div className="w-full max-w-2xl bg-white/[0.045] border border-night-line rounded-3xl p-6 shadow-2xl space-y-6 relative">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-between border-b border-night-line pb-4">
           <div>
-            <span className="text-[10px] font-mono text-cyan-600 font-extrabold uppercase tracking-widest bg-cyan-50 px-2.5 py-0.5 rounded-full border border-cyan-200">
+            <span className="text-[10px] font-mono text-amber-600 font-extrabold uppercase tracking-widest bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
               NEW SECTION
             </span>
-            <h2 className="text-xl font-black text-slate-900 tracking-tight mt-1">Select Section Category</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Choose a component category to add and build in the code studio.</p>
+            <h2 className="text-xl font-black text-chalk tracking-tight mt-1">Select Section Category</h2>
+            <p className="text-xs text-chalk-dim mt-0.5">Choose a component category to add and build in the code studio.</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer"
+            className="p-2 rounded-xl hover:bg-white/[0.06] text-chalk-dim hover:text-chalk transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -58,19 +58,19 @@ export function AddSectionModal({
                 onClick={() => setSelectedType(type.id)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
                   isSelected
-                    ? "bg-cyan-50/70 border-cyan-500 shadow-sm ring-2 ring-cyan-500/20"
-                    : "bg-slate-50/60 border-slate-200/80 text-slate-700 hover:border-slate-300 hover:bg-white"
+                    ? "bg-amber-50/70 border-amber-500 shadow-sm ring-2 ring-amber-500/20"
+                    : "bg-white/[0.03] border-night-line text-chalk hover:border-night-line hover:bg-white/[0.045]"
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`p-2.5 rounded-xl ${isSelected ? "bg-cyan-500 text-white shadow-sm shadow-cyan-500/30" : "bg-white border border-slate-200 text-slate-600"}`}>
+                  <div className={`p-2.5 rounded-xl ${isSelected ? "bg-amber-500 text-white shadow-sm shadow-amber-500/30" : "bg-white/[0.045] border border-night-line text-chalk-dim"}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className={`text-sm font-extrabold ${isSelected ? "text-cyan-900" : "text-slate-900"}`}>
+                    <h3 className={`text-sm font-extrabold ${isSelected ? "text-amber-900" : "text-chalk"}`}>
                       {type.name}
                     </h3>
-                    <p className={`text-xs mt-1 leading-relaxed ${isSelected ? "text-cyan-700 font-medium" : "text-slate-500"}`}>
+                    <p className={`text-xs mt-1 leading-relaxed ${isSelected ? "text-amber-700 font-medium" : "text-chalk-dim"}`}>
                       {type.description}
                     </p>
                   </div>
@@ -81,9 +81,9 @@ export function AddSectionModal({
         </div>
 
         {/* Continue Action */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-xs font-mono text-slate-500">
-            Selected: <strong className="text-slate-900 font-bold">{current.name}</strong>
+        <div className="pt-4 border-t border-night-line flex items-center justify-between">
+          <span className="text-xs font-mono text-chalk-dim">
+            Selected: <strong className="text-chalk font-bold">{current.name}</strong>
           </span>
 
           <AddSectionButton
@@ -92,7 +92,7 @@ export function AddSectionModal({
               onClose();
             }}
             label="Proceed to Code Studio"
-            icon={<ArrowRight className="w-4 h-4 text-slate-700 group-hover:text-slate-950" />}
+            icon={<ArrowRight className="w-4 h-4 text-chalk group-hover:text-slate-950" />}
             size="sm"
           />
         </div>

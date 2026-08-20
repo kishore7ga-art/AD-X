@@ -220,7 +220,7 @@ export function TemplateEdit() {
     return (
       <Shell title="Edit Section">
         <div className="flex items-center justify-center min-h-[60vh] bg-black text-white">
-          <span className="text-xs font-mono text-neutral-400 animate-pulse">Loading section code…</span>
+          <span className="text-xs font-mono text-chalk-dim animate-pulse">Loading section code…</span>
         </div>
       </Shell>
     );
@@ -242,17 +242,17 @@ export function TemplateEdit() {
       <div className="space-y-6 bg-black text-white min-h-[85vh] font-sans">
 
         {/* Header Navigation */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-night-line pb-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/templates")}
-              className="flex items-center gap-2 text-xs font-black px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-white text-neutral-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-2 text-xs font-black px-3.5 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white transition-all cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
             </button>
             <div>
-              <span className="text-[11px] font-mono uppercase text-neutral-400 font-bold tracking-wider">
+              <span className="text-[11px] font-mono uppercase text-chalk-dim font-bold tracking-wider">
                 Admin Section Studio
               </span>
               <h1 className="text-xl font-black text-white tracking-tight">
@@ -280,7 +280,7 @@ export function TemplateEdit() {
             <button
               onClick={() => void handleSave()}
               disabled={saving}
-              className="flex items-center gap-2 bg-white text-black hover:bg-neutral-200 font-black text-xs px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 bg-white/[0.045] text-black hover:bg-neutral-200 font-black text-xs px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}</span>
@@ -318,22 +318,22 @@ export function TemplateEdit() {
         )}
 
         {/* Metadata Bar: Section Variant Title + Upload File */}
-        <div className="grid gap-4 sm:grid-cols-2 bg-neutral-950 p-4 rounded-2xl border border-white/10">
+        <div className="grid gap-4 sm:grid-cols-2 bg-night p-4 rounded-2xl border border-night-line">
           <div>
-            <label className="text-xs font-extrabold text-neutral-400 uppercase">Section Variant Title</label>
+            <label className="text-xs font-extrabold text-chalk-dim uppercase">Section Variant Title</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full mt-1.5 bg-black border border-neutral-800 rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-white"
+              className="w-full mt-1.5 bg-black border border-night-line rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-night-line"
             />
           </div>
           <div>
-            <label className="text-xs font-extrabold text-neutral-400 uppercase">
+            <label className="text-xs font-extrabold text-chalk-dim uppercase">
               Upload Code File (.html, .jsx, .tsx, .css)
             </label>
             <div className="mt-1.5 flex items-center gap-3">
-              <label className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 hover:border-white text-white px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer transition-all">
+              <label className="flex items-center gap-2 bg-night-raised border border-night-line hover:border-night-line text-white px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer transition-all">
                 <Upload className="w-4 h-4" />
                 <span>Choose File</span>
                 <input
@@ -344,7 +344,7 @@ export function TemplateEdit() {
                 />
               </label>
               {fileName && (
-                <span className="text-xs font-mono text-neutral-400 truncate">{fileName}</span>
+                <span className="text-xs font-mono text-chalk-dim truncate">{fileName}</span>
               )}
             </div>
           </div>
@@ -360,20 +360,20 @@ export function TemplateEdit() {
           />
           <span className="text-xs font-bold text-neutral-300">
             Published
-            <span className="ml-2 text-[10px] text-neutral-500 font-normal">
+            <span className="ml-2 text-[10px] text-chalk-dim font-normal">
               Offered in the frontend editor page
             </span>
           </span>
         </label>
 
         {/* Step-by-Step View Mode Switcher: Preview First */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-neutral-950 p-3.5 rounded-2xl border border-white/10">
-          <div className="flex items-center gap-2 bg-black p-1.5 rounded-xl border border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-night p-3.5 rounded-2xl border border-night-line">
+          <div className="flex items-center gap-2 bg-black p-1.5 rounded-xl border border-night-line">
             <button
               type="button"
               onClick={() => setViewMode("preview")}
               className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "preview" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/40" : "text-neutral-400 hover:text-white"
+                viewMode === "preview" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/40" : "text-chalk-dim hover:text-white"
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -383,7 +383,7 @@ export function TemplateEdit() {
               type="button"
               onClick={() => setViewMode("code")}
               className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "code" ? "bg-white text-black shadow-lg" : "text-neutral-400 hover:text-white"
+                viewMode === "code" ? "bg-white/[0.045] text-black shadow-lg" : "text-chalk-dim hover:text-white"
               }`}
             >
               <FileCode className="w-4 h-4" />
@@ -393,7 +393,7 @@ export function TemplateEdit() {
               type="button"
               onClick={() => setViewMode("split")}
               className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "split" ? "bg-neutral-800 text-white shadow-md" : "text-neutral-500 hover:text-neutral-300"
+                viewMode === "split" ? "bg-white/[0.06] text-white shadow-md" : "text-chalk-dim hover:text-neutral-300"
               }`}
             >
               <span>↔️</span>
@@ -406,7 +406,7 @@ export function TemplateEdit() {
               <button
                 type="button"
                 onClick={() => setViewMode("code")}
-                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-white text-neutral-300 hover:text-white cursor-pointer transition-all"
+                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white cursor-pointer transition-all"
               >
                 <FileCode className="w-4 h-4" />
                 <span>Edit Source Code &rarr;</span>
@@ -432,8 +432,8 @@ export function TemplateEdit() {
 
           {/* Live Preview Canvas (Tab 1 / Default for Edit) */}
           {(viewMode === "preview" || viewMode === "split") && (
-            <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-              <div className="p-3.5 border-b border-white/10 bg-neutral-900 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4 text-white" />
                   <span className="text-xs font-extrabold text-white tracking-wide uppercase">
@@ -442,12 +442,12 @@ export function TemplateEdit() {
                 </div>
                 
                 {/* Device Resolution Switcher */}
-                <div className="flex items-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-white/10">
+                <div className="flex items-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-night-line">
                   <button
                     type="button"
                     onClick={() => setPreviewWidth("100%")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "100%" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "100%" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     🖥️ Full Canvas (100%)
@@ -456,7 +456,7 @@ export function TemplateEdit() {
                     type="button"
                     onClick={() => setPreviewWidth("1200px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "1200px" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "1200px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     💻 Desktop (1200px)
@@ -465,7 +465,7 @@ export function TemplateEdit() {
                     type="button"
                     onClick={() => setPreviewWidth("768px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "768px" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "768px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     📱 Tablet (768px)
@@ -474,7 +474,7 @@ export function TemplateEdit() {
                     type="button"
                     onClick={() => setPreviewWidth("375px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "375px" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "375px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     📱 Mobile (375px)
@@ -482,10 +482,10 @@ export function TemplateEdit() {
                 </div>
               </div>
               
-              <div className="flex-1 bg-neutral-900/50 p-4 overflow-auto flex flex-col items-center justify-center min-h-[500px] transition-all">
+              <div className="flex-1 bg-night-raised p-4 overflow-auto flex flex-col items-center justify-center min-h-[500px] transition-all">
                 <div
                   style={{ width: previewWidth, maxWidth: "100%" }}
-                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-neutral-800 overflow-hidden bg-black flex flex-col"
+                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-night-line overflow-hidden bg-black flex flex-col"
                 >
                   <iframe
                     title="Section Preview"
@@ -498,11 +498,11 @@ export function TemplateEdit() {
 
               {/* Bottom Action Bar for Preview Tab */}
               {viewMode === "preview" && (
-                <div className="p-3.5 bg-neutral-950 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div className="p-3.5 bg-night border-t border-night-line flex flex-wrap items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={() => setViewMode("code")}
-                    className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-white text-black hover:bg-neutral-200 cursor-pointer transition-all shadow-md"
+                    className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-white/[0.045] text-black hover:bg-neutral-200 cursor-pointer transition-all shadow-md"
                   >
                     <FileCode className="w-4 h-4" />
                     <span>Edit Source Code &rarr;</span>
@@ -532,8 +532,8 @@ export function TemplateEdit() {
 
           {/* Code File Editor (Tab 2) */}
           {(viewMode === "code" || viewMode === "split") && (
-            <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-              <div className="p-3.5 border-b border-white/10 bg-neutral-900 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-white" />
                   <span className="text-xs font-extrabold text-white tracking-wide uppercase">
@@ -559,14 +559,14 @@ export function TemplateEdit() {
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Paste or write HTML/JSX section code here..."
                   spellCheck={false}
-                  className="w-full flex-1 min-h-[500px] bg-black text-neutral-200 font-mono text-xs p-4 rounded-xl border border-neutral-900 focus:outline-none focus:border-white leading-relaxed resize-y"
+                  className="w-full flex-1 min-h-[500px] bg-black text-neutral-200 font-mono text-xs p-4 rounded-xl border border-neutral-900 focus:outline-none focus:border-night-line leading-relaxed resize-y"
                   style={{ fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace" }}
                 />
 
                 {/* Bottom Action Bar for Code Tab */}
                 {viewMode === "code" && (
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3.5 border-t border-white/10 mt-3">
-                    <span className="text-[11px] font-mono text-neutral-500">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3.5 border-t border-night-line mt-3">
+                    <span className="text-[11px] font-mono text-chalk-dim">
                       Paste HTML with &lt;style&gt;, classes, or inline styles
                     </span>
                     <div className="flex items-center gap-3">
@@ -581,7 +581,7 @@ export function TemplateEdit() {
                       <button
                         onClick={() => void handleSave()}
                         disabled={saving}
-                        className="flex items-center gap-2 bg-white text-black hover:bg-neutral-200 font-black text-xs px-5 py-2 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                        className="flex items-center gap-2 bg-white/[0.045] text-black hover:bg-neutral-200 font-black text-xs px-5 py-2 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
                       >
                         <Save className="w-4 h-4" />
                         <span>{saving ? "Saving..." : saveSuccess ? "Saved ✓" : "Save Changes to DB"}</span>

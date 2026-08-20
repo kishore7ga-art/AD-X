@@ -46,7 +46,7 @@ export const AddSectionButton = React.forwardRef<HTMLButtonElement, AddSectionBu
         className={`relative inline-flex items-center justify-center rounded-full group select-none transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] ${sizeConfig.trackPadding} ${className}`}
       >
         {/* 1. Outer Translucent Glass Track Capsule */}
-        <div className="absolute inset-0 rounded-full border border-white/60 bg-gradient-to-b from-slate-200/50 via-slate-300/30 to-slate-400/40 backdrop-blur-xl shadow-lg transition-all duration-300 group-hover:border-white/90 group-hover:from-slate-100/60 group-hover:to-slate-300/50" />
+        <div className="absolute inset-0 rounded-full border border-night-line bg-gradient-to-b from-slate-200/50 via-slate-300/30 to-slate-400/40 backdrop-blur-xl shadow-lg transition-all duration-300 group-hover:border-night-line group-hover:from-slate-100/60 group-hover:to-slate-300/50" />
 
         {/* 2. Prismatic / Liquid Chromatic Edge Glow (Bottom Rainbow Spectrum Refraction) */}
         <div
@@ -66,13 +66,13 @@ export const AddSectionButton = React.forwardRef<HTMLButtonElement, AddSectionBu
         <button
           ref={ref}
           {...props}
-          className={`relative z-10 inline-flex items-center justify-center ${sizeConfig.gap} ${sizeConfig.buttonPadding} ${sizeConfig.textSize} text-slate-800 bg-gradient-to-b from-white via-slate-50 to-slate-100/95 rounded-full shadow-[0_6px_20px_rgba(0,0,0,0.12),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.18),inset_0_1.5px_1px_rgba(255,255,255,1)] hover:text-slate-950 cursor-pointer transition-all duration-200 border-none outline-none disabled:opacity-50 disabled:pointer-events-none`}
+          className={`relative z-10 inline-flex items-center justify-center ${sizeConfig.gap} ${sizeConfig.buttonPadding} ${sizeConfig.textSize} text-chalk bg-gradient-to-b from-white via-slate-50 to-slate-100/95 rounded-full shadow-[0_6px_20px_rgba(0,0,0,0.12),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.18),inset_0_1.5px_1px_rgba(255,255,255,1)] hover:text-slate-950 cursor-pointer transition-all duration-200 border-none outline-none disabled:opacity-50 disabled:pointer-events-none`}
           style={style}
         >
           {icon !== undefined ? (
             icon
           ) : (
-            <Plus className={`${sizeConfig.iconSize} text-slate-700 group-hover:text-slate-950 transition-transform duration-300 group-hover:rotate-90 stroke-[2.5]`} />
+            <Plus className={`${sizeConfig.iconSize} text-chalk group-hover:text-slate-950 transition-transform duration-300 group-hover:rotate-90 stroke-[2.5]`} />
           )}
           <span className="tracking-tight font-extrabold">{label}</span>
         </button>

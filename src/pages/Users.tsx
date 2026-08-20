@@ -163,10 +163,10 @@ export function Users() {
     <Shell title="Users & Accounts">
       <div className="space-y-6">
         {/* Top Header & Action Filter Bar */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white/[0.045] rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-extrabold text-slate-900">Registered College Accounts</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-base font-extrabold text-chalk">Registered College Accounts</h2>
+            <p className="text-xs text-chalk-dim mt-0.5">
               Manage accounts, tenant assignments, set passwords, and monitor login access.
             </p>
           </div>
@@ -174,7 +174,7 @@ export function Users() {
           <button
             type="button"
             onClick={() => void fetchUsers()}
-            className="rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition shadow-xs cursor-pointer"
+            className="rounded-2xl border border-night-line bg-white/[0.045] hover:bg-white/[0.03] px-4 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
           >
             🔄 Refresh List
           </button>
@@ -182,20 +182,20 @@ export function Users() {
 
         {/* 3 Stats Overview for Users */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-slate-500">Total User Accounts</span>
+          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-chalk-dim">Total User Accounts</span>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-slate-900 tabular-nums">{users.length}</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+              <span className="text-3xl font-black text-chalk tabular-nums">{users.length}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.06] text-chalk border border-night-line">
                 Registered
               </span>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
             <span className="text-xs font-extrabold text-emerald-600">Active Colleges</span>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-slate-900 tabular-nums">
+              <span className="text-3xl font-black text-chalk tabular-nums">
                 {users.filter((u) => u.status === "ACTIVE").length}
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -204,11 +204,11 @@ export function Users() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-cyan-600">Platform Sync</span>
+          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
+            <span className="text-xs font-extrabold text-amber-600">Platform Sync</span>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-slate-900 tabular-nums">100%</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
+              <span className="text-3xl font-black text-chalk tabular-nums">100%</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                 Auto-Saved
               </span>
             </div>
@@ -222,17 +222,17 @@ export function Users() {
         )}
 
         {loading ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
+          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             Loading accounts...
           </div>
         ) : users.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-slate-400 border border-slate-200/80 shadow-xs">
+          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             No registered users found.
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-extrabold tracking-wider text-slate-500 uppercase">
+              <h3 className="text-xs font-extrabold tracking-wider text-chalk-dim uppercase">
                 Active College Websites ({users.length})
               </h3>
             </div>
@@ -241,45 +241,45 @@ export function Users() {
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="rounded-3xl p-5 bg-white border border-slate-200/80 hover:border-cyan-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                  className="rounded-3xl p-5 bg-white/[0.045] border border-night-line hover:border-amber-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs shadow-emerald-500/50 animate-pulse" />
-                      <span className="text-xs font-extrabold text-slate-900 font-mono">{user.email}</span>
+                      <span className="text-xs font-extrabold text-chalk font-mono">{user.email}</span>
                     </div>
                     <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase border ${
                       user.status === "ACTIVE"
                         ? "text-emerald-700 bg-emerald-50 border-emerald-200"
-                        : "text-slate-600 bg-slate-100 border-slate-200"
+                        : "text-chalk-dim bg-white/[0.06] border-night-line"
                     }`}>
                       {user.status}
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="text-base font-extrabold text-slate-900">{user.college?.name || "Campus Website"}</h4>
-                    <p className="text-xs text-cyan-600 font-mono mt-0.5">
+                    <h4 className="text-base font-extrabold text-chalk">{user.college?.name || "Campus Website"}</h4>
+                    <p className="text-xs text-amber-600 font-mono mt-0.5">
                       https://{user.college?.subdomain || "greenfield"}.edu.in
                     </p>
-                    <div className="mt-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-mono text-slate-600 space-y-1">
+                    <div className="mt-3 p-3 rounded-2xl bg-white/[0.03] border border-night-line text-xs font-mono text-chalk-dim space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Auto-Saved Pages:</span>
+                        <span className="text-chalk-dim">Auto-Saved Pages:</span>
                         <span className="text-emerald-600 font-bold">11 Pages Active</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Database Sync:</span>
+                        <span className="text-chalk-dim">Database Sync:</span>
                         <span className="text-emerald-600 font-bold">Connected (Auto-Saved)</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                  <div className="pt-3 border-t border-night-line flex flex-wrap items-center justify-between gap-2">
                     <a
                       href={`${STUDIO_BASE}/editor/${user.college?.subdomain || "greenfield"}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs font-extrabold text-cyan-600 hover:text-cyan-700 hover:underline"
+                      className="text-xs font-extrabold text-amber-600 hover:text-amber-700 hover:underline"
                     >
                       Open Editor Studio ↗
                     </a>
@@ -287,7 +287,7 @@ export function Users() {
                       <button
                         disabled={updatingId === user.id}
                         onClick={() => void changePassword(user)}
-                        className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
+                        className="text-xs font-bold text-chalk hover:text-chalk px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.09] rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
                       >
                         🔑 Password
                       </button>

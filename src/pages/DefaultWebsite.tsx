@@ -49,12 +49,12 @@ const SECTION_CATEGORIES = [
   { id: "hero", name: "Hero Banner", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
   { id: "cta", name: "Call to Action (CTA) / Call", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
   { id: "highlights", name: "College Highlights / Stats", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  { id: "about", name: "About College", bg: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
+  { id: "about", name: "About College", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
   { id: "vision", name: "Vision & Mission Statement", bg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" },
   { id: "courses", name: "Courses / Programs Offered", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-  { id: "departments", name: "Academic Departments", bg: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" },
+  { id: "departments", name: "Academic Departments", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
   { id: "admissions", name: "Admission Section", bg: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
-  { id: "placements", name: "Placement & Top Recruiters", bg: "bg-teal-500/10 text-teal-400 border-teal-500/20" },
+  { id: "placements", name: "Placement & Top Recruiters", bg: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
   { id: "facilities", name: "Campus Facilities / Infrastructure", bg: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
   { id: "research", name: "Research & Innovation Labs", bg: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
   { id: "news", name: "News & Announcement Circulars", bg: "bg-lime-500/10 text-lime-400 border-lime-500/20" },
@@ -64,7 +64,7 @@ const SECTION_CATEGORIES = [
   { id: "achievements", name: "Achievements & Awards", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
   { id: "contact", name: "Contact / Inquiry Form", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
   { id: "map", name: "Map & Location", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
-  { id: "footer", name: "Footer", bg: "bg-slate-500/10 text-slate-400 border-slate-500/20" },
+  { id: "footer", name: "Footer", bg: "bg-slate-500/10 text-chalk-dim border-slate-500/20" },
 ];
 
 const PRESET_SECTION_TEMPLATES = [
@@ -82,10 +82,10 @@ const PRESET_SECTION_TEMPLATES = [
       </div>
       <div>
         <span class="text-lg font-black tracking-tight text-white block leading-none">Madras Institute of Tech</span>
-        <span class="text-[11px] font-medium text-slate-400">Autonomous • NAAC A++ Accredited</span>
+        <span class="text-[11px] font-medium text-chalk-dim">Autonomous • NAAC A++ Accredited</span>
       </div>
     </div>
-    <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
+    <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-chalk-dim">
       <a href="#about" class="hover:text-blue-400 transition-colors">About</a>
       <a href="#courses" class="hover:text-blue-400 transition-colors">Academics</a>
       <a href="#faculty" class="hover:text-blue-400 transition-colors">Faculty</a>
@@ -142,7 +142,7 @@ const PRESET_SECTION_TEMPLATES = [
     category: "about",
     icon: "ℹ️",
     subtitle: "College history, mission statement, leadership quote, and campus overview.",
-    code: `<section class="w-full py-20 px-6 bg-slate-900/60 border-b border-slate-800/80 text-white font-sans">
+    code: `<section class="w-full py-20 px-6 bg-night border-b border-slate-800/80 text-white font-sans">
   <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
     <div class="space-y-5">
       <span class="text-xs font-black uppercase tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full">
@@ -151,17 +151,17 @@ const PRESET_SECTION_TEMPLATES = [
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
         40+ Years of Academic Heritage & Technological Innovation
       </h2>
-      <p class="text-slate-400 text-sm leading-relaxed">
+      <p class="text-chalk-dim text-sm leading-relaxed">
         Established in 1985, our institute spans over 150 acres equipped with modern research parks, digital libraries, and advanced robotics labs to cultivate future global innovators.
       </p>
       <div class="grid grid-cols-2 gap-4 pt-2">
         <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800">
           <div class="text-2xl font-black text-blue-400">150+ Acres</div>
-          <div class="text-xs text-slate-400 font-medium mt-1">Smart Eco Campus</div>
+          <div class="text-xs text-chalk-dim font-medium mt-1">Smart Eco Campus</div>
         </div>
         <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800">
           <div class="text-2xl font-black text-purple-400">NAAC A++</div>
-          <div class="text-xs text-slate-400 font-medium mt-1">Highest Accreditation</div>
+          <div class="text-xs text-chalk-dim font-medium mt-1">Highest Accreditation</div>
         </div>
       </div>
     </div>
@@ -173,10 +173,10 @@ const PRESET_SECTION_TEMPLATES = [
           </div>
           <div>
             <h4 class="font-bold text-white text-sm">Director's Vision</h4>
-            <p class="text-xs text-slate-400">Prof. K. R. Sundaram</p>
+            <p class="text-xs text-chalk-dim">Prof. K. R. Sundaram</p>
           </div>
         </div>
-        <p class="text-slate-300 text-xs italic leading-relaxed">
+        <p class="text-chalk-dim text-xs italic leading-relaxed">
           "Our mission is to empower every student with practical engineering knowledge, ethical values, and global industry opportunities."
         </p>
       </div>
@@ -197,32 +197,32 @@ const PRESET_SECTION_TEMPLATES = [
         Academic Programs
       </span>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Industry-Focused Degree Offerings</h2>
-      <p class="text-slate-400 text-sm">Undergraduate & postgraduate engineering curricula tailored for modern technology careers.</p>
+      <p class="text-chalk-dim text-sm">Undergraduate & postgraduate engineering curricula tailored for modern technology careers.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 space-y-4 group">
+      <div class="p-6 rounded-3xl bg-night border border-slate-800 hover:border-blue-500/50 transition-all duration-300 space-y-4 group">
         <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xl font-bold group-hover:scale-110 transition-transform">
           <i class="fa-solid fa-brain"></i>
         </div>
         <span class="text-[10px] font-black uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md">B.Tech • 4 Years</span>
         <h3 class="text-lg font-bold text-white">Computer Science & AI</h3>
-        <p class="text-slate-400 text-xs leading-relaxed">Specializations in Artificial Intelligence, Neural Networks, Cloud Systems, and Full-Stack Engineering.</p>
+        <p class="text-chalk-dim text-xs leading-relaxed">Specializations in Artificial Intelligence, Neural Networks, Cloud Systems, and Full-Stack Engineering.</p>
       </div>
-      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-purple-500/50 transition-all duration-300 space-y-4 group">
+      <div class="p-6 rounded-3xl bg-night border border-slate-800 hover:border-purple-500/50 transition-all duration-300 space-y-4 group">
         <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl font-bold group-hover:scale-110 transition-transform">
           <i class="fa-solid fa-robot"></i>
         </div>
         <span class="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md">B.Tech • 4 Years</span>
         <h3 class="text-lg font-bold text-white">Robotics & Automation</h3>
-        <p class="text-slate-400 text-xs leading-relaxed">Mechatronics, Autonomous Drones, Industrial IoT, and Advanced Sensors Laboratory training.</p>
+        <p class="text-chalk-dim text-xs leading-relaxed">Mechatronics, Autonomous Drones, Industrial IoT, and Advanced Sensors Laboratory training.</p>
       </div>
-      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition-all duration-300 space-y-4 group">
+      <div class="p-6 rounded-3xl bg-night border border-slate-800 hover:border-emerald-500/50 transition-all duration-300 space-y-4 group">
         <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl font-bold group-hover:scale-110 transition-transform">
           <i class="fa-solid fa-chart-line"></i>
         </div>
         <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">MBA • 2 Years</span>
         <h3 class="text-lg font-bold text-white">Business Analytics & Tech</h3>
-        <p class="text-slate-400 text-xs leading-relaxed">Financial Engineering, Tech Product Management, Operations, and Entrepreneurship Incubator.</p>
+        <p class="text-chalk-dim text-xs leading-relaxed">Financial Engineering, Tech Product Management, Operations, and Entrepreneurship Incubator.</p>
       </div>
     </div>
   </div>
@@ -234,39 +234,39 @@ const PRESET_SECTION_TEMPLATES = [
     category: "faculty",
     icon: "👥",
     subtitle: "Professors, department heads, research scholars, and faculty grid.",
-    code: `<section class="w-full py-20 px-6 bg-slate-900/40 border-b border-slate-800/80 text-white font-sans">
+    code: `<section class="w-full py-20 px-6 bg-night border-b border-slate-800/80 text-white font-sans">
   <div class="max-w-6xl mx-auto space-y-12">
     <div class="text-center max-w-2xl mx-auto space-y-3">
       <span class="text-xs font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
         Expert Faculty
       </span>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Acclaimed Mentors & Scholars</h2>
-      <p class="text-slate-400 text-sm">Learn directly from internationally recognized researchers and former tech leaders.</p>
+      <p class="text-chalk-dim text-sm">Learn directly from internationally recognized researchers and former tech leaders.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="p-6 rounded-3xl bg-slate-950 border border-slate-800 text-center space-y-3">
-        <div class="w-20 h-20 rounded-full bg-slate-800 border-2 border-amber-500/40 mx-auto flex items-center justify-center text-2xl text-amber-400 font-bold">
+        <div class="w-20 h-20 rounded-full bg-night-raised border-2 border-amber-500/40 mx-auto flex items-center justify-center text-2xl text-amber-400 font-bold">
           <i class="fa-solid fa-user-tie"></i>
         </div>
         <h3 class="text-base font-bold text-white">Dr. Rajesh Raman, PhD</h3>
         <p class="text-xs text-amber-400 font-semibold">Head of Computer Science</p>
-        <p class="text-slate-400 text-xs">Ex-IIT Senior Fellow • 22 AI System Patents</p>
+        <p class="text-chalk-dim text-xs">Ex-IIT Senior Fellow • 22 AI System Patents</p>
       </div>
       <div class="p-6 rounded-3xl bg-slate-950 border border-slate-800 text-center space-y-3">
-        <div class="w-20 h-20 rounded-full bg-slate-800 border-2 border-blue-500/40 mx-auto flex items-center justify-center text-2xl text-blue-400 font-bold">
+        <div class="w-20 h-20 rounded-full bg-night-raised border-2 border-blue-500/40 mx-auto flex items-center justify-center text-2xl text-blue-400 font-bold">
           <i class="fa-solid fa-user-doctor"></i>
         </div>
         <h3 class="text-base font-bold text-white">Dr. Anita Deshmukh</h3>
         <p class="text-xs text-blue-400 font-semibold">Dean of Robotics & AI</p>
-        <p class="text-slate-400 text-xs">PhD Stanford University • IEEE Senior Member</p>
+        <p class="text-chalk-dim text-xs">PhD Stanford University • IEEE Senior Member</p>
       </div>
       <div class="p-6 rounded-3xl bg-slate-950 border border-slate-800 text-center space-y-3">
-        <div class="w-20 h-20 rounded-full bg-slate-800 border-2 border-emerald-500/40 mx-auto flex items-center justify-center text-2xl text-emerald-400 font-bold">
+        <div class="w-20 h-20 rounded-full bg-night-raised border-2 border-emerald-500/40 mx-auto flex items-center justify-center text-2xl text-emerald-400 font-bold">
           <i class="fa-solid fa-user-gear"></i>
         </div>
         <h3 class="text-base font-bold text-white">Prof. Vikram Malhotra</h3>
         <p class="text-xs text-emerald-400 font-semibold">Director of Innovation Cell</p>
-        <p class="text-slate-400 text-xs">Former Tech VP • Startup Accelerator Mentor</p>
+        <p class="text-chalk-dim text-xs">Former Tech VP • Startup Accelerator Mentor</p>
       </div>
     </div>
   </div>
@@ -290,24 +290,24 @@ const PRESET_SECTION_TEMPLATES = [
       <a href="#events" class="text-xs font-bold text-emerald-400 hover:underline">View Full Academic Calendar →</a>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex gap-4 items-start">
+      <div class="p-6 rounded-3xl bg-night border border-slate-800 flex gap-4 items-start">
         <div class="px-4 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center shrink-0">
           <span class="text-xl font-black text-emerald-400 block">15</span>
-          <span class="text-[10px] font-bold text-slate-400 uppercase">MAR</span>
+          <span class="text-[10px] font-bold text-chalk-dim uppercase">MAR</span>
         </div>
         <div class="space-y-2">
           <h3 class="text-base font-bold text-white">National AI & Robotics Hackathon 2026</h3>
-          <p class="text-slate-400 text-xs leading-relaxed">48-hour continuous coding championship with cash prizes worth ₹5 Lakhs.</p>
+          <p class="text-chalk-dim text-xs leading-relaxed">48-hour continuous coding championship with cash prizes worth ₹5 Lakhs.</p>
         </div>
       </div>
-      <div class="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex gap-4 items-start">
+      <div class="p-6 rounded-3xl bg-night border border-slate-800 flex gap-4 items-start">
         <div class="px-4 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-center shrink-0">
           <span class="text-xl font-black text-blue-400 block">28</span>
-          <span class="text-[10px] font-bold text-slate-400 uppercase">MAR</span>
+          <span class="text-[10px] font-bold text-chalk-dim uppercase">MAR</span>
         </div>
         <div class="space-y-2">
           <h3 class="text-base font-bold text-white">Global Industry Conclave & Career Fair</h3>
-          <p class="text-slate-400 text-xs leading-relaxed">Over 80 Fortune 500 company leaders visiting campus for placement interviews.</p>
+          <p class="text-chalk-dim text-xs leading-relaxed">Over 80 Fortune 500 company leaders visiting campus for placement interviews.</p>
         </div>
       </div>
     </div>
@@ -320,15 +320,15 @@ const PRESET_SECTION_TEMPLATES = [
     category: "contact",
     icon: "✉️",
     subtitle: "Campus address, interactive location map, contact form, and helpline numbers.",
-    code: `<section class="w-full py-20 px-6 bg-slate-900/50 border-b border-slate-800/80 text-white font-sans">
+    code: `<section class="w-full py-20 px-6 bg-night border-b border-slate-800/80 text-white font-sans">
   <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
     <div class="space-y-6">
       <span class="text-xs font-black uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full">
         Admissions Desk
       </span>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Get in Touch with Admissions</h2>
-      <p class="text-slate-400 text-sm leading-relaxed">Have questions about eligibility, fee structures, or campus hostels? Reach out to our team.</p>
-      <div class="space-y-3 text-xs text-slate-300">
+      <p class="text-chalk-dim text-sm leading-relaxed">Have questions about eligibility, fee structures, or campus hostels? Reach out to our team.</p>
+      <div class="space-y-3 text-xs text-chalk-dim">
         <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
           <i class="fa-solid fa-location-dot text-rose-400 text-base"></i>
           <span>100 College Road, Academic Zone, Chennai 600028</span>
@@ -345,8 +345,8 @@ const PRESET_SECTION_TEMPLATES = [
     </div>
     <div class="p-8 rounded-3xl bg-slate-950 border border-slate-800 space-y-4">
       <h3 class="text-lg font-bold text-white">Send Admission Enquiry</h3>
-      <input type="text" placeholder="Full Name" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500" />
-      <input type="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500" />
+      <input type="text" placeholder="Full Name" class="w-full bg-night border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500" />
+      <input type="email" placeholder="Email Address" class="w-full bg-night border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500" />
       <button class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-lg shadow-blue-600/30 transition-all cursor-pointer">
         Submit Request <i class="fa-solid fa-paper-plane ml-1"></i>
       </button>
@@ -363,24 +363,24 @@ const PRESET_SECTION_TEMPLATES = [
     code: `<section class="w-full py-20 px-6 bg-slate-950 text-white font-sans">
   <div class="max-w-6xl mx-auto space-y-12 text-center">
     <div class="space-y-3 max-w-2xl mx-auto">
-      <span class="text-xs font-black uppercase tracking-widest text-teal-400 bg-teal-500/10 border border-teal-500/20 px-3 py-1 rounded-full">
+      <span class="text-xs font-black uppercase tracking-widest text-orange-400 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
         Career Excellence
       </span>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Unrivaled Placement Records</h2>
-      <p class="text-slate-400 text-sm">Over 250+ top global technology companies actively recruit from our campus every year.</p>
+      <p class="text-chalk-dim text-sm">Over 250+ top global technology companies actively recruit from our campus every year.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+      <div class="p-8 rounded-3xl bg-night border border-slate-800 space-y-2">
         <div class="text-4xl font-black text-emerald-400">98%</div>
-        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Placement Rate</div>
+        <div class="text-xs font-bold text-chalk-dim uppercase tracking-wider">Placement Rate</div>
       </div>
-      <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+      <div class="p-8 rounded-3xl bg-night border border-slate-800 space-y-2">
         <div class="text-4xl font-black text-amber-400">48 LPA</div>
-        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Highest Package</div>
+        <div class="text-xs font-bold text-chalk-dim uppercase tracking-wider">Highest Package</div>
       </div>
-      <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-2">
+      <div class="p-8 rounded-3xl bg-night border border-slate-800 space-y-2">
         <div class="text-4xl font-black text-blue-400">250+</div>
-        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Top Recruiters</div>
+        <div class="text-xs font-bold text-chalk-dim uppercase tracking-wider">Top Recruiters</div>
       </div>
     </div>
   </div>
@@ -726,9 +726,9 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   }
 
   function getCategoryStyle(type?: string) {
-    if (!type || typeof type !== "string") return "bg-slate-500/10 text-slate-400 border-slate-500/20";
+    if (!type || typeof type !== "string") return "bg-slate-500/10 text-chalk-dim border-slate-500/20";
     const cat = SECTION_CATEGORIES.find((c) => c.id === type.toLowerCase());
-    return cat?.bg || "bg-slate-500/10 text-slate-400 border-slate-500/20";
+    return cat?.bg || "bg-slate-500/10 text-chalk-dim border-slate-500/20";
   }
 
   return (
@@ -750,15 +750,15 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         </div>
 
         {/* Header & Master Save Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-night-line bg-white/[0.045] p-6 shadow-xs">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-cyan-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-cyan-600 border border-cyan-200">
+              <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-600 border border-amber-200">
                 New-User Template
               </span>
-              <h2 className="text-xl font-black tracking-tight text-slate-900">Default Website For New Colleges</h2>
+              <h2 className="text-xl font-black tracking-tight text-chalk">Default Website For New Colleges</h2>
             </div>
-            <p className="mt-1 text-xs text-slate-500 max-w-2xl">
+            <p className="mt-1 text-xs text-chalk-dim max-w-2xl">
               Each section box below defines the <strong>starting website layout</strong> that is copied to a new user when they first sign up. Existing users&apos; websites are independent and unaffected.
             </p>
           </div>
@@ -766,7 +766,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
             type="button"
             onClick={handleSave}
             disabled={saving || loading}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 px-6 py-3 text-xs font-extrabold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-6 py-3 text-xs font-extrabold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <span>{saving ? "Saving Changes..." : "Save Default Template ⚡"}</span>
           </button>
@@ -786,13 +786,13 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         ) : null}
 
         {loading ? (
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-16 text-center text-xs font-semibold text-slate-400">
+          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-16 text-center text-xs font-semibold text-chalk-dim">
             Loading Master Website Boxes...
           </div>
         ) : (
           <div className="space-y-6">
             {/* Multi-Page Navigation Bar */}
-            <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3 overflow-x-auto">
+            <div className="flex items-center gap-2 border-b border-night-line pb-3 overflow-x-auto">
               {(config || FALLBACK_DEFAULT_CONFIG).pages.map((page) => {
                 const isActive = page.slug === activeSlug;
                 return (
@@ -802,14 +802,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     onClick={() => setActiveSlug(page.slug)}
                     className={`flex items-center gap-2.5 rounded-2xl px-5 py-3 text-xs font-extrabold transition cursor-pointer ${
                       isActive
-                        ? "bg-white text-slate-900 shadow-xs border border-slate-200/80 scale-[1.02]"
-                        : "border border-transparent bg-slate-100/70 text-slate-500 hover:border-slate-200 hover:text-slate-900"
+                        ? "bg-white/[0.045] text-chalk shadow-xs border border-night-line scale-[1.02]"
+                        : "border border-transparent bg-white/[0.06] text-chalk-dim hover:border-night-line hover:text-chalk"
                     }`}
                   >
                     <span>{page.title}</span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        isActive ? "bg-cyan-50 text-cyan-700 border border-cyan-200" : "bg-slate-200 text-slate-600"
+                        isActive ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-white/[0.09] text-chalk-dim"
                       }`}
                     >
                       {page.sections.length} Boxes
@@ -825,7 +825,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 <h3 className="text-lg font-black text-chalk">
                   {activePage?.title} Page — Section Mini-Boxes ({activePage?.sections.length || 0})
                 </h3>
-                <p className="text-xs text-chalk-dim/60">
+                <p className="text-xs text-chalk-dim">
                   Visual layout of default section boxes for route <code className="text-chalk bg-night px-1.5 py-0.5 rounded">{activeSlug}</code>
                 </p>
               </div>
@@ -916,7 +916,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
             ) : (
               <div className="rounded-2xl border border-dashed border-night-line bg-night-card p-16 text-center space-y-3">
                 <p className="text-sm font-bold text-chalk">No section boxes configured for {activePage?.title} yet.</p>
-                <p className="text-xs text-chalk-dim/60">Click below to add a section box for this page.</p>
+                <p className="text-xs text-chalk-dim">Click below to add a section box for this page.</p>
                 <div className="pt-2">
                   <AddSectionButton
                     type="button"
@@ -944,7 +944,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     </span>
                     <h3 className="text-lg font-black text-chalk">Edit Section Box — {editingSection.section.title}</h3>
                   </div>
-                  <p className="text-xs text-chalk-dim/60 mt-0.5">
+                  <p className="text-xs text-chalk-dim mt-0.5">
                     Modify title, category type, and section HTML source code with instant live render preview.
                   </p>
                 </div>
@@ -968,7 +968,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   <button
                     type="button"
                     onClick={() => setEditingSection(null)}
-                    className="text-xs font-bold text-chalk-dim/60 hover:text-chalk p-2"
+                    className="text-xs font-bold text-chalk-dim hover:text-chalk p-2"
                   >
                     ✕ Close
                   </button>
@@ -981,7 +981,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 {/* Left Column: Live Section Preview Canvas */}
                 <div className="space-y-3 flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black tracking-wider text-neutral-400 uppercase flex items-center gap-2">
+                    <h4 className="text-xs font-black tracking-wider text-chalk-dim uppercase flex items-center gap-2">
                       <span>👁️ Live Section Preview</span>
                       <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
                         Real-Time Render
@@ -1078,7 +1078,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                             }}
                           />
                         </label>
-                        <span className="text-[10px] font-mono text-neutral-400">
+                        <span className="text-[10px] font-mono text-chalk-dim">
                           {editingSection.section.code.length.toLocaleString()} chars
                         </span>
                       </div>
@@ -1101,7 +1101,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
 
               {/* Modal Footer Actions */}
               <div className="flex items-center justify-between pt-4 border-t border-night-line">
-                <span className="text-xs text-chalk-dim/60 font-mono">
+                <span className="text-xs text-chalk-dim font-mono">
                   Edits apply instantly to Default Website template
                 </span>
                 <div className="flex items-center gap-3">
@@ -1139,7 +1139,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     </span>
                     <h3 className="text-lg font-black text-chalk">Add Section Box to {activePage?.title} Page</h3>
                   </div>
-                  <p className="text-xs text-chalk-dim/60 mt-0.5">
+                  <p className="text-xs text-chalk-dim mt-0.5">
                     Configure a new section box with title, category, and responsive HTML source code.
                   </p>
                 </div>
@@ -1161,7 +1161,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   <button
                     type="button"
                     onClick={() => setAddingSection(false)}
-                    className="text-xs font-bold text-chalk-dim/60 hover:text-chalk p-2"
+                    className="text-xs font-bold text-chalk-dim hover:text-chalk p-2"
                   >
                     ✕ Close
                   </button>
@@ -1191,13 +1191,13 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         }}
                         className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-white text-black border-white shadow-xl scale-[1.01]"
-                            : "bg-[#0f0f12] text-white border-neutral-800/80 hover:border-neutral-700 hover:bg-[#151518]"
+                            ? "bg-white/[0.045] text-black border-night-line shadow-xl scale-[1.01]"
+                            : "bg-[#0f0f12] text-white border-night-line hover:border-neutral-700 hover:bg-[#151518]"
                         }`}
                       >
                         <div
                           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold transition-colors ${
-                            isSelected ? "bg-black text-white shadow-md" : "bg-neutral-900 text-white border border-neutral-800"
+                            isSelected ? "bg-black text-white shadow-md" : "bg-night-raised text-white border border-night-line"
                           }`}
                         >
                           {tmpl.icon}
@@ -1212,7 +1212,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                           </h4>
                           <p
                             className={`text-xs leading-relaxed transition-colors ${
-                              isSelected ? "text-neutral-600 font-medium" : "text-neutral-400"
+                              isSelected ? "text-neutral-600 font-medium" : "text-chalk-dim"
                             }`}
                           >
                             {tmpl.subtitle}
@@ -1230,7 +1230,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 {/* Left Column: Live Section Preview Canvas */}
                 <div className="space-y-3 flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black tracking-wider text-neutral-400 uppercase flex items-center gap-2">
+                    <h4 className="text-xs font-black tracking-wider text-chalk-dim uppercase flex items-center gap-2">
                       <span>👁️ Live Section Preview</span>
                       <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
                         Real-Time Render
@@ -1315,7 +1315,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                             }}
                           />
                         </label>
-                        <span className="text-[10px] font-mono text-neutral-400">
+                        <span className="text-[10px] font-mono text-chalk-dim">
                           {newCode.length.toLocaleString()} chars
                         </span>
                       </div>
@@ -1334,7 +1334,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
 
               {/* Modal Footer Actions */}
               <div className="flex items-center justify-between pt-4 border-t border-night-line">
-                <span className="text-xs text-chalk-dim/60 font-mono">
+                <span className="text-xs text-chalk-dim font-mono">
                   New box will be added to {activePage?.title} template
                 </span>
                 <div className="flex items-center gap-3">

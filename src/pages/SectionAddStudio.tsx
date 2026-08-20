@@ -233,17 +233,17 @@ export function SectionAddStudio() {
       <div className="space-y-6 bg-black text-white min-h-[85vh] font-sans">
         
         {/* Header Navigation */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-night-line pb-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/templates")}
-              className="flex items-center gap-2 text-xs font-black px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-white text-neutral-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-2 text-xs font-black px-3.5 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white transition-all cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
             </button>
             <div>
-              <span className="text-[11px] font-mono uppercase text-neutral-400 font-bold tracking-wider">
+              <span className="text-[11px] font-mono uppercase text-chalk-dim font-bold tracking-wider">
                 Admin Section Studio
               </span>
               <h1 className="text-xl font-black text-white tracking-tight">
@@ -272,7 +272,7 @@ export function SectionAddStudio() {
               onClick={handleSaveToDatabase}
               disabled={saving}
               label={saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}
-              icon={<Save className="w-4 h-4 text-slate-700 group-hover:text-slate-950" />}
+              icon={<Save className="w-4 h-4 text-chalk group-hover:text-slate-950" />}
               size="sm"
             />
           </div>
@@ -307,37 +307,37 @@ export function SectionAddStudio() {
         )}
 
         {/* Component Key & Metadata Bar */}
-        <div className="grid gap-4 sm:grid-cols-2 bg-neutral-950 p-4 rounded-2xl border border-white/10">
+        <div className="grid gap-4 sm:grid-cols-2 bg-night p-4 rounded-2xl border border-night-line">
           <div>
-            <label className="text-xs font-extrabold text-neutral-400 uppercase">Section Variant Title</label>
+            <label className="text-xs font-extrabold text-chalk-dim uppercase">Section Variant Title</label>
             <input
               type="text"
               value={variantName}
               onChange={(e) => setVariantName(e.target.value)}
-              className="w-full mt-1.5 bg-black border border-neutral-800 rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-white"
+              className="w-full mt-1.5 bg-black border border-night-line rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-night-line"
             />
           </div>
           <div>
-            <label className="text-xs font-extrabold text-neutral-400 uppercase">Upload Code File (.html, .jsx, .tsx, .css)</label>
+            <label className="text-xs font-extrabold text-chalk-dim uppercase">Upload Code File (.html, .jsx, .tsx, .css)</label>
             <div className="mt-1.5 flex items-center gap-3">
-              <label className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 hover:border-white text-white px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer transition-all">
+              <label className="flex items-center gap-2 bg-night-raised border border-night-line hover:border-night-line text-white px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer transition-all">
                 <Upload className="w-4 h-4" />
                 <span>Choose File</span>
                 <input type="file" onChange={handleFileUpload} accept=".html,.jsx,.tsx,.vue,.css,.txt" className="hidden" />
               </label>
-              {fileName && <span className="text-xs font-mono text-neutral-400 truncate">{fileName}</span>}
+              {fileName && <span className="text-xs font-mono text-chalk-dim truncate">{fileName}</span>}
             </div>
           </div>
         </div>
 
         {/* Step-by-Step View Mode Switcher */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-neutral-950 p-3.5 rounded-2xl border border-white/10">
-          <div className="flex items-center gap-2 bg-black p-1.5 rounded-xl border border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-night p-3.5 rounded-2xl border border-night-line">
+          <div className="flex items-center gap-2 bg-black p-1.5 rounded-xl border border-night-line">
             <button
               type="button"
               onClick={() => setViewMode("code")}
               className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "code" ? "bg-white text-black shadow-lg" : "text-neutral-400 hover:text-white"
+                viewMode === "code" ? "bg-white/[0.045] text-black shadow-lg" : "text-chalk-dim hover:text-white"
               }`}
             >
               <FileCode className="w-4 h-4" />
@@ -347,7 +347,7 @@ export function SectionAddStudio() {
               type="button"
               onClick={() => setViewMode("preview")}
               className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "preview" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/40" : "text-neutral-400 hover:text-white"
+                viewMode === "preview" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/40" : "text-chalk-dim hover:text-white"
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -357,7 +357,7 @@ export function SectionAddStudio() {
               type="button"
               onClick={() => setViewMode("split")}
               className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "split" ? "bg-neutral-800 text-white shadow-md" : "text-neutral-500 hover:text-neutral-300"
+                viewMode === "split" ? "bg-white/[0.06] text-white shadow-md" : "text-chalk-dim hover:text-neutral-300"
               }`}
             >
               <span>↔️</span>
@@ -380,7 +380,7 @@ export function SectionAddStudio() {
               <button
                 type="button"
                 onClick={() => setViewMode("code")}
-                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-white text-neutral-300 hover:text-white cursor-pointer transition-all"
+                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white cursor-pointer transition-all"
               >
                 <FileCode className="w-4 h-4" />
                 <span>&larr; Edit Code</span>
@@ -396,8 +396,8 @@ export function SectionAddStudio() {
           
           {/* Code File Editor (Page / Tab 1) */}
           {(viewMode === "code" || viewMode === "split") && (
-            <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-              <div className="p-3.5 border-b border-white/10 bg-neutral-900 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-white" />
                   <span className="text-xs font-extrabold text-white tracking-wide uppercase">
@@ -425,13 +425,13 @@ export function SectionAddStudio() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Paste or write HTML/JSX section code here..."
-                  className="w-full flex-1 min-h-[500px] bg-black text-neutral-200 font-mono text-xs p-4 rounded-xl border border-neutral-900 focus:outline-none focus:border-white leading-relaxed resize-y"
+                  className="w-full flex-1 min-h-[500px] bg-black text-neutral-200 font-mono text-xs p-4 rounded-xl border border-neutral-900 focus:outline-none focus:border-night-line leading-relaxed resize-y"
                 />
 
                 {/* Bottom Action Footer for Code Tab */}
                 {viewMode === "code" && (
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3.5 border-t border-white/10 mt-3">
-                    <span className="text-[11px] font-mono text-neutral-500">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3.5 border-t border-night-line mt-3">
+                    <span className="text-[11px] font-mono text-chalk-dim">
                       Paste HTML with &lt;style&gt;, classes, or inline styles
                     </span>
                     <div className="flex items-center gap-3">
@@ -459,8 +459,8 @@ export function SectionAddStudio() {
 
           {/* Live Full Preview Canvas (Page / Tab 2) */}
           {(viewMode === "preview" || viewMode === "split") && (
-            <div className="flex flex-col bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-              <div className="p-3.5 border-b border-white/10 bg-neutral-900 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4 text-white" />
                   <span className="text-xs font-extrabold text-white tracking-wide uppercase">
@@ -469,12 +469,12 @@ export function SectionAddStudio() {
                 </div>
 
                 {/* Viewport Width Switcher */}
-                <div className="flex items-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-white/10">
+                <div className="flex items-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-night-line">
                   <button
                     type="button"
                     onClick={() => setPreviewWidth("100%")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "100%" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "100%" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     🖥️ Full Canvas (100%)
@@ -483,7 +483,7 @@ export function SectionAddStudio() {
                     type="button"
                     onClick={() => setPreviewWidth("1200px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "1200px" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "1200px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     💻 Desktop (1200px)
@@ -492,7 +492,7 @@ export function SectionAddStudio() {
                     type="button"
                     onClick={() => setPreviewWidth("768px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "768px" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "768px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     📱 Tablet (768px)
@@ -501,7 +501,7 @@ export function SectionAddStudio() {
                     type="button"
                     onClick={() => setPreviewWidth("375px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "375px" ? "bg-blue-600 text-white shadow-md" : "text-neutral-400 hover:text-white"
+                      previewWidth === "375px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
                     }`}
                   >
                     📱 Mobile (375px)
@@ -509,10 +509,10 @@ export function SectionAddStudio() {
                 </div>
               </div>
 
-              <div className="flex-1 p-4 bg-neutral-900/50 flex flex-col items-center justify-center overflow-auto min-h-[500px]">
+              <div className="flex-1 p-4 bg-night-raised flex flex-col items-center justify-center overflow-auto min-h-[500px]">
                 <div
                   style={{ width: previewWidth, maxWidth: "100%" }}
-                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-neutral-800 overflow-hidden bg-black flex flex-col"
+                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-night-line overflow-hidden bg-black flex flex-col"
                 >
                   <iframe
                     title="Section Preview"
@@ -525,11 +525,11 @@ export function SectionAddStudio() {
 
               {/* Bottom Action Footer for Preview Tab */}
               {viewMode === "preview" && (
-                <div className="p-3.5 bg-neutral-950 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div className="p-3.5 bg-night border-t border-night-line flex flex-wrap items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={() => setViewMode("code")}
-                    className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-white text-neutral-300 hover:text-white cursor-pointer transition-all"
+                    className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white cursor-pointer transition-all"
                   >
                     <FileCode className="w-4 h-4" />
                     <span>&larr; Back to Code Editor</span>
