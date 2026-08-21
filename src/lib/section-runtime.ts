@@ -99,6 +99,39 @@ export function sectionDeviceWidths(group: SectionDevicePreset["group"]): string
   return SECTION_DEVICE_PRESETS.filter((preset) => preset.group === group).map((p) => p.width);
 }
 
+/**
+ * What one press of a device button should do.
+ *
+ * Pressing the group you are already in advances to the next width inside it;
+ * pressing a different group enters it at its first width. That is one rule, and
+ * every switcher on the platform now gets it from here.
+ *
+ * It was written out by hand in each dock instead — the editor toolbar as a
+ * chain of `if (viewportWidth === "1200px") nextIdx = 2`, the site preview as
+ * its own modulo — so the two agreed only for as long as nobody added a preset.
+ * Adding one to `SECTION_DEVICE_PRESETS` would have extended the preview's cycle
+ * and silently left the toolbar's hard-coded indices skipping it, which is the
+ * failure this ladder exists to prevent.
+ */
+export function nextSectionDeviceWidth(
+  group: SectionDevicePreset["group"],
+  current: string,
+): string {
+  const widths = sectionDeviceWidths(group);
+  // A group with no presets cannot be entered; returning `current` leaves the
+  // canvas where it is rather than setting its width to `undefined`.
+  if (widths.length === 0) return current;
+
+  const index = widths.indexOf(current);
+  if (index < 0) return widths[0]!;
+  return widths[(index + 1) % widths.length]!;
+}
+
+/** The group a canvas width belongs to, or `null` if it is not a preset. */
+export function sectionDeviceGroupOf(width: string): SectionDevicePreset["group"] | null {
+  return SECTION_DEVICE_PRESETS.find((preset) => preset.width === width)?.group ?? null;
+}
+
 /** Stylesheets the environment loads, in order. */
 export const SECTION_RUNTIME_STYLESHEET_HREFS: readonly string[] = [
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
