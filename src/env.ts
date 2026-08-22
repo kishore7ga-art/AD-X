@@ -1,7 +1,7 @@
 /**
  * Where the API is.
  *
- * Production API Base: https://api.xite.co.in
+ * Production API Base: https://api.webxite.org
  * Local Development Base: http://localhost:4000
  */
 const raw = import.meta.env.VITE_API_BASE_URL?.trim();
@@ -14,7 +14,7 @@ function resolveApiBase(): string {
       return "http://localhost:4000";
     }
   }
-  return "https://api.xite.co.in";
+  return "https://api.webxite.org";
 }
 
 /** Single API base URL. */
@@ -29,7 +29,7 @@ const resolvedStudio = (() => {
       return "http://localhost:3000";
     }
   }
-  return "https://xite.co.in";
+  return "https://webxite.org";
 })();
 
 export const STUDIO_BASE = resolvedStudio.replace(/\/+$/, "");

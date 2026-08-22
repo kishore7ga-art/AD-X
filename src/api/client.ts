@@ -10,7 +10,7 @@ import { API_BASE } from "@/env";
  * browser to send the cookie. One place to get it right.
  *
  * Sends to exactly one API_BASE — no multi-base fallback. The old cascade through
- * multiple bases (api.xite.co.in, localhost:4000) turned legitimate 404s into
+ * multiple bases (api.webxite.org, localhost:4000) turned legitimate 404s into
  * CORS errors and "Failed to fetch" on the UI.
  */
 
