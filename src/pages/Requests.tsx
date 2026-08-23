@@ -219,9 +219,9 @@ export function Requests() {
     <Shell title="Access Requests">
       <div className="space-y-6">
         {/* Top Header & Action Filter Bar */}
-        <div className="bg-white rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white rounded-xl p-5 border border-night-line flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-extrabold text-chalk">User Access Requests</h2>
+            <h2 className="text-base font-semibold text-chalk">User Access Requests</h2>
             <p className="text-xs text-chalk-dim mt-0.5">
               Review, approve (accept), or reject incoming college registration requests.
             </p>
@@ -229,15 +229,15 @@ export function Requests() {
 
           <div className="flex items-center gap-3">
             {/* Filter Pills */}
-            <div className="flex rounded-2xl bg-night p-1 text-xs border border-night-line">
+            <div className="flex rounded-lg bg-night p-1 text-xs border border-night-line">
               {(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((status) => (
                 <button
                   key={status}
                   type="button"
                   onClick={() => setFilter(status)}
-                  className={`rounded-xl px-3.5 py-1.5 font-bold transition cursor-pointer ${
+                  className={`rounded-lg px-3.5 py-1.5 font-bold transition cursor-pointer ${
                     filter === status
-                      ? "bg-white text-chalk shadow-xs border border-night-line"
+                      ? "bg-white text-chalk  border border-night-line"
                       : "text-chalk-dim hover:text-chalk"
                   }`}
                 >
@@ -249,7 +249,7 @@ export function Requests() {
             <button
               type="button"
               onClick={() => void fetchRequests()}
-              className="rounded-2xl border border-night-line bg-white hover:bg-night px-3.5 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
+              className="rounded-lg border border-night-line bg-white hover:bg-night px-3.5 py-2 text-xs font-bold text-chalk transition cursor-pointer"
             >
               🔄 Refresh
             </button>
@@ -282,7 +282,7 @@ export function Requests() {
         </div>
 
         {error && (
-          <div className="rounded-2xl bg-red-50 border border-red-200 p-4 text-xs font-bold text-red-700">
+          <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-xs font-bold text-red-700">
             {error}
           </div>
         )}
@@ -293,7 +293,7 @@ export function Requests() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by email, name or college…"
-            className="flex-1 rounded-2xl border border-night-line bg-white px-4 py-2.5 text-xs font-medium text-chalk placeholder:text-chalk-dim shadow-xs outline-none focus:border-chalk"
+            className="flex-1 rounded-lg border border-night-line bg-white px-4 py-2.5 text-xs font-medium text-chalk placeholder:text-chalk-dim outline-none focus:border-chalk"
           />
           <span className="shrink-0 text-[11px] font-bold text-chalk-dim">
             {filtered.length} of {requests.length}
@@ -301,11 +301,11 @@ export function Requests() {
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-xl p-12 text-center text-xs text-chalk-dim border border-night-line">
             Loading access requests...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-xl p-12 text-center text-xs text-chalk-dim border border-night-line">
             No access requests match {needle ? `"${search}"` : `"${filter}"`}.
           </div>
         ) : (
@@ -313,13 +313,13 @@ export function Requests() {
             {filtered.map((req) => (
               <div
                 key={req.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-night-line bg-white p-5 transition-all hover:shadow-sm hover:border-chalk/25"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-night-line bg-white p-5 transition-all hover:border-chalk/20 hover:border-chalk/25"
               >
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-extrabold text-chalk">{req.name}</span>
+                    <span className="text-sm font-semibold text-chalk">{req.name}</span>
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
                         req.status === "PENDING"
                           ? "bg-amber-50 text-amber-700 border border-amber-200"
                           : req.status === "APPROVED"
@@ -362,7 +362,7 @@ export function Requests() {
                   </div>
 
                   {req.message && (
-                    <p className="mt-2 text-xs text-chalk-dim bg-night p-3 rounded-2xl border border-night-line italic">
+                    <p className="mt-2 text-xs text-chalk-dim bg-night p-3 rounded-lg border border-night-line italic">
                       "{req.message}"
                     </p>
                   )}
@@ -376,7 +376,7 @@ export function Requests() {
                         type="button"
                         disabled={processingId === req.id}
                         onClick={() => void handleApprove(req)}
-                        className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-extrabold text-white transition disabled:opacity-50 shadow-sm cursor-pointer"
+                        className="rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-semibold text-white transition disabled:opacity-50 shadow-sm cursor-pointer"
                       >
                         {processingId === req.id ? "Processing..." : "Accept (Approve)"}
                       </button>
@@ -385,7 +385,7 @@ export function Requests() {
                         type="button"
                         disabled={processingId === req.id}
                         onClick={() => void handleReject(req.id, req.name)}
-                        className="rounded-2xl border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3.5 py-2 text-xs font-extrabold text-rose-600 transition disabled:opacity-50 cursor-pointer"
+                        className="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3.5 py-2 text-xs font-semibold text-rose-600 transition disabled:opacity-50 cursor-pointer"
                       >
                         Reject
                       </button>

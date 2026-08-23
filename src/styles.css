@@ -3,10 +3,11 @@
 /**
  * The Studio's surface.
  *
- * Light, soft and playful: a periwinkle ground with the whole panel sitting on
- * it as one big white card, the way a dashboard sits on a desk. Panels are
- * plain white with a hairline; the colour is spent on the KPI tiles and on the
- * single near-black pill that marks whatever is active.
+ * A working console, not a dashboard poster: white ground, hairline borders,
+ * one blue for anything actionable, and grey for everything that is only
+ * telling you something. Depth is carried by a 1px line rather than by shadow,
+ * which is what lets a screen hold forty rows without turning into a pile of
+ * floating cards.
  *
  * The palette lives entirely in these tokens, so the pages did not need
  * rewriting to follow it — `bg-night`, `text-chalk`, `border-night-line` and
@@ -14,138 +15,131 @@
  *
  * Two deliberate choices worth naming:
  *
- * The ground is periwinkle, not white. A white page under white cards leaves
- * the cards nowhere to sit — the frame only reads as lifted if the page behind
- * it is not already the same colour as the frame.
+ * The page is flush to the window. The previous treatment floated the whole
+ * panel as one rounded card on a coloured ground, which reads well on a
+ * marketing shot and costs real width on a 1280px laptop — the rail, two
+ * gutters and a radius, none of which hold data.
  *
- * Near-black is the only accent, and it is spent on the active nav item and on
- * primary actions. Pastels carry meaning on the KPI tiles and nowhere else, so
- * a colour on this surface always means "this number", never "this is pretty".
+ * Blue is spent only on things you can act on: the active nav item, primary
+ * buttons, links. Status uses its own greens and ambers and never blue, so
+ * "blue" always means "you can press this" rather than "this is important".
  */
 @theme {
   /* Grounds.
 
      `night` is the recessed surface — inputs, insets, wells. It doubles as the
-     ink used *on* the dark fills (`bg-chalk text-night`), which is why it is a
-     near-white rather than a mid grey. */
-  --color-night: #f3f3f8;
+     ink used *on* the filled buttons (`bg-accent text-night`), which is why it
+     is a near-white rather than a mid grey. */
+  --color-night: #f9fafb;
   --color-night-raised: #ffffff;
   --color-night-card: #ffffff;
-  --color-night-line: #e6e6f0;
+  --color-night-line: #e5e7eb;
 
   /* Ink */
-  --color-chalk: #16161f;
-  --color-chalk-dim: #74748a;
+  --color-chalk: #111827;
+  --color-chalk-dim: #6b7280;
 
-  /* One accent, ink-black */
-  --color-accent: #1b1b25;
-  --color-accent-hover: #34343f;
-  --color-brand-cyan: #7c7bf0;
+  /* One accent, blue */
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-brand-cyan: #7c3aed;
 
-  /* The ground, and the pastels the KPI tiles are cut from */
-  --color-lavender: #adacee;
-  --color-lavender-deep: #8a89e6;
-  --color-pastel-pink: #fbd0ea;
-  --color-pastel-mint: #b8f2e6;
-  --color-pastel-green: #bff3c7;
-  --color-pastel-lilac: #d8d7fc;
-  --color-pastel-sun: #fde9ac;
+  /* Retained so the pastel names still resolve. They are no longer a palette,
+     just the tints the "Recommended" tiles are keyed with. */
+  --color-lavender: #f3f4f6;
+  --color-lavender-deep: #7c3aed;
+  --color-pastel-pink: #fce7f3;
+  --color-pastel-mint: #d1fae5;
+  --color-pastel-green: #dcfce7;
+  --color-pastel-lilac: #ede9fe;
+  --color-pastel-sun: #fef3c7;
 }
 
 html {
-  background: #adacee;
-  color: #16161f;
+  background: #ffffff;
+  color: #111827;
   color-scheme: light;
 }
 
 body {
   margin: 0;
-  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-color: #adacee;
-  color: #16161f;
+  background-color: #ffffff;
+  color: #111827;
   min-height: 100vh;
-}
-
-/**
- * Ambient light.
- *
- * Two soft pools, fixed behind everything and never interactive. On a flat
- * lavender ground the white frame has nothing to be lit *by*; these give the
- * ground a gradient so the frame's edge catches instead of being drawn on.
- */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(60rem 40rem at 78% -10%, rgba(255, 255, 255, 0.55), transparent 62%),
-    radial-gradient(45rem 35rem at 6% 4%, rgba(138, 137, 230, 0.4), transparent 58%);
 }
 
 #root {
   position: relative;
-  z-index: 1;
 }
 
 /**
  * Panel.
  *
- * Plain white with a hairline and a low, wide shadow. The old frosted-glass
- * treatment was carrying the depth on a dark ground; on a light one the same
- * translucency just reads as dirt, so the depth moves into the shadow.
+ * White with a hairline and no shadow. A console shows many of these at once
+ * and a shadow on each is what turns a list into a heap; the border is enough
+ * to say where one ends.
  */
 .glass {
   background: #ffffff;
   border: 1px solid var(--color-night-line);
-  box-shadow: 0 1px 2px rgba(22, 22, 31, 0.04), 0 12px 32px -18px rgba(22, 22, 31, 0.22);
 }
 
+/** The one that does lift — menus and popovers, which must clear the page. */
 .glass-raised {
   background: #ffffff;
   border: 1px solid var(--color-night-line);
-  box-shadow: 0 2px 4px rgba(22, 22, 31, 0.05), 0 18px 44px -20px rgba(22, 22, 31, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(17, 24, 39, 0.07), 0 10px 20px -8px rgba(17, 24, 39, 0.12);
 }
 
 /** The accent, as a surface. Used for the active nav item and primary actions. */
 .accent-fill {
-  background: #1b1b25;
-  color: #f6f6fb;
-  box-shadow: 0 8px 20px -10px rgba(27, 27, 37, 0.65);
+  background: var(--color-accent);
+  color: #ffffff;
 }
 
-/**
- * The app frame.
- *
- * One white card holding rail and content, floating on the lavender. The large
- * radius is the whole idea of the reference layout — it is what makes the panel
- * an object on a surface rather than a page filling a window.
- */
+/** The shell is flush now; these stay as plain containers so the markup that
+    references them keeps working without conditionals. */
 .app-frame {
   background: #ffffff;
-  border-radius: 34px;
-  box-shadow: 0 2px 6px rgba(22, 22, 31, 0.06), 0 40px 90px -40px rgba(38, 37, 92, 0.55);
 }
 
-/** The content well inside the frame — a shade back so white cards read on it. */
 .app-well {
-  background: #f6f6fb;
+  background: #ffffff;
+}
+
+/** A card holding numbers. Same hairline as everything else. */
+.kpi {
+  background: #ffffff;
+  border: 1px solid var(--color-night-line);
+  border-radius: 12px;
 }
 
 /**
- * KPI tile.
+ * The banner.
  *
- * A pastel fill with a real, dark hairline rather than a tinted one. The dark
- * edge is what stops four pastels in a row turning into a smear: each tile is
- * drawn, not just coloured.
+ * Blue into violet, with the dot field the reference carries on its right
+ * third. The dots are a pseudo-element rather than a background layer on the
+ * banner itself so they can be masked to fade inwards — a grid running edge to
+ * edge under the text competes with it.
  */
-.kpi {
-  border: 1px solid #16161f;
-  border-radius: 26px;
-  box-shadow: 0 6px 0 -1px rgba(22, 22, 31, 0.08);
+.hero-banner {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(103deg, #1e3a8a 0%, #2c4bb0 38%, #5b3fc4 72%, #7c3aed 100%);
+}
+
+.hero-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 42%;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.22) 1.5px, transparent 1.6px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%);
+  mask-image: linear-gradient(to right, transparent, #000 45%);
 }
 
 /* Scrollbars belong to the surface too. */
@@ -157,20 +151,19 @@ body::before {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(22, 22, 31, 0.16);
+  background: rgba(17, 24, 39, 0.18);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(22, 22, 31, 0.28);
+  background: rgba(17, 24, 39, 0.3);
   background-clip: content-box;
 }
 
-/* Focus has to stay visible on a light ground, and ink is the one thing that
-   reads against every surface here. */
+/* Focus rides the accent, which is the only colour here that means "active". */
 :focus-visible {
-  outline: 2px solid #1b1b25;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 

@@ -28,20 +28,20 @@ export function AddSectionModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-chalk/40 backdrop-blur-sm text-chalk font-sans">
-      <div className="w-full max-w-2xl bg-white border border-night-line rounded-3xl p-6 shadow-2xl space-y-6 relative">
+      <div className="w-full max-w-2xl bg-white border border-night-line rounded-xl p-6 shadow-lg space-y-6 relative">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-night-line pb-4">
           <div>
-            <span className="text-[10px] font-mono text-amber-600 font-extrabold uppercase tracking-widest bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+            <span className="text-[10px] font-mono text-accent font-semibold uppercase tracking-widest bg-accent/10 px-2.5 py-0.5 rounded-full border border-amber-200">
               NEW SECTION
             </span>
-            <h2 className="text-xl font-black text-chalk tracking-tight mt-1">Select Section Category</h2>
+            <h2 className="text-xl font-bold text-chalk tracking-tight mt-1">Select Section Category</h2>
             <p className="text-xs text-chalk-dim mt-0.5">Choose a component category to add and build in the code studio.</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-night text-chalk-dim hover:text-chalk transition-all cursor-pointer"
+            className="p-2 rounded-lg hover:bg-night text-chalk-dim hover:text-chalk transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -56,18 +56,18 @@ export function AddSectionModal({
               <div
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
+                className={`p-4 rounded-lg border transition-all cursor-pointer select-none ${
                   isSelected
                     ? "bg-night border-chalk shadow-sm ring-2 ring-chalk/15"
                     : "bg-night border-night-line text-chalk hover:border-night-line hover:bg-white"
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`p-2.5 rounded-xl ${isSelected ? "bg-accent text-night shadow-sm shadow-chalk/25" : "bg-white border border-night-line text-chalk-dim"}`}>
+                  <div className={`p-2.5 rounded-lg ${isSelected ? "bg-accent text-night shadow-sm shadow-chalk/25" : "bg-white border border-night-line text-chalk-dim"}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className={`text-sm font-extrabold ${isSelected ? "text-chalk" : "text-chalk"}`}>
+                    <h3 className={`text-sm font-semibold ${isSelected ? "text-chalk" : "text-chalk"}`}>
                       {type.name}
                     </h3>
                     <p className={`text-xs mt-1 leading-relaxed ${isSelected ? "text-chalk-dim font-medium" : "text-chalk-dim"}`}>

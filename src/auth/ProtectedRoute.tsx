@@ -32,7 +32,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
 function Resolving() {
   return (
-    <div className="flex min-h-svh items-center justify-center bg-lavender">
+    <div className="flex min-h-svh items-center justify-center bg-night">
       <p className="text-sm text-chalk">Checking your session…</p>
     </div>
   );

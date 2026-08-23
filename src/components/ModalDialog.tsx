@@ -50,25 +50,25 @@ export function ModalDialog({
         return {
           icon: Trash2,
           iconBg: "bg-rose-50 text-rose-600 border-rose-200",
-          btnBg: "bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/30",
+          btnBg: "bg-rose-600 hover:bg-rose-700 text-white",
         };
       case "warning":
         return {
           icon: AlertTriangle,
           iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-          btnBg: "bg-amber-600 hover:bg-amber-700 text-white shadow-sm shadow-amber-600/30",
+          btnBg: "bg-amber-600 hover:bg-amber-700 text-white",
         };
       case "success":
         return {
           icon: CheckCircle2,
           iconBg: "bg-emerald-50 text-emerald-600 border-emerald-200",
-          btnBg: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/30",
+          btnBg: "bg-emerald-600 hover:bg-emerald-700 text-white",
         };
       default:
         return {
           icon: type === "prompt" ? Lock : Info,
-          iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-          btnBg: "bg-amber-600 hover:bg-amber-700 text-white shadow-sm shadow-amber-600/30",
+          iconBg: "bg-accent/10 text-accent border-blue-200",
+          btnBg: "bg-accent hover:bg-accent-hover text-white",
         };
     }
   };
@@ -79,16 +79,16 @@ export function ModalDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-chalk/40 backdrop-blur-sm animate-in fade-in duration-150">
       <div
-        className="w-full max-w-md bg-white border border-night-line rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-chalk"
+        className="w-full max-w-md bg-white border border-night-line rounded-xl p-6 shadow-lg space-y-5 animate-in zoom-in-95 duration-150 text-chalk"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className={`p-3 rounded-2xl border ${style.iconBg} flex items-center justify-center shrink-0`}>
+            <div className={`p-3 rounded-lg border ${style.iconBg} flex items-center justify-center shrink-0`}>
               <IconComponent className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-chalk tracking-tight">{title}</h3>
+              <h3 className="text-base font-semibold text-chalk tracking-tight">{title}</h3>
               {/*
                 Callers pass messages with blank lines between paragraphs, and
                 one of them is an activation URL long enough to overflow the
@@ -122,7 +122,7 @@ export function ModalDialog({
                 placeholder={placeholder || "Enter text..."}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
-                className="w-full bg-night border border-night-line rounded-xl px-4 py-3 text-xs font-semibold text-chalk outline-none focus:border-chalk focus:bg-white transition shadow-inner"
+                className="w-full bg-night border border-night-line rounded-lg px-4 py-3 text-xs font-semibold text-chalk outline-none focus:border-chalk focus:bg-white transition"
               />
             </div>
           </form>
@@ -134,7 +134,7 @@ export function ModalDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded-xl border border-night-line text-xs font-bold text-chalk-dim hover:bg-night transition cursor-pointer"
+              className="px-4 py-2 rounded-lg border border-night-line text-xs font-bold text-chalk-dim hover:bg-night transition cursor-pointer"
             >
               {cancelText}
             </button>
@@ -144,7 +144,7 @@ export function ModalDialog({
             type="button"
             onClick={() => handleConfirm()}
             disabled={type === "prompt" && !inputVal.trim()}
-            className={`px-5 py-2 rounded-xl text-xs font-black shadow-md transition cursor-pointer disabled:opacity-50 ${style.btnBg}`}
+            className={`px-5 py-2 rounded-md text-xs font-semibold transition cursor-pointer disabled:opacity-50 ${style.btnBg}`}
           >
             {confirmText}
           </button>

@@ -18,6 +18,7 @@ import type { TemplateRow, TemplateStats } from "@/api/types";
 import { Shell } from "@/components/Shell";
 import { AddSectionModal } from "@/components/AddSectionModal";
 import { AddSectionButton } from "@/components/AddSectionButton";
+import { HeroBanner } from "@/components/HeroBanner";
 import { StatTile } from "@/components/StatTile";
 import type { StatTone } from "@/components/StatTile";
 import { ModalDialog } from "@/components/ModalDialog";
@@ -479,8 +480,20 @@ export function Templates() {
   return (
     <Shell title="Templates">
       <div className="space-y-6">
+        {/*
+          The banner is wired to the same handler as the "Create Section"
+          button below it, rather than being given a destination of its own.
+          Two prominent buttons that start different flows is how a landing
+          screen ends up with a preferred path nobody chose.
+        */}
+        <HeroBanner
+          title="Every college site on the platform starts here"
+          body="Sections are the building blocks each college assembles their site from, and the default website is the layout a new signup receives. Add a section once and every campus can use it."
+          action={{ label: "Create a section", onClick: () => setShowAddSectionModal(true) }}
+        />
+
         {/* Top Header & Search / Filter Bar (Matching Reference Image) */}
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-night-line shadow-xs space-y-4">
+        <div className="bg-white rounded-xl p-4 sm:p-5 border border-night-line space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[260px]">
@@ -490,7 +503,7 @@ export function Templates() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search templates, sections, or categories..."
-                className="w-full pl-10 pr-4 py-2 bg-night border border-night-line rounded-2xl text-xs font-semibold text-chalk placeholder:text-chalk-dim outline-none focus:border-chalk focus:bg-white transition-all shadow-inner"
+                className="w-full pl-10 pr-4 py-2 bg-night border border-night-line rounded-lg text-xs font-semibold text-chalk placeholder:text-chalk-dim outline-none focus:border-chalk focus:bg-white transition-all"
               />
             </div>
 
@@ -501,7 +514,7 @@ export function Templates() {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="appearance-none bg-night border border-night-line hover:border-night-line text-chalk text-xs font-bold pl-3.5 pr-8 py-2 rounded-2xl outline-none cursor-pointer transition-all shadow-xs"
+                  className="appearance-none bg-night border border-night-line hover:border-night-line text-chalk text-xs font-bold pl-3.5 pr-8 py-2 rounded-lg outline-none cursor-pointer transition-all"
                 >
                   <option value="ALL">📁 Category: All</option>
                   {SECTION_CATEGORIES_GRID.map((c) => (
@@ -518,7 +531,7 @@ export function Templates() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="appearance-none bg-night border border-night-line hover:border-night-line text-chalk text-xs font-bold pl-3.5 pr-8 py-2 rounded-2xl outline-none cursor-pointer transition-all shadow-xs"
+                  className="appearance-none bg-night border border-night-line hover:border-night-line text-chalk text-xs font-bold pl-3.5 pr-8 py-2 rounded-lg outline-none cursor-pointer transition-all"
                 >
                   <option value="ALL">⚡ Status: All</option>
                   <option value="PUBLISHED">Active / Published</option>
@@ -528,12 +541,12 @@ export function Templates() {
               </div>
 
               {/* Grid / List View Toggle */}
-              <div className="flex items-center bg-night p-1 rounded-2xl border border-night-line">
+              <div className="flex items-center bg-night p-1 rounded-lg border border-night-line">
                 <button
                   type="button"
                   onClick={() => setViewFormat("grid")}
-                  className={`p-1.5 rounded-xl transition-all cursor-pointer ${
-                    viewFormat === "grid" ? "bg-white text-chalk shadow-xs" : "text-chalk-dim hover:text-chalk"
+                  className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                    viewFormat === "grid" ? "bg-white text-chalk " : "text-chalk-dim hover:text-chalk"
                   }`}
                   title="Grid View"
                 >
@@ -542,8 +555,8 @@ export function Templates() {
                 <button
                   type="button"
                   onClick={() => setViewFormat("list")}
-                  className={`p-1.5 rounded-xl transition-all cursor-pointer ${
-                    viewFormat === "list" ? "bg-white text-chalk shadow-xs" : "text-chalk-dim hover:text-chalk"
+                  className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                    viewFormat === "list" ? "bg-white text-chalk " : "text-chalk-dim hover:text-chalk"
                   }`}
                   title="List View"
                 >
@@ -555,7 +568,7 @@ export function Templates() {
               <button
                 type="button"
                 onClick={() => setShowAddSectionModal(true)}
-                className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-extrabold text-xs px-4 py-2.5 rounded-2xl shadow-sm shadow-chalk/20 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-sm shadow-chalk/20 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Plus className="w-4 h-4 stroke-[3]" />
                 <span>Create Section ⚡</span>
@@ -566,7 +579,7 @@ export function Templates() {
                   type="button"
                   disabled={isDeletingAll}
                   onClick={() => void handleDeleteAllTemplates()}
-                  className="rounded-2xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 text-xs font-bold disabled:opacity-50 transition-all cursor-pointer"
+                  className="rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 text-xs font-bold disabled:opacity-50 transition-all cursor-pointer"
                   title="Delete all templates"
                 >
                   {isDeletingAll ? "Deleting..." : "🗑️ Delete All"}
@@ -581,35 +594,33 @@ export function Templates() {
           <Stat
             label="Total Sections"
             value={templates?.length || stats?.templates.total || 0}
-            sublabel="Live Database"
-            badge="+12% vs last week"
-            tone="pink"
+            sublabel="Rows in the templates collection"
+            badge="Live"
+            tone="mint"
           />
           <Stat
             label="Published Templates"
             value={(templates || []).filter((t) => t.isPublished).length || stats?.templates.published || 0}
-            sublabel="Public Gallery"
-            badge="Active"
-            tone="mint"
+            sublabel="Visible in the section gallery"
+            badge="Published"
+            tone="green"
           />
           <Stat
             label="Section Categories"
             value={SECTION_CATEGORIES_GRID.length}
-            sublabel="Platform Standard"
-            badge="100% Ready"
-            tone="green"
+            sublabel="Fixed list every college picks from"
+            tone="lilac"
           />
           <Stat
             label="Colleges Deployed"
             value={stats?.collegesOnTemplates || 1}
-            sublabel="Active Websites"
-            badge="+5% this week"
+            sublabel="Colleges whose site uses a template"
             tone="lilac"
           />
         </div>
 
         {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700 flex items-center gap-2">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700 flex items-center gap-2">
             <span>{error}</span>
           </div>
         )}
@@ -618,7 +629,7 @@ export function Templates() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-extrabold text-chalk uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-chalk uppercase tracking-wider">
                 Section Templates Gallery
               </h2>
               <p className="text-xs text-chalk-dim">
@@ -628,11 +639,11 @@ export function Templates() {
           </div>
 
           {filteredTemplates.length === 0 ? (
-            <div className="bg-white rounded-3xl p-12 text-center border border-night-line shadow-xs space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl font-bold">
+            <div className="bg-white rounded-xl p-12 text-center border border-night-line space-y-3">
+              <div className="w-12 h-12 rounded-lg bg-accent/10 text-accent flex items-center justify-center mx-auto text-xl font-bold">
                 ⚡
               </div>
-              <h3 className="text-base font-extrabold text-chalk">No Section Templates Found</h3>
+              <h3 className="text-base font-semibold text-chalk">No Section Templates Found</h3>
               <p className="text-xs text-chalk-dim max-w-md mx-auto">
                 {searchQuery || categoryFilter !== "ALL" || statusFilter !== "ALL"
                   ? "Try clearing your search or filter options to see all sections."
@@ -641,7 +652,7 @@ export function Templates() {
               <button
                 type="button"
                 onClick={() => setShowAddSectionModal(true)}
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-night font-bold text-xs px-5 py-2.5 rounded-2xl shadow-sm transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-night font-bold text-xs px-5 py-2.5 rounded-lg shadow-sm transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add New Section</span>
@@ -661,10 +672,10 @@ export function Templates() {
                 return (
                   <div
                     key={sec.id}
-                    className="bg-white rounded-3xl border border-night-line p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group relative hover:border-chalk/25"
+                    className="bg-white rounded-xl border border-night-line p-4 hover:border-chalk/20 transition-all flex flex-col justify-between group relative hover:border-chalk/25"
                   >
                     {/* Top Image Preview / Visual Banner (Matching Reference Image) */}
-                    <div className="relative w-full h-36 rounded-2xl overflow-hidden bg-night mb-3 border border-night-line">
+                    <div className="relative w-full h-36 rounded-lg overflow-hidden bg-night mb-3 border border-night-line">
                       {sec.thumbnailUrl ? (
                         <img
                           src={sec.thumbnailUrl}
@@ -672,13 +683,13 @@ export function Templates() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-pastel-lilac via-pastel-mint to-pastel-sun p-3 flex flex-col justify-between text-chalk">
-                          <div className="flex items-center justify-between text-[10px] font-mono text-amber-600 font-bold">
+                        <div className="w-full h-full bg-gradient-to-br from-blue-50 via-night to-violet-50 p-3 flex flex-col justify-between text-chalk">
+                          <div className="flex items-center justify-between text-[10px] font-mono text-accent font-bold">
                             <span>⚡ {derivedCategory}</span>
                             <span className="text-chalk-dim">v2.0</span>
                           </div>
                           <div className="text-center py-2">
-                            <span className="text-xs font-black text-chalk line-clamp-2 px-2">
+                            <span className="text-xs font-bold text-chalk line-clamp-2 px-2">
                               {sec.name}
                             </span>
                           </div>
@@ -691,13 +702,13 @@ export function Templates() {
 
                       {/* Floating Platform & Status Badges */}
                       <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                        <span className="bg-chalk backdrop-blur-md text-night text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-chalk">
+                        <span className="bg-chalk/85 backdrop-blur-md text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-chalk">
                           {derivedCategory}
                         </span>
                       </div>
                       <div className="absolute top-2 right-2">
                         <span
-                          className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border backdrop-blur-md ${
+                          className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border backdrop-blur-md ${
                             isLive
                               ? "bg-emerald-500/90 text-white border-emerald-400"
                               : "bg-chalk-dim text-chalk border-night-line"
@@ -711,7 +722,7 @@ export function Templates() {
                     {/* Card Title & Meta Info */}
                     <div className="space-y-1.5 flex-1">
                       <h3
-                        className="text-sm font-extrabold text-chalk line-clamp-1 group-hover:text-amber-600 transition-colors"
+                        className="text-sm font-semibold text-chalk line-clamp-1 group-hover:text-accent transition-colors"
                         title={sec.name}
                       >
                         {sec.name}
@@ -723,14 +734,14 @@ export function Templates() {
                     </div>
 
                     {/* Card Metrics Sub-Panel (Matching Image) */}
-                    <div className="my-3 p-2.5 rounded-2xl bg-night border border-night-line flex items-center justify-between text-xs">
+                    <div className="my-3 p-2.5 rounded-lg bg-night border border-night-line flex items-center justify-between text-xs">
                       <div>
                         <span className="text-[10px] text-chalk-dim font-medium block">Usage</span>
-                        <span className="font-extrabold text-chalk">{sec.colleges || 1} Colleges</span>
+                        <span className="font-semibold text-chalk">{sec.colleges || 1} Colleges</span>
                       </div>
                       <div className="text-right">
                         <span className="text-[10px] text-chalk-dim font-medium block">Status</span>
-                        <span className="font-extrabold text-emerald-600">{isLive ? "Live" : "Draft"}</span>
+                        <span className="font-semibold text-emerald-600">{isLive ? "Live" : "Draft"}</span>
                       </div>
                     </div>
 
@@ -738,7 +749,7 @@ export function Templates() {
                     <div className="pt-2 border-t border-night-line flex items-center gap-2">
                       <Link
                         to={`/templates/${sec.id}`}
-                        className="flex-1 text-center text-xs font-extrabold py-2 px-3 rounded-xl bg-night hover:bg-amber-50 hover:text-amber-700 text-chalk transition-all cursor-pointer"
+                        className="flex-1 text-center text-xs font-semibold py-2 px-3 rounded-lg bg-night hover:bg-accent/10 hover:text-accent text-chalk transition-all cursor-pointer"
                       >
                         Details / Edit
                       </Link>
@@ -747,17 +758,17 @@ export function Templates() {
                         <button
                           type="button"
                           onClick={() => setActiveMenuId(activeMenuId === sec.id ? null : sec.id)}
-                          className="p-2 rounded-xl bg-night hover:bg-night-line text-chalk-dim transition-colors cursor-pointer"
+                          className="p-2 rounded-lg bg-night hover:bg-night-line text-chalk-dim transition-colors cursor-pointer"
                         >
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
 
                         {/* Dropdown Menu */}
                         {activeMenuId === sec.id && (
-                          <div className="absolute right-0 bottom-full mb-2 w-36 bg-white rounded-2xl shadow-xl border border-night-line p-1.5 z-20 space-y-1 animate-in fade-in zoom-in-95 duration-100 text-xs font-bold">
+                          <div className="absolute right-0 bottom-full mb-2 w-36 bg-white rounded-lg shadow-md border border-night-line p-1.5 z-20 space-y-1 animate-in fade-in zoom-in-95 duration-100 text-xs font-bold">
                             <Link
                               to={`/templates/${sec.id}`}
-                              className="w-full text-left px-3 py-1.5 rounded-xl hover:bg-night text-chalk block"
+                              className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-night text-chalk block"
                             >
                               ✏️ Edit Section
                             </Link>
@@ -767,7 +778,7 @@ export function Templates() {
                                 setActiveMenuId(null);
                                 void handleArchive(sec);
                               }}
-                              className="w-full text-left px-3 py-1.5 rounded-xl hover:bg-night text-chalk block cursor-pointer"
+                              className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-night text-chalk block cursor-pointer"
                             >
                               📦 Archive
                             </button>
@@ -777,7 +788,7 @@ export function Templates() {
                                 setActiveMenuId(null);
                                 void handleDelete(sec);
                               }}
-                              className="w-full text-left px-3 py-1.5 rounded-xl hover:bg-rose-50 text-rose-600 block cursor-pointer"
+                              className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-rose-50 text-rose-600 block cursor-pointer"
                             >
                               🗑️ Delete
                             </button>
@@ -791,18 +802,18 @@ export function Templates() {
             </div>
           ) : (
             /* List View */
-            <div className="bg-white rounded-3xl border border-night-line shadow-xs overflow-hidden divide-y divide-night-line">
+            <div className="bg-white rounded-xl border border-night-line overflow-hidden divide-y divide-night-line">
               {filteredTemplates.map((sec) => (
                 <div
                   key={sec.id}
                   className="p-4 flex items-center justify-between hover:bg-night transition-colors gap-4"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-bold text-sm shrink-0">
                       ⚡
                     </div>
                     <div>
-                      <h4 className="text-sm font-extrabold text-chalk">{sec.name}</h4>
+                      <h4 className="text-sm font-semibold text-chalk">{sec.name}</h4>
                       <p className="text-xs text-chalk-dim font-mono">
                         {sec.category || "Section"} · {new Date(sec.createdAt || Date.now()).toLocaleDateString()}
                       </p>
@@ -821,14 +832,14 @@ export function Templates() {
                     </span>
                     <Link
                       to={`/templates/${sec.id}`}
-                      className="text-xs font-bold px-3 py-1.5 rounded-xl bg-night hover:bg-amber-50 text-chalk hover:text-amber-700 transition-colors"
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-night hover:bg-accent/10 text-chalk hover:text-accent transition-colors"
                     >
                       Edit Code
                     </Link>
                     <button
                       type="button"
                       onClick={() => void handleDelete(sec)}
-                      className="text-xs font-bold text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer"
+                      className="text-xs font-bold text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
                     >
                       Delete
                     </button>
@@ -843,7 +854,7 @@ export function Templates() {
         <div className="mt-10 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-extrabold text-chalk uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-chalk uppercase tracking-wider">
                 Category Fast-Access Boxes
               </h2>
               <p className="text-xs text-chalk-dim">
@@ -878,29 +889,29 @@ export function Templates() {
                 <div
                   key={cat.id}
                   onClick={() => setSelectedCategoryModal(cat)}
-                  className={`relative rounded-3xl p-5 border transition-all flex flex-col justify-between cursor-pointer group h-[260px] ${
+                  className={`relative rounded-xl p-5 border transition-all flex flex-col justify-between cursor-pointer group h-[260px] ${
                     isLive
-                      ? "bg-white border-amber-200 shadow-xs hover:shadow-md hover:border-chalk/30"
+                      ? "bg-white border-blue-200 hover:border-accent/40"
                       : "bg-white border-night-line hover:bg-white hover:border-night-line"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono text-amber-600 font-extrabold uppercase tracking-wider bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    <span className="text-[10px] font-mono text-accent font-semibold uppercase tracking-wider bg-accent/10 px-2 py-0.5 rounded-full border border-amber-200">
                       {cat.id}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <span
                         className={`w-2.5 h-2.5 rounded-full ${
-                          isLive ? "bg-emerald-500 shadow-xs shadow-emerald-500/50" : "bg-night-line"
+                          isLive ? "bg-emerald-500  shadow-emerald-500/50" : "bg-night-line"
                         }`}
                       />
                     </span>
                   </div>
 
                   <div className="flex-1 flex flex-col justify-start overflow-hidden">
-                    <h3 className="text-sm font-extrabold text-chalk group-hover:text-amber-600 transition-colors flex items-center justify-between shrink-0">
+                    <h3 className="text-sm font-semibold text-chalk group-hover:text-accent transition-colors flex items-center justify-between shrink-0">
                       <span>{cat.name}</span>
-                      <ArrowUpRight className="w-4 h-4 text-chalk-dim group-hover:text-amber-600 transition-colors" />
+                      <ArrowUpRight className="w-4 h-4 text-chalk-dim group-hover:text-accent transition-colors" />
                     </h3>
                     <p className="text-[11px] text-chalk-dim mt-0.5 line-clamp-1 shrink-0">{cat.description}</p>
 
@@ -909,10 +920,10 @@ export function Templates() {
                         matchingSections.map((sec) => (
                           <div
                             key={sec.id}
-                            className="text-xs font-mono text-amber-800 font-bold flex items-center justify-between bg-amber-50/70 px-2.5 py-1 rounded-xl border border-amber-200/60 shrink-0"
+                            className="text-xs font-mono text-accent font-medium flex items-center justify-between bg-accent/10 px-2.5 py-1 rounded-lg border border-blue-200/70 shrink-0"
                           >
                             <span className="truncate">{sec.name}</span>
-                            <span className="text-[9px] text-amber-600 font-bold ml-1 shrink-0">Active</span>
+                            <span className="text-[9px] text-emerald-600 font-bold ml-1 shrink-0">Active</span>
                           </div>
                         ))
                       ) : (
@@ -931,7 +942,7 @@ export function Templates() {
                         e.stopPropagation();
                         navigate("/sections/new", { state: { typeId: cat.id, typeName: cat.name } });
                       }}
-                      className="text-xs font-extrabold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-xl transition-colors cursor-pointer"
+                      className="text-xs font-semibold text-accent bg-accent/10 hover:bg-accent/15 border border-blue-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                     >
                       + Add
                     </button>
@@ -950,14 +961,14 @@ export function Templates() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl bg-white rounded-3xl p-6 shadow-2xl space-y-6 border border-night-line text-chalk cursor-default"
+              className="w-full max-w-2xl bg-white rounded-xl p-6 shadow-lg space-y-6 border border-night-line text-chalk cursor-default"
             >
               <div className="flex items-center justify-between border-b border-night-line pb-4">
                 <div>
-                  <span className="text-[10px] font-mono text-amber-600 font-extrabold uppercase tracking-widest bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                  <span className="text-[10px] font-mono text-accent font-semibold uppercase tracking-widest bg-accent/10 px-2.5 py-0.5 rounded-full border border-amber-200">
                     {selectedCategoryModal.id} CATEGORY
                   </span>
-                  <h3 className="text-lg font-extrabold text-chalk mt-1">
+                  <h3 className="text-lg font-semibold text-chalk mt-1">
                     {selectedCategoryModal.name} Sections
                   </h3>
                   <p className="text-xs text-chalk-dim mt-0.5">{selectedCategoryModal.description}</p>
@@ -1012,11 +1023,11 @@ export function Templates() {
                     {matchingSections.map((sec) => (
                       <div
                         key={sec.id}
-                        className="p-4 rounded-2xl bg-night border border-night-line hover:border-chalk/25 flex items-center justify-between transition-all"
+                        className="p-4 rounded-lg bg-night border border-night-line hover:border-chalk/25 flex items-center justify-between transition-all"
                       >
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-extrabold text-chalk">{sec.name}</span>
+                            <span className="text-sm font-semibold text-chalk">{sec.name}</span>
                             <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
                               {sec.isPublished ? "Published" : "Draft"}
                             </span>
@@ -1027,7 +1038,7 @@ export function Templates() {
                         <div className="flex items-center gap-2">
                           <Link
                             to={`/templates/${sec.id}`}
-                            className="text-xs font-bold text-amber-700 hover:text-amber-800 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200"
+                            className="text-xs font-bold text-accent hover:text-accent-hover px-3 py-1.5 rounded-lg bg-accent/10 border border-blue-200"
                           >
                             Edit Code
                           </Link>
@@ -1035,7 +1046,7 @@ export function Templates() {
                             type="button"
                             disabled={busyId === sec.id}
                             onClick={() => void handleArchive(sec)}
-                            className="text-xs font-bold text-chalk-dim hover:text-chalk px-3 py-1.5 rounded-xl bg-night-line cursor-pointer disabled:opacity-50"
+                            className="text-xs font-bold text-chalk-dim hover:text-chalk px-3 py-1.5 rounded-lg bg-night-line cursor-pointer disabled:opacity-50"
                           >
                             {busyId === sec.id ? "Processing…" : "Archive"}
                           </button>
@@ -1043,7 +1054,7 @@ export function Templates() {
                             type="button"
                             disabled={busyId === sec.id}
                             onClick={() => void handleDelete(sec)}
-                            className="text-xs font-bold text-rose-600 hover:text-rose-700 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 cursor-pointer disabled:opacity-50"
+                            className="text-xs font-bold text-rose-600 hover:text-rose-700 px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 cursor-pointer disabled:opacity-50"
                           >
                             {busyId === sec.id ? "Deleting…" : "Delete"}
                           </button>
@@ -1083,7 +1094,7 @@ export function Templates() {
             </div>
 
             {/* Viewport & View Mode Toggles */}
-            <div className="hidden md:flex items-center gap-2 rounded-xl border border-night-line bg-night p-1">
+            <div className="hidden md:flex items-center gap-2 rounded-lg border border-night-line bg-night p-1">
               <div className="flex items-center gap-1 pr-2 border-r border-night-line">
                 <button
                   type="button"
@@ -1213,8 +1224,8 @@ export function Templates() {
                     studioViewport === "desktop"
                       ? "w-full"
                       : studioViewport === "tablet"
-                      ? "w-[768px] shadow-2xl border border-night-line rounded-xl overflow-hidden"
-                      : "w-[375px] shadow-2xl border-4 border-night-line rounded-3xl overflow-hidden"
+                      ? "w-[768px] shadow-lg border border-night-line rounded-lg overflow-hidden"
+                      : "w-[375px] shadow-lg border-4 border-night-line rounded-xl overflow-hidden"
                   }`}
                 >
                   {studioTab === "preview" ? (
@@ -1257,10 +1268,10 @@ export function Templates() {
                             </body>
                           </html>
                         `}
-                        className="w-full h-full min-h-[500px] border-0 bg-white rounded-lg shadow-inner"
+                        className="w-full h-full min-h-[500px] border-0 bg-white rounded-lg"
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full min-h-[450px] border-2 border-dashed border-night-line rounded-2xl bg-night/40 p-8 text-center">
+                      <div className="flex flex-col items-center justify-center h-full min-h-[450px] border-2 border-dashed border-night-line rounded-lg bg-night/40 p-8 text-center">
                         <div className="size-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl mb-4 animate-pulse">
                           📂
                         </div>
@@ -1274,7 +1285,7 @@ export function Templates() {
                     )
                   ) : (
                     /* Code Inspector Mode */
-                    <div className="h-full w-full rounded-xl border border-night-line bg-night p-4 overflow-y-auto font-mono text-xs text-chalk-dim">
+                    <div className="h-full w-full rounded-lg border border-night-line bg-night p-4 overflow-y-auto font-mono text-xs text-chalk-dim">
                       {filePreview !== null ? (
                         <pre className="whitespace-pre-wrap break-all leading-relaxed text-emerald-600">
                           {filePreview}
@@ -1302,7 +1313,7 @@ export function Templates() {
               </div>
 
               {modalError ? (
-                <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
+                <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs text-red-700">
                   {modalError}
                 </p>
               ) : null}
@@ -1322,7 +1333,7 @@ export function Templates() {
                     placeholder="e.g. Zenith Medical"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none transition-colors"
+                    className="w-full rounded-lg border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none transition-colors"
                   />
                 </div>
 
@@ -1335,7 +1346,7 @@ export function Templates() {
                     placeholder="e.g. Clean layout designed for medical institutes"
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
-                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none resize-y transition-colors"
+                    className="w-full rounded-lg border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none resize-y transition-colors"
                   />
                 </div>
 
@@ -1348,12 +1359,12 @@ export function Templates() {
                     placeholder="https://..."
                     value={newThumbnailUrl}
                     onChange={(e) => setNewThumbnailUrl(e.target.value)}
-                    className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none transition-colors"
+                    className="w-full rounded-lg border border-night-line bg-night px-4 py-2.5 text-sm text-chalk focus:border-accent outline-none transition-colors"
                   />
                 </div>
 
                 {/* Folder & Multi-File Upload Section */}
-                <div className="rounded-xl border border-night-line bg-night/60 p-4 space-y-3">
+                <div className="rounded-lg border border-night-line bg-night/60 p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-semibold uppercase tracking-wider text-accent">
                       Template Folder Upload
@@ -1365,7 +1376,7 @@ export function Templates() {
 
                   <div className="grid grid-cols-2 gap-2">
                     {/* Select Folder Button */}
-                    <label className="flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 cursor-pointer transition-colors text-center">
+                    <label className="flex flex-col items-center justify-center p-3 rounded-lg border border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 cursor-pointer transition-colors text-center">
                       <span className="text-xl">📁</span>
                       <span className="mt-1 text-xs font-bold text-accent">Select Folder</span>
                       <span className="text-[9px] text-chalk-dim">Full directory upload</span>
@@ -1381,7 +1392,7 @@ export function Templates() {
                     </label>
 
                     {/* Select Files Button */}
-                    <label className="flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-night-line bg-night hover:bg-night-raised cursor-pointer transition-colors text-center">
+                    <label className="flex flex-col items-center justify-center p-3 rounded-lg border border-dashed border-night-line bg-night hover:bg-night-raised cursor-pointer transition-colors text-center">
                       <span className="text-xl">📄</span>
                       <span className="mt-1 text-xs font-bold text-chalk-dim hover:text-chalk">
                         Select Files
@@ -1490,8 +1501,8 @@ export function Templates() {
 function Stat({
   label,
   value,
-  sublabel = "Last 7 days",
-  badge = "+12% vs last week",
+  sublabel,
+  badge,
   tone = "lilac",
 }: {
   label: string;

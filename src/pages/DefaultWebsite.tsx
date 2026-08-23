@@ -735,10 +735,10 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     <Shell title="Default Website Builder">
       <div className="space-y-6">
         {/* ⚠️ Template-only notice — makes scope crystal clear to admin */}
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-md">
+        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-md">
           <span className="mt-0.5 text-xl leading-none">⚠️</span>
           <div>
-            <p className="text-sm font-extrabold text-amber-700">
+            <p className="text-sm font-semibold text-amber-700">
               This is the New-User Template Only
             </p>
             <p className="mt-1 text-xs text-amber-700 max-w-3xl">
@@ -750,13 +750,13 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         </div>
 
         {/* Header & Master Save Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-night-line bg-white p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-night-line bg-white p-6">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-600 border border-amber-200">
+              <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent border border-blue-200">
                 New-User Template
               </span>
-              <h2 className="text-xl font-black tracking-tight text-chalk">Default Website For New Colleges</h2>
+              <h2 className="text-xl font-bold tracking-tight text-chalk">Default Website For New Colleges</h2>
             </div>
             <p className="mt-1 text-xs text-chalk-dim max-w-2xl">
               Each section box below defines the <strong>starting website layout</strong> that is copied to a new user when they first sign up. Existing users&apos; websites are independent and unaffected.
@@ -766,7 +766,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
             type="button"
             onClick={handleSave}
             disabled={saving || loading}
-            className="flex items-center gap-2 rounded-2xl bg-accent hover:bg-accent-hover px-6 py-3 text-xs font-extrabold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 rounded-lg bg-accent hover:bg-accent-hover px-6 py-3 text-xs font-semibold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <span>{saving ? "Saving Changes..." : "Save Default Template ⚡"}</span>
           </button>
@@ -775,7 +775,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         {/* Status Notification */}
         {statusMsg ? (
           <div
-            className={`rounded-2xl border p-4 text-xs font-semibold ${
+            className={`rounded-lg border p-4 text-xs font-semibold ${
               statusMsg.type === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                 : "border-rose-200 bg-rose-50 text-rose-700"
@@ -786,7 +786,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         ) : null}
 
         {loading ? (
-          <div className="rounded-3xl border border-night-line bg-white p-16 text-center text-xs font-semibold text-chalk-dim">
+          <div className="rounded-xl border border-night-line bg-white p-16 text-center text-xs font-semibold text-chalk-dim">
             Loading Master Website Boxes...
           </div>
         ) : (
@@ -800,16 +800,16 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     key={page.slug}
                     type="button"
                     onClick={() => setActiveSlug(page.slug)}
-                    className={`flex items-center gap-2.5 rounded-2xl px-5 py-3 text-xs font-extrabold transition cursor-pointer ${
+                    className={`flex items-center gap-2.5 rounded-lg px-5 py-3 text-xs font-semibold transition cursor-pointer ${
                       isActive
-                        ? "bg-white text-chalk shadow-xs border border-night-line scale-[1.02]"
+                        ? "bg-white text-chalk  border border-night-line scale-[1.02]"
                         : "border border-transparent bg-night text-chalk-dim hover:border-night-line hover:text-chalk"
                     }`}
                   >
                     <span>{page.title}</span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        isActive ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-night-line text-chalk-dim"
+                        isActive ? "bg-accent/10 text-accent border border-blue-200" : "bg-night text-chalk-dim"
                       }`}
                     >
                       {page.sections.length} Boxes
@@ -822,7 +822,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
             {/* Active Page Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-black text-chalk">
+                <h3 className="text-lg font-bold text-chalk">
                   {activePage?.title} Page — Section Mini-Boxes ({activePage?.sections.length || 0})
                 </h3>
                 <p className="text-xs text-chalk-dim">
@@ -843,19 +843,19 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 {activePage.sections.map((sec, idx) => (
                   <div
                     key={sec.id || idx}
-                    className="group overflow-hidden rounded-2xl border border-night-line bg-night-card p-6 shadow-xl transition-all hover:border-chalk-dim/40"
+                    className="group overflow-hidden rounded-lg border border-night-line bg-night-card p-6 shadow-md transition-all hover:border-chalk-dim/40"
                   >
                     {/* Mini-Box Top Bar */}
                     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-night-line pb-4 mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-night font-mono text-xs font-black text-chalk border border-night-line">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-night font-mono text-xs font-bold text-chalk border border-night-line">
                           #{idx + 1}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="text-base font-extrabold text-chalk">{sec?.title || "Untitled Section"}</h4>
+                            <h4 className="text-base font-semibold text-chalk">{sec?.title || "Untitled Section"}</h4>
                             <span
-                              className={`rounded-md border px-2 py-0.5 font-mono text-[10px] font-extrabold uppercase ${getCategoryStyle(
+                              className={`rounded-md border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase ${getCategoryStyle(
                                 sec?.sectionType
                               )}`}
                             >
@@ -889,7 +889,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         <button
                           type="button"
                           onClick={() => setEditingSection({ pageSlug: activeSlug, section: { ...sec, code: cleanCanvasWrapperFromCode(sec.code) }, index: idx })}
-                          className="rounded-lg bg-chalk px-4 py-1.5 text-xs font-black text-night transition hover:bg-chalk/90"
+                          className="rounded-lg bg-chalk px-4 py-1.5 text-xs font-bold text-night transition hover:bg-chalk/90"
                         >
                           Edit Code
                         </button>
@@ -904,8 +904,8 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     </div>
 
                     {/* Live HTML Mini-Preview Box */}
-                    <div className="relative overflow-hidden rounded-xl border border-night-line bg-night p-2">
-                      <div className="text-[10px] font-extrabold uppercase tracking-widest text-chalk-dim/40 mb-2 px-2 pt-1">
+                    <div className="relative overflow-hidden rounded-lg border border-night-line bg-night p-2">
+                      <div className="text-[10px] font-semibold uppercase tracking-widest text-chalk-dim/40 mb-2 px-2 pt-1">
                         Live Preview Sandbox
                       </div>
                       <SectionLivePreviewIframe code={sec.code} title={sec.title} />
@@ -914,7 +914,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 ))}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-night-line bg-night-card p-16 text-center space-y-3">
+              <div className="rounded-lg border border-dashed border-night-line bg-night-card p-16 text-center space-y-3">
                 <p className="text-sm font-bold text-chalk">No section boxes configured for {activePage?.title} yet.</p>
                 <p className="text-xs text-chalk-dim">Click below to add a section box for this page.</p>
                 <div className="pt-2">
@@ -933,16 +933,16 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         {/* Modal: Edit Code & Title Studio */}
         {editingSection ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-chalk/40 p-4 backdrop-blur-md">
-            <div className="w-full max-w-6xl rounded-3xl border border-night-line bg-night-card p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
+            <div className="w-full max-w-6xl rounded-xl border border-night-line bg-night-card p-6 shadow-lg space-y-6 max-h-[92vh] overflow-y-auto">
               
               {/* Modal Top Header */}
               <div className="flex items-center justify-between border-b border-night-line pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 border border-emerald-200">
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 border border-emerald-200">
                       Live Studio Code Editor
                     </span>
-                    <h3 className="text-lg font-black text-chalk">Edit Section Box — {editingSection.section.title}</h3>
+                    <h3 className="text-lg font-bold text-chalk">Edit Section Box — {editingSection.section.title}</h3>
                   </div>
                   <p className="text-xs text-chalk-dim mt-0.5">
                     Modify title, category type, and section HTML source code with instant live render preview.
@@ -959,7 +959,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         section: { ...editingSection.section, code: updated },
                       });
                     }}
-                    className="flex items-center gap-1.5 rounded-xl bg-amber-100 border border-amber-300 px-3.5 py-2 text-xs font-black text-amber-700 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-3.5 py-2 text-xs font-bold text-amber-700 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
                     title="Automatically format code with responsive CSS & mobile flex-wrap"
                   >
                     <span>⚡ Auto Edit (Make Responsive)</span>
@@ -981,7 +981,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 {/* Left Column: Live Section Preview Canvas */}
                 <div className="space-y-3 flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black tracking-wider text-chalk-dim uppercase flex items-center gap-2">
+                    <h4 className="text-xs font-bold tracking-wider text-chalk-dim uppercase flex items-center gap-2">
                       <span>👁️ Live Section Preview</span>
                       <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 border border-emerald-200/40 px-2 py-0.5 rounded">
                         Real-Time Render
@@ -995,7 +995,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                           key={device.group}
                           type="button"
                           onClick={() => setEditViewMode(device.group)}
-                          className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                          className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition ${
                             editViewMode === device.group ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
                           }`}
                         >
@@ -1026,7 +1026,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                           section: { ...editingSection.section, title: e.target.value },
                         })
                       }
-                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                      className="w-full rounded-lg border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
                     />
                   </div>
 
@@ -1040,7 +1040,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                           section: { ...editingSection.section, sectionType: e.target.value },
                         })
                       }
-                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                      className="w-full rounded-lg border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
                     >
                       {SECTION_CATEGORIES.map((cat) => (
                         <option key={cat.id} value={cat.id}>
@@ -1092,7 +1092,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                           section: { ...editingSection.section, code: e.target.value },
                         })
                       }
-                      className="w-full rounded-xl border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk leading-relaxed"
+                      className="w-full rounded-lg border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk leading-relaxed"
                     />
                   </div>
                 </div>
@@ -1108,14 +1108,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   <button
                     type="button"
                     onClick={() => setEditingSection(null)}
-                    className="rounded-xl border border-night-line px-5 py-2.5 text-xs font-bold text-chalk-dim hover:text-chalk"
+                    className="rounded-lg border border-night-line px-5 py-2.5 text-xs font-bold text-chalk-dim hover:text-chalk"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveEditSection}
-                    className="rounded-xl bg-chalk px-6 py-2.5 text-xs font-black text-night hover:bg-chalk/90 shadow-lg cursor-pointer"
+                    className="rounded-lg bg-chalk px-6 py-2.5 text-xs font-bold text-night hover:bg-chalk/90 shadow-lg cursor-pointer"
                   >
                     Save Section Box
                   </button>
@@ -1128,16 +1128,16 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         {/* Modal: Add New Section Box */}
         {addingSection ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-chalk/40 p-4 backdrop-blur-md">
-            <div className="w-full max-w-6xl rounded-3xl border border-night-line bg-night-card p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
+            <div className="w-full max-w-6xl rounded-xl border border-night-line bg-night-card p-6 shadow-lg space-y-6 max-h-[92vh] overflow-y-auto">
               
               {/* Modal Top Header */}
               <div className="flex items-center justify-between border-b border-night-line pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 border border-emerald-200">
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 border border-emerald-200">
                       New Component Builder
                     </span>
-                    <h3 className="text-lg font-black text-chalk">Add Section Box to {activePage?.title} Page</h3>
+                    <h3 className="text-lg font-bold text-chalk">Add Section Box to {activePage?.title} Page</h3>
                   </div>
                   <p className="text-xs text-chalk-dim mt-0.5">
                     Configure a new section box with title, category, and responsive HTML source code.
@@ -1152,7 +1152,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         setNewCode(autoFormatResponsiveCode(newCode));
                       }
                     }}
-                    className="flex items-center gap-1.5 rounded-xl bg-amber-100 border border-amber-300 px-3.5 py-2 text-xs font-black text-amber-700 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-3.5 py-2 text-xs font-bold text-amber-700 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
                     title="Automatically format code with responsive CSS & mobile flex-wrap"
                   >
                     <span>⚡ Auto Edit (Make Responsive)</span>
@@ -1169,9 +1169,9 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
               </div>
 
               {/* Select Default Section Type Grid (Exact 8 Options) */}
-              <div className="bg-night border border-night-line rounded-2xl p-5 space-y-4">
+              <div className="bg-night border border-night-line rounded-lg p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-night-line pb-3">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-chalk flex items-center gap-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-chalk flex items-center gap-2">
                     <span>✨ Select Default Section Box Category</span>
                     <span className="text-[10px] font-normal text-chalk-dim">Choose from official section types below to auto-populate layout</span>
                   </h4>
@@ -1189,14 +1189,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                           setNewType(tmpl.category);
                           setNewCode(tmpl.code);
                         }}
-                        className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                        className={`flex items-start gap-4 p-4 rounded-lg border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-accent text-night border-chalk shadow-xl scale-[1.01]"
+                            ? "bg-accent text-night border-chalk shadow-md scale-[1.01]"
                             : "bg-white text-chalk border-night-line hover:border-chalk/25 hover:bg-night"
                         }`}
                       >
                         <div
-                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold transition-colors ${
+                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl font-bold transition-colors ${
                             isSelected ? "bg-white/15 text-night shadow-md" : "bg-night text-chalk border border-night-line"
                           }`}
                         >
@@ -1204,7 +1204,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         </div>
                         <div className="space-y-1 pr-2">
                           <h4
-                            className={`text-sm font-black tracking-tight transition-colors ${
+                            className={`text-sm font-bold tracking-tight transition-colors ${
                               isSelected ? "text-night" : "text-chalk"
                             }`}
                           >
@@ -1230,7 +1230,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 {/* Left Column: Live Section Preview Canvas */}
                 <div className="space-y-3 flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black tracking-wider text-chalk-dim uppercase flex items-center gap-2">
+                    <h4 className="text-xs font-bold tracking-wider text-chalk-dim uppercase flex items-center gap-2">
                       <span>👁️ Live Section Preview</span>
                       <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 border border-emerald-200/40 px-2 py-0.5 rounded">
                         Real-Time Render
@@ -1244,7 +1244,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                           key={device.group}
                           type="button"
                           onClick={() => setEditViewMode(device.group)}
-                          className={`px-2.5 py-1 text-[11px] font-extrabold rounded-md transition ${
+                          className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition ${
                             editViewMode === device.group ? "bg-chalk text-night shadow" : "text-chalk-dim hover:text-chalk"
                           }`}
                         >
@@ -1271,7 +1271,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                       placeholder="e.g. Hero Banner, Placement Stats, Contact Cards"
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
-                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                      className="w-full rounded-lg border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
                     />
                   </div>
 
@@ -1280,7 +1280,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     <select
                       value={newType}
                       onChange={(e) => setNewType(e.target.value)}
-                      className="w-full rounded-xl border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
+                      className="w-full rounded-lg border border-night-line bg-night px-4 py-2.5 text-xs font-semibold text-chalk outline-none focus:border-chalk"
                     >
                       {SECTION_CATEGORIES.map((cat) => (
                         <option key={cat.id} value={cat.id}>
@@ -1325,7 +1325,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                       placeholder="<section style='padding: 60px 24px...'>...</section>"
                       value={newCode}
                       onChange={(e) => setNewCode(e.target.value)}
-                      className="w-full rounded-xl border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk leading-relaxed"
+                      className="w-full rounded-lg border border-night-line bg-night p-4 font-mono text-xs text-chalk outline-none focus:border-chalk leading-relaxed"
                     />
                   </div>
                 </div>
@@ -1341,7 +1341,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   <button
                     type="button"
                     onClick={() => setAddingSection(false)}
-                    className="rounded-xl border border-night-line px-5 py-2.5 text-xs font-bold text-chalk-dim hover:text-chalk"
+                    className="rounded-lg border border-night-line px-5 py-2.5 text-xs font-bold text-chalk-dim hover:text-chalk"
                   >
                     Cancel
                   </button>

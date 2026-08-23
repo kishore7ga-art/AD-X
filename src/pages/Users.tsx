@@ -164,9 +164,9 @@ export function Users() {
     <Shell title="Users & Accounts">
       <div className="space-y-6">
         {/* Top Header & Action Filter Bar */}
-        <div className="bg-white rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white rounded-xl p-5 border border-night-line flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-extrabold text-chalk">Registered College Accounts</h2>
+            <h2 className="text-base font-semibold text-chalk">Registered College Accounts</h2>
             <p className="text-xs text-chalk-dim mt-0.5">
               Manage accounts, tenant assignments, set passwords, and monitor login access.
             </p>
@@ -175,7 +175,7 @@ export function Users() {
           <button
             type="button"
             onClick={() => void fetchUsers()}
-            className="rounded-2xl border border-night-line bg-white hover:bg-night px-4 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
+            className="rounded-lg border border-night-line bg-white hover:bg-night px-4 py-2 text-xs font-bold text-chalk transition cursor-pointer"
           >
             🔄 Refresh List
           </button>
@@ -207,23 +207,23 @@ export function Users() {
         </div>
 
         {error && (
-          <div className="rounded-2xl bg-red-50 border border-red-200 p-4 text-xs font-bold text-red-700">
+          <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-xs font-bold text-red-700">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-xl p-12 text-center text-xs text-chalk-dim border border-night-line">
             Loading accounts...
           </div>
         ) : users.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-xl p-12 text-center text-xs text-chalk-dim border border-night-line">
             No registered users found.
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-extrabold tracking-wider text-chalk-dim uppercase">
+              <h3 className="text-xs font-semibold tracking-wider text-chalk-dim uppercase">
                 Active College Websites ({users.length})
               </h3>
             </div>
@@ -232,14 +232,14 @@ export function Users() {
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="rounded-3xl p-5 bg-white border border-night-line hover:border-chalk/25 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                  className="rounded-xl p-5 bg-white border border-night-line hover:border-chalk/25 hover:border-chalk/20 transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs shadow-emerald-500/50 animate-pulse" />
-                      <span className="text-xs font-extrabold text-chalk font-mono">{user.email}</span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-emerald-500/50 animate-pulse" />
+                      <span className="text-xs font-semibold text-chalk font-mono">{user.email}</span>
                     </div>
-                    <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase border ${
+                    <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase border ${
                       user.status === "ACTIVE"
                         ? "text-emerald-700 bg-emerald-50 border-emerald-200"
                         : "text-chalk-dim bg-night border-night-line"
@@ -249,11 +249,11 @@ export function Users() {
                   </div>
 
                   <div>
-                    <h4 className="text-base font-extrabold text-chalk">{user.college?.name || "Campus Website"}</h4>
-                    <p className="text-xs text-amber-600 font-mono mt-0.5">
+                    <h4 className="text-base font-semibold text-chalk">{user.college?.name || "Campus Website"}</h4>
+                    <p className="text-xs text-accent font-mono mt-0.5">
                       https://{user.college?.subdomain || "greenfield"}.edu.in
                     </p>
-                    <div className="mt-3 p-3 rounded-2xl bg-night border border-night-line text-xs font-mono text-chalk-dim space-y-1">
+                    <div className="mt-3 p-3 rounded-lg bg-night border border-night-line text-xs font-mono text-chalk-dim space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-chalk-dim">Auto-Saved Pages:</span>
                         <span className="text-emerald-600 font-bold">11 Pages Active</span>
@@ -270,7 +270,7 @@ export function Users() {
                       href={`${STUDIO_BASE}/editor/${user.college?.subdomain || "greenfield"}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs font-extrabold text-amber-600 hover:text-amber-700 hover:underline"
+                      className="text-xs font-semibold text-accent hover:text-accent-hover hover:underline"
                     >
                       Open Editor Studio ↗
                     </a>
@@ -278,14 +278,14 @@ export function Users() {
                       <button
                         disabled={updatingId === user.id}
                         onClick={() => void changePassword(user)}
-                        className="text-xs font-bold text-chalk hover:text-chalk px-3 py-1.5 bg-night hover:bg-night-line rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
+                        className="text-xs font-bold text-chalk hover:text-chalk px-3 py-1.5 bg-night hover:bg-night-line rounded-lg cursor-pointer disabled:opacity-50 transition-colors"
                       >
                         🔑 Password
                       </button>
                       <button
                         disabled={updatingId === user.id}
                         onClick={() => void toggleStatus(user)}
-                        className={`text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer disabled:opacity-50 transition-colors ${
+                        className={`text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer disabled:opacity-50 transition-colors ${
                           user.status === "ACTIVE"
                             ? "text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200"
                             : "text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"
@@ -296,7 +296,7 @@ export function Users() {
                       <button
                         disabled={updatingId === user.id}
                         onClick={() => void deleteUserAccount(user)}
-                        className="text-xs font-bold text-rose-600 hover:bg-rose-100 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
+                        className="text-xs font-bold text-rose-600 hover:bg-rose-100 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-lg cursor-pointer disabled:opacity-50 transition-colors"
                       >
                         🗑️ Delete
                       </button>

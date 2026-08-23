@@ -86,14 +86,14 @@ export function Login() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-lavender px-4 py-12 text-chalk font-sans selection:bg-accent selection:text-white overflow-hidden">
+    <main className="relative flex min-h-screen items-center justify-center bg-night px-4 py-12 text-chalk font-sans selection:bg-accent selection:text-white overflow-hidden">
       {/* Subtle Background Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-white/70 via-white/40 to-lavender-deep/40 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-[300px] h-[300px] bg-white/40 blur-[100px] rounded-full pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Main Card */}
-        <div className="rounded-3xl border border-night-line bg-white p-8 sm:p-10 backdrop-blur-2xl shadow-[0_30px_70px_-30px_rgba(38,37,92,0.55)] ring-1 ring-chalk/5">
+        <div className="rounded-xl border border-night-line bg-white p-8 sm:p-10 backdrop-blur-2xl shadow-[0_30px_70px_-30px_rgba(38,37,92,0.55)] ring-1 ring-chalk/5">
           {/* Header */}
           <div className="text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-bold tracking-wider text-blue-600 uppercase">
@@ -105,7 +105,7 @@ export function Login() {
               </span>
             </div>
 
-            <h1 className="mt-4 text-2xl sm:text-3xl font-extrabold tracking-tight text-chalk">
+            <h1 className="mt-4 text-2xl sm:text-3xl font-semibold tracking-tight text-chalk">
               Welcome Back
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-chalk-dim font-medium">
@@ -152,7 +152,7 @@ export function Login() {
                   onChange={(event) => setEmail(event.target.value)}
                   autoComplete="username"
                   placeholder="admin@xite.co.in"
-                  className="w-full rounded-xl border border-night-line bg-night py-3.5 pl-10 pr-4 text-sm font-medium text-chalk placeholder-chalk-dim outline-none transition-all focus:border-chalk focus:ring-2 focus:ring-chalk/15"
+                  className="w-full rounded-lg border border-night-line bg-night py-3.5 pl-10 pr-4 text-sm font-medium text-chalk placeholder-chalk-dim outline-none transition-all focus:border-chalk focus:ring-2 focus:ring-chalk/15"
                 />
               </div>
             </div>
@@ -172,7 +172,7 @@ export function Login() {
                   placeholder="Enter password..."
                   autoFocus
                   required
-                  className="w-full rounded-xl border border-night-line bg-night py-3.5 pl-10 pr-11 text-sm font-medium text-chalk placeholder-chalk-dim outline-none transition-all focus:border-chalk focus:ring-2 focus:ring-chalk/15"
+                  className="w-full rounded-lg border border-night-line bg-night py-3.5 pl-10 pr-11 text-sm font-medium text-chalk placeholder-chalk-dim outline-none transition-all focus:border-chalk focus:ring-2 focus:ring-chalk/15"
                 />
                 <button
                   type="button"
@@ -205,7 +205,7 @@ export function Login() {
                     autoComplete="one-time-code"
                     autoFocus
                     required
-                    className="w-full rounded-xl border border-night-line bg-night py-3.5 pl-10 pr-4 text-center font-mono text-lg font-bold tracking-[0.3em] text-blue-600 outline-none transition-all focus:border-chalk focus:ring-2 focus:ring-chalk/15"
+                    className="w-full rounded-lg border border-night-line bg-night py-3.5 pl-10 pr-4 text-center font-mono text-lg font-bold tracking-[0.3em] text-blue-600 outline-none transition-all focus:border-chalk focus:ring-2 focus:ring-chalk/15"
                   />
                 </div>
               </div>
@@ -214,7 +214,7 @@ export function Login() {
             {error ? (
               <div
                 role="alert"
-                className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium"
+                className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium"
               >
                 <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
                 <span>
@@ -228,7 +228,7 @@ export function Login() {
             <button
               type="submit"
               disabled={pending || retryCountdown !== null}
-              className="group relative flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-sm font-bold text-white shadow-lg shadow-chalk/20 transition-all duration-200 hover:bg-accent-hover hover:shadow-chalk/25 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="group relative flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-3.5 text-sm font-bold text-white shadow-lg shadow-chalk/20 transition-all duration-200 hover:bg-accent-hover hover:shadow-chalk/25 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {pending ? (
                 <span className="inline-flex items-center gap-2">
@@ -266,7 +266,7 @@ function Setup({
   steps: string[];
 }) {
   return (
-    <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-left">
+    <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-left">
       <div className="flex items-center gap-2 text-xs font-bold text-amber-600">
         <Sparkles className="h-4 w-4" />
         <span>{title}</span>

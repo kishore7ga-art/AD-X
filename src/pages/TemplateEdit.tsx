@@ -229,7 +229,7 @@ export function TemplateEdit() {
   if (error && !template) {
     return (
       <Shell title="Edit Section">
-        <div className="p-6 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
+        <div className="p-6 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-red-600" />
           <span>{error}</span>
         </div>
@@ -246,7 +246,7 @@ export function TemplateEdit() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/templates")}
-              className="flex items-center gap-2 text-xs font-black px-3.5 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-chalk-dim hover:text-chalk transition-all cursor-pointer"
+              className="flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-lg bg-night-raised border border-night-line hover:border-night-line text-chalk-dim hover:text-chalk transition-all cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -255,7 +255,7 @@ export function TemplateEdit() {
               <span className="text-[11px] font-mono uppercase text-chalk-dim font-bold tracking-wider">
                 Admin Section Studio
               </span>
-              <h1 className="text-xl font-black text-chalk tracking-tight">
+              <h1 className="text-xl font-bold text-chalk tracking-tight">
                 Edit Section Code — {categoryName}
               </h1>
             </div>
@@ -265,7 +265,7 @@ export function TemplateEdit() {
             <button
               onClick={() => void handleAutoResponsive()}
               disabled={aiFixing}
-              className={`flex items-center gap-2 text-night font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+              className={`flex items-center gap-2 text-night font-bold text-xs px-4 py-2.5 rounded-lg shadow-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                 aiFixSuccess
                   ? "bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-500 hover:to-green-600"
                   : "bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600"
@@ -280,7 +280,7 @@ export function TemplateEdit() {
             <button
               onClick={() => void handleSave()}
               disabled={saving}
-              className="flex items-center gap-2 bg-accent text-night hover:bg-accent-hover font-black text-xs px-6 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 bg-accent text-night hover:bg-accent-hover font-bold text-xs px-6 py-2.5 rounded-lg shadow-lg transition-all cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}</span>
@@ -290,50 +290,50 @@ export function TemplateEdit() {
 
         {/* Error / Success Banners */}
         {error && (
-          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
+          <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-red-600" />
             <span>{error}</span>
           </div>
         )}
 
         {aiFixSuccess && (
-          <div className="p-4 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold flex items-center gap-2">
+          <div className="p-4 rounded-lg bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-violet-600" />
             <span>⚡ Section normalised. Responsive behaviour is applied automatically at every breakpoint — on this preview, in the editor and on the published site — so there is nothing to bake in here. Review and save when ready.</span>
           </div>
         )}
 
         {optSuccess && (
-          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold flex items-center gap-2 animate-bounce">
+          <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold flex items-center gap-2 animate-bounce">
             <CheckCircle className="w-4 h-4 text-amber-600" />
             <span>⚡ Section code auto-optimized with fluid responsive rules for Desktop (1200px), Tablet (768px), and Mobile (375px)!</span>
           </div>
         )}
 
         {saveSuccess && (
-          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2">
+          <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-emerald-600" />
             <span>Section code saved successfully! Live database updated.</span>
           </div>
         )}
 
         {/* Metadata Bar: Section Variant Title + Upload File */}
-        <div className="grid gap-4 sm:grid-cols-2 bg-night p-4 rounded-2xl border border-night-line">
+        <div className="grid gap-4 sm:grid-cols-2 bg-night p-4 rounded-lg border border-night-line">
           <div>
-            <label className="text-xs font-extrabold text-chalk-dim uppercase">Section Variant Title</label>
+            <label className="text-xs font-semibold text-chalk-dim uppercase">Section Variant Title</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full mt-1.5 bg-night border border-night-line rounded-xl px-3.5 py-2 text-xs font-bold text-chalk focus:outline-none focus:border-night-line"
+              className="w-full mt-1.5 bg-night border border-night-line rounded-lg px-3.5 py-2 text-xs font-bold text-chalk focus:outline-none focus:border-night-line"
             />
           </div>
           <div>
-            <label className="text-xs font-extrabold text-chalk-dim uppercase">
+            <label className="text-xs font-semibold text-chalk-dim uppercase">
               Upload Code File (.html, .jsx, .tsx, .css)
             </label>
             <div className="mt-1.5 flex items-center gap-3">
-              <label className="flex items-center gap-2 bg-night-raised border border-night-line hover:border-chalk/25 text-chalk px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer transition-all">
+              <label className="flex items-center gap-2 bg-night-raised border border-night-line hover:border-chalk/25 text-chalk px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all">
                 <Upload className="w-4 h-4" />
                 <span>Choose File</span>
                 <input
@@ -367,12 +367,12 @@ export function TemplateEdit() {
         </label>
 
         {/* Step-by-Step View Mode Switcher: Preview First */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-night p-3.5 rounded-2xl border border-night-line">
-          <div className="flex items-center gap-2 bg-night p-1.5 rounded-xl border border-night-line">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-night p-3.5 rounded-lg border border-night-line">
+          <div className="flex items-center gap-2 bg-night p-1.5 rounded-lg border border-night-line">
             <button
               type="button"
               onClick={() => setViewMode("preview")}
-              className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
                 viewMode === "preview" ? "bg-accent text-white shadow-lg shadow-chalk/20" : "text-chalk-dim hover:text-chalk"
               }`}
             >
@@ -382,7 +382,7 @@ export function TemplateEdit() {
             <button
               type="button"
               onClick={() => setViewMode("code")}
-              className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
                 viewMode === "code" ? "bg-accent text-night shadow-lg" : "text-chalk-dim hover:text-chalk"
               }`}
             >
@@ -406,7 +406,7 @@ export function TemplateEdit() {
               <button
                 type="button"
                 onClick={() => setViewMode("code")}
-                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-chalk-dim hover:text-chalk cursor-pointer transition-all"
+                className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg bg-night-raised border border-night-line hover:border-night-line text-chalk-dim hover:text-chalk cursor-pointer transition-all"
               >
                 <FileCode className="w-4 h-4" />
                 <span>Edit Source Code &rarr;</span>
@@ -416,7 +416,7 @@ export function TemplateEdit() {
               <button
                 type="button"
                 onClick={() => setViewMode("preview")}
-                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white shadow-md cursor-pointer transition-all"
+                className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white shadow-md cursor-pointer transition-all"
               >
                 <Eye className="w-4 h-4" />
                 <span>Test Live Preview &rarr;</span>
@@ -432,17 +432,17 @@ export function TemplateEdit() {
 
           {/* Live Preview Canvas (Tab 1 / Default for Edit) */}
           {(viewMode === "preview" || viewMode === "split") && (
-            <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
+            <div className="flex flex-col bg-night border border-night-line rounded-lg overflow-hidden shadow-lg">
               <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4 text-chalk" />
-                  <span className="text-xs font-extrabold text-chalk tracking-wide uppercase">
+                  <span className="text-xs font-semibold text-chalk tracking-wide uppercase">
                     Live Section Preview {viewMode === "preview" && "(Full Width Canvas)"}
                   </span>
                 </div>
                 
                 {/* Device Resolution Switcher */}
-                <div className="flex items-center gap-1.5 bg-night p-1.5 rounded-xl border border-night-line">
+                <div className="flex items-center gap-1.5 bg-night p-1.5 rounded-lg border border-night-line">
                   <button
                     type="button"
                     onClick={() => setPreviewWidth("100%")}
@@ -485,7 +485,7 @@ export function TemplateEdit() {
               <div className="flex-1 bg-night-raised p-4 overflow-auto flex flex-col items-center justify-center min-h-[500px] transition-all">
                 <div
                   style={{ width: previewWidth, maxWidth: "100%" }}
-                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-night-line overflow-hidden bg-white flex flex-col"
+                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-lg rounded-lg border border-night-line overflow-hidden bg-white flex flex-col"
                 >
                   <iframe
                     title="Section Preview"
@@ -502,7 +502,7 @@ export function TemplateEdit() {
                   <button
                     type="button"
                     onClick={() => setViewMode("code")}
-                    className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-accent text-night hover:bg-accent-hover cursor-pointer transition-all shadow-md"
+                    className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg bg-accent text-night hover:bg-accent-hover cursor-pointer transition-all shadow-md"
                   >
                     <FileCode className="w-4 h-4" />
                     <span>Edit Source Code &rarr;</span>
@@ -519,7 +519,7 @@ export function TemplateEdit() {
                     <button
                       onClick={() => void handleSave()}
                       disabled={saving}
-                      className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-black text-xs px-5 py-2 rounded-xl shadow-lg shadow-chalk/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-bold text-xs px-5 py-2 rounded-lg shadow-lg shadow-chalk/20 transition-all cursor-pointer disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
                       <span>{saving ? "Saving..." : saveSuccess ? "Saved ✓" : "Save Changes to DB"}</span>
@@ -532,11 +532,11 @@ export function TemplateEdit() {
 
           {/* Code File Editor (Tab 2) */}
           {(viewMode === "code" || viewMode === "split") && (
-            <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
+            <div className="flex flex-col bg-night border border-night-line rounded-lg overflow-hidden shadow-lg">
               <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-chalk" />
-                  <span className="text-xs font-extrabold text-chalk tracking-wide uppercase">
+                  <span className="text-xs font-semibold text-chalk tracking-wide uppercase">
                     Section Source Code {viewMode === "code" && "(Full Page Editor)"}
                   </span>
                 </div>
@@ -544,7 +544,7 @@ export function TemplateEdit() {
                   type="button"
                   onClick={() => void handleAutoResponsive()}
                   disabled={aiFixing}
-                  className={`text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+                  className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                     aiFixSuccess
                       ? "text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-600 hover:text-night"
                       : "text-violet-700 bg-violet-100 border border-violet-300 hover:bg-violet-600 hover:text-night"
@@ -559,7 +559,7 @@ export function TemplateEdit() {
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Paste or write HTML/JSX section code here..."
                   spellCheck={false}
-                  className="w-full flex-1 min-h-[500px] bg-white text-chalk font-mono text-xs p-4 rounded-xl border border-night-line focus:outline-none focus:border-chalk leading-relaxed resize-y"
+                  className="w-full flex-1 min-h-[500px] bg-white text-chalk font-mono text-xs p-4 rounded-lg border border-night-line focus:outline-none focus:border-chalk leading-relaxed resize-y"
                   style={{ fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace" }}
                 />
 
@@ -573,7 +573,7 @@ export function TemplateEdit() {
                       <button
                         type="button"
                         onClick={() => setViewMode("preview")}
-                        className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white shadow-lg shadow-chalk/20 cursor-pointer transition-all"
+                        className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white shadow-lg shadow-chalk/20 cursor-pointer transition-all"
                       >
                         <Eye className="w-4 h-4" />
                         <span>Preview & Test Section &rarr;</span>
@@ -581,7 +581,7 @@ export function TemplateEdit() {
                       <button
                         onClick={() => void handleSave()}
                         disabled={saving}
-                        className="flex items-center gap-2 bg-accent text-night hover:bg-accent-hover font-black text-xs px-5 py-2 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                        className="flex items-center gap-2 bg-accent text-night hover:bg-accent-hover font-bold text-xs px-5 py-2 rounded-lg shadow-lg transition-all cursor-pointer disabled:opacity-50"
                       >
                         <Save className="w-4 h-4" />
                         <span>{saving ? "Saving..." : saveSuccess ? "Saved ✓" : "Save Changes to DB"}</span>
