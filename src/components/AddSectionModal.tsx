@@ -27,8 +27,8 @@ export function AddSectionModal({
   const current = SECTION_TYPES_LIST.find((s) => s.id === selectedType) || SECTION_TYPES_LIST[0]!;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-night backdrop-blur-sm text-chalk font-sans">
-      <div className="w-full max-w-2xl bg-white/[0.045] border border-night-line rounded-3xl p-6 shadow-2xl space-y-6 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-chalk/40 backdrop-blur-sm text-chalk font-sans">
+      <div className="w-full max-w-2xl bg-white border border-night-line rounded-3xl p-6 shadow-2xl space-y-6 relative">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-night-line pb-4">
@@ -41,7 +41,7 @@ export function AddSectionModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-white/[0.06] text-chalk-dim hover:text-chalk transition-all cursor-pointer"
+            className="p-2 rounded-xl hover:bg-night text-chalk-dim hover:text-chalk transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -58,19 +58,19 @@ export function AddSectionModal({
                 onClick={() => setSelectedType(type.id)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer select-none ${
                   isSelected
-                    ? "bg-amber-50/70 border-amber-500 shadow-sm ring-2 ring-amber-500/20"
-                    : "bg-white/[0.03] border-night-line text-chalk hover:border-night-line hover:bg-white/[0.045]"
+                    ? "bg-night border-chalk shadow-sm ring-2 ring-chalk/15"
+                    : "bg-night border-night-line text-chalk hover:border-night-line hover:bg-white"
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`p-2.5 rounded-xl ${isSelected ? "bg-amber-500 text-white shadow-sm shadow-amber-500/30" : "bg-white/[0.045] border border-night-line text-chalk-dim"}`}>
+                  <div className={`p-2.5 rounded-xl ${isSelected ? "bg-accent text-night shadow-sm shadow-chalk/25" : "bg-white border border-night-line text-chalk-dim"}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className={`text-sm font-extrabold ${isSelected ? "text-amber-900" : "text-chalk"}`}>
+                    <h3 className={`text-sm font-extrabold ${isSelected ? "text-chalk" : "text-chalk"}`}>
                       {type.name}
                     </h3>
-                    <p className={`text-xs mt-1 leading-relaxed ${isSelected ? "text-amber-700 font-medium" : "text-chalk-dim"}`}>
+                    <p className={`text-xs mt-1 leading-relaxed ${isSelected ? "text-chalk-dim font-medium" : "text-chalk-dim"}`}>
                       {type.description}
                     </p>
                   </div>
@@ -92,7 +92,7 @@ export function AddSectionModal({
               onClose();
             }}
             label="Proceed to Code Studio"
-            icon={<ArrowRight className="w-4 h-4 text-chalk group-hover:text-slate-950" />}
+            icon={<ArrowRight className="w-4 h-4 text-night" />}
             size="sm"
           />
         </div>

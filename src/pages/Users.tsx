@@ -3,6 +3,7 @@ import { api, ApiError } from "@/api/client";
 import { STUDIO_BASE } from "@/env";
 import { Shell } from "@/components/Shell";
 import { ModalDialog } from "@/components/ModalDialog";
+import { StatTile } from "@/components/StatTile";
 import type { ModalDialogState } from "@/components/ModalDialog";
 
 export type UserItem = {
@@ -163,7 +164,7 @@ export function Users() {
     <Shell title="Users & Accounts">
       <div className="space-y-6">
         {/* Top Header & Action Filter Bar */}
-        <div className="bg-white/[0.045] rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-extrabold text-chalk">Registered College Accounts</h2>
             <p className="text-xs text-chalk-dim mt-0.5">
@@ -174,7 +175,7 @@ export function Users() {
           <button
             type="button"
             onClick={() => void fetchUsers()}
-            className="rounded-2xl border border-night-line bg-white/[0.045] hover:bg-white/[0.03] px-4 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
+            className="rounded-2xl border border-night-line bg-white hover:bg-night px-4 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
           >
             🔄 Refresh List
           </button>
@@ -182,37 +183,27 @@ export function Users() {
 
         {/* 3 Stats Overview for Users */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-chalk-dim">Total User Accounts</span>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-chalk tabular-nums">{users.length}</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.06] text-chalk border border-night-line">
-                Registered
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-emerald-600">Active Colleges</span>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-chalk tabular-nums">
-                {users.filter((u) => u.status === "ACTIVE").length}
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                Live
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-amber-600">Platform Sync</span>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-chalk tabular-nums">100%</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                Auto-Saved
-              </span>
-            </div>
-          </div>
+          <StatTile
+            label="Total User Accounts"
+            sublabel="Every account on the platform"
+            value={users.length}
+            badge="Registered"
+            tone="lilac"
+          />
+          <StatTile
+            label="Active Colleges"
+            sublabel="Signed in and serving a site"
+            value={users.filter((u) => u.status === "ACTIVE").length}
+            badge="Live"
+            tone="mint"
+          />
+          <StatTile
+            label="Platform Sync"
+            sublabel="Editor changes reaching the database"
+            value="100%"
+            badge="Auto-Saved"
+            tone="green"
+          />
         </div>
 
         {error && (
@@ -222,11 +213,11 @@ export function Users() {
         )}
 
         {loading ? (
-          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             Loading accounts...
           </div>
         ) : users.length === 0 ? (
-          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             No registered users found.
           </div>
         ) : (
@@ -241,7 +232,7 @@ export function Users() {
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="rounded-3xl p-5 bg-white/[0.045] border border-night-line hover:border-amber-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                  className="rounded-3xl p-5 bg-white border border-night-line hover:border-chalk/25 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -251,7 +242,7 @@ export function Users() {
                     <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase border ${
                       user.status === "ACTIVE"
                         ? "text-emerald-700 bg-emerald-50 border-emerald-200"
-                        : "text-chalk-dim bg-white/[0.06] border-night-line"
+                        : "text-chalk-dim bg-night border-night-line"
                     }`}>
                       {user.status}
                     </span>
@@ -262,7 +253,7 @@ export function Users() {
                     <p className="text-xs text-amber-600 font-mono mt-0.5">
                       https://{user.college?.subdomain || "greenfield"}.edu.in
                     </p>
-                    <div className="mt-3 p-3 rounded-2xl bg-white/[0.03] border border-night-line text-xs font-mono text-chalk-dim space-y-1">
+                    <div className="mt-3 p-3 rounded-2xl bg-night border border-night-line text-xs font-mono text-chalk-dim space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-chalk-dim">Auto-Saved Pages:</span>
                         <span className="text-emerald-600 font-bold">11 Pages Active</span>
@@ -287,7 +278,7 @@ export function Users() {
                       <button
                         disabled={updatingId === user.id}
                         onClick={() => void changePassword(user)}
-                        className="text-xs font-bold text-chalk hover:text-chalk px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.09] rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
+                        className="text-xs font-bold text-chalk hover:text-chalk px-3 py-1.5 bg-night hover:bg-night-line rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
                       >
                         🔑 Password
                       </button>

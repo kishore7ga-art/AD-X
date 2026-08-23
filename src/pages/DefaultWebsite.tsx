@@ -45,26 +45,26 @@ export type LibraryVariant = {
 };
 
 const SECTION_CATEGORIES = [
-  { id: "navbar", name: "Navbar / Header", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  { id: "hero", name: "Hero Banner", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
-  { id: "cta", name: "Call to Action (CTA) / Call", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-  { id: "highlights", name: "College Highlights / Stats", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  { id: "about", name: "About College", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  { id: "vision", name: "Vision & Mission Statement", bg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" },
-  { id: "courses", name: "Courses / Programs Offered", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-  { id: "departments", name: "Academic Departments", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  { id: "admissions", name: "Admission Section", bg: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
-  { id: "placements", name: "Placement & Top Recruiters", bg: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
-  { id: "facilities", name: "Campus Facilities / Infrastructure", bg: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
-  { id: "research", name: "Research & Innovation Labs", bg: "bg-pink-500/10 text-pink-400 border-pink-500/20" },
-  { id: "news", name: "News & Announcement Circulars", bg: "bg-lime-500/10 text-lime-400 border-lime-500/20" },
-  { id: "events", name: "Upcoming Campus Events", bg: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20" },
-  { id: "gallery", name: "Gallery / Campus Life", bg: "bg-rose-500/10 text-rose-400 border-rose-500/20" },
-  { id: "testimonials", name: "Student Testimonials / Alumni", bg: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" },
-  { id: "achievements", name: "Achievements & Awards", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-  { id: "contact", name: "Contact / Inquiry Form", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  { id: "map", name: "Map & Location", bg: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
-  { id: "footer", name: "Footer", bg: "bg-slate-500/10 text-chalk-dim border-slate-500/20" },
+  { id: "navbar", name: "Navbar / Header", bg: "bg-blue-50 text-blue-600 border-blue-200" },
+  { id: "hero", name: "Hero Banner", bg: "bg-purple-50 text-purple-600 border-purple-200" },
+  { id: "cta", name: "Call to Action (CTA) / Call", bg: "bg-emerald-50 text-emerald-600 border-emerald-200" },
+  { id: "highlights", name: "College Highlights / Stats", bg: "bg-amber-50 text-amber-600 border-amber-200" },
+  { id: "about", name: "About College", bg: "bg-amber-50 text-amber-600 border-amber-200" },
+  { id: "vision", name: "Vision & Mission Statement", bg: "bg-indigo-50 text-indigo-600 border-indigo-200" },
+  { id: "courses", name: "Courses / Programs Offered", bg: "bg-emerald-50 text-emerald-600 border-emerald-200" },
+  { id: "departments", name: "Academic Departments", bg: "bg-amber-50 text-amber-600 border-amber-200" },
+  { id: "admissions", name: "Admission Section", bg: "bg-violet-50 text-violet-600 border-violet-200" },
+  { id: "placements", name: "Placement & Top Recruiters", bg: "bg-orange-50 text-orange-600 border-orange-200" },
+  { id: "facilities", name: "Campus Facilities / Infrastructure", bg: "bg-orange-50 text-orange-600 border-orange-200" },
+  { id: "research", name: "Research & Innovation Labs", bg: "bg-pink-50 text-pink-600 border-pink-200" },
+  { id: "news", name: "News & Announcement Circulars", bg: "bg-lime-50 text-lime-600 border-lime-200" },
+  { id: "events", name: "Upcoming Campus Events", bg: "bg-fuchsia-50 text-fuchsia-600 border-fuchsia-200" },
+  { id: "gallery", name: "Gallery / Campus Life", bg: "bg-rose-50 text-rose-600 border-rose-200" },
+  { id: "testimonials", name: "Student Testimonials / Alumni", bg: "bg-yellow-50 text-yellow-600 border-yellow-200" },
+  { id: "achievements", name: "Achievements & Awards", bg: "bg-emerald-50 text-emerald-600 border-emerald-200" },
+  { id: "contact", name: "Contact / Inquiry Form", bg: "bg-blue-50 text-blue-600 border-blue-200" },
+  { id: "map", name: "Map & Location", bg: "bg-purple-50 text-purple-600 border-purple-200" },
+  { id: "footer", name: "Footer", bg: "bg-night text-chalk-dim border-night-line" },
 ];
 
 const PRESET_SECTION_TEMPLATES = [
@@ -726,22 +726,22 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   }
 
   function getCategoryStyle(type?: string) {
-    if (!type || typeof type !== "string") return "bg-slate-500/10 text-chalk-dim border-slate-500/20";
+    if (!type || typeof type !== "string") return "bg-night text-chalk-dim border-night-line";
     const cat = SECTION_CATEGORIES.find((c) => c.id === type.toLowerCase());
-    return cat?.bg || "bg-slate-500/10 text-chalk-dim border-slate-500/20";
+    return cat?.bg || "bg-night text-chalk-dim border-night-line";
   }
 
   return (
     <Shell title="Default Website Builder">
       <div className="space-y-6">
         {/* ⚠️ Template-only notice — makes scope crystal clear to admin */}
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 shadow-md">
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-md">
           <span className="mt-0.5 text-xl leading-none">⚠️</span>
           <div>
-            <p className="text-sm font-extrabold text-amber-300">
+            <p className="text-sm font-extrabold text-amber-700">
               This is the New-User Template Only
             </p>
-            <p className="mt-1 text-xs text-amber-200/80 max-w-3xl">
+            <p className="mt-1 text-xs text-amber-700 max-w-3xl">
               Changes saved here set the <strong>starting template for brand-new users</strong> when they first sign up.
               Existing colleges manage their own website independently in the User Editor — your changes here
               will <strong>not</strong> affect or overwrite any existing college's content.
@@ -750,7 +750,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         </div>
 
         {/* Header & Master Save Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-night-line bg-white/[0.045] p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-night-line bg-white p-6 shadow-xs">
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-600 border border-amber-200">
@@ -766,7 +766,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
             type="button"
             onClick={handleSave}
             disabled={saving || loading}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-6 py-3 text-xs font-extrabold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 rounded-2xl bg-accent hover:bg-accent-hover px-6 py-3 text-xs font-extrabold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <span>{saving ? "Saving Changes..." : "Save Default Template ⚡"}</span>
           </button>
@@ -786,7 +786,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         ) : null}
 
         {loading ? (
-          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-16 text-center text-xs font-semibold text-chalk-dim">
+          <div className="rounded-3xl border border-night-line bg-white p-16 text-center text-xs font-semibold text-chalk-dim">
             Loading Master Website Boxes...
           </div>
         ) : (
@@ -802,14 +802,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     onClick={() => setActiveSlug(page.slug)}
                     className={`flex items-center gap-2.5 rounded-2xl px-5 py-3 text-xs font-extrabold transition cursor-pointer ${
                       isActive
-                        ? "bg-white/[0.045] text-chalk shadow-xs border border-night-line scale-[1.02]"
-                        : "border border-transparent bg-white/[0.06] text-chalk-dim hover:border-night-line hover:text-chalk"
+                        ? "bg-white text-chalk shadow-xs border border-night-line scale-[1.02]"
+                        : "border border-transparent bg-night text-chalk-dim hover:border-night-line hover:text-chalk"
                     }`}
                   >
                     <span>{page.title}</span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        isActive ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-white/[0.09] text-chalk-dim"
+                        isActive ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-night-line text-chalk-dim"
                       }`}
                     >
                       {page.sections.length} Boxes
@@ -896,7 +896,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         <button
                           type="button"
                           onClick={() => removeSection(idx)}
-                          className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3.5 py-1.5 text-xs font-bold text-rose-400 transition hover:bg-rose-500/20"
+                          className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-bold text-rose-600 transition hover:bg-rose-100"
                         >
                           Remove
                         </button>
@@ -904,7 +904,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                     </div>
 
                     {/* Live HTML Mini-Preview Box */}
-                    <div className="relative overflow-hidden rounded-xl border border-night-line bg-black p-2">
+                    <div className="relative overflow-hidden rounded-xl border border-night-line bg-night p-2">
                       <div className="text-[10px] font-extrabold uppercase tracking-widest text-chalk-dim/40 mb-2 px-2 pt-1">
                         Live Preview Sandbox
                       </div>
@@ -932,14 +932,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
 
         {/* Modal: Edit Code & Title Studio */}
         {editingSection ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-night/90 p-4 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-chalk/40 p-4 backdrop-blur-md">
             <div className="w-full max-w-6xl rounded-3xl border border-night-line bg-night-card p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
               
               {/* Modal Top Header */}
               <div className="flex items-center justify-between border-b border-night-line pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 border border-emerald-200">
                       Live Studio Code Editor
                     </span>
                     <h3 className="text-lg font-black text-chalk">Edit Section Box — {editingSection.section.title}</h3>
@@ -959,7 +959,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         section: { ...editingSection.section, code: updated },
                       });
                     }}
-                    className="flex items-center gap-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 px-3.5 py-2 text-xs font-black text-amber-300 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-xl bg-amber-100 border border-amber-300 px-3.5 py-2 text-xs font-black text-amber-700 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
                     title="Automatically format code with responsive CSS & mobile flex-wrap"
                   >
                     <span>⚡ Auto Edit (Make Responsive)</span>
@@ -983,7 +983,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-black tracking-wider text-chalk-dim uppercase flex items-center gap-2">
                       <span>👁️ Live Section Preview</span>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 border border-emerald-200/40 px-2 py-0.5 rounded">
                         Real-Time Render
                       </span>
                     </h4>
@@ -1127,14 +1127,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
 
         {/* Modal: Add New Section Box */}
         {addingSection ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-night/90 p-4 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-chalk/40 p-4 backdrop-blur-md">
             <div className="w-full max-w-6xl rounded-3xl border border-night-line bg-night-card p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
               
               {/* Modal Top Header */}
               <div className="flex items-center justify-between border-b border-night-line pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 border border-emerald-200">
                       New Component Builder
                     </span>
                     <h3 className="text-lg font-black text-chalk">Add Section Box to {activePage?.title} Page</h3>
@@ -1152,7 +1152,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         setNewCode(autoFormatResponsiveCode(newCode));
                       }
                     }}
-                    className="flex items-center gap-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 px-3.5 py-2 text-xs font-black text-amber-300 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-xl bg-amber-100 border border-amber-300 px-3.5 py-2 text-xs font-black text-amber-700 hover:bg-amber-500/30 transition shadow-sm cursor-pointer"
                     title="Automatically format code with responsive CSS & mobile flex-wrap"
                   >
                     <span>⚡ Auto Edit (Make Responsive)</span>
@@ -1191,13 +1191,13 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         }}
                         className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-white/[0.045] text-black border-night-line shadow-xl scale-[1.01]"
-                            : "bg-[#0f0f12] text-white border-night-line hover:border-neutral-700 hover:bg-[#151518]"
+                            ? "bg-accent text-night border-chalk shadow-xl scale-[1.01]"
+                            : "bg-white text-chalk border-night-line hover:border-chalk/25 hover:bg-night"
                         }`}
                       >
                         <div
                           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl font-bold transition-colors ${
-                            isSelected ? "bg-black text-white shadow-md" : "bg-night-raised text-white border border-night-line"
+                            isSelected ? "bg-white/15 text-night shadow-md" : "bg-night text-chalk border border-night-line"
                           }`}
                         >
                           {tmpl.icon}
@@ -1205,14 +1205,14 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                         <div className="space-y-1 pr-2">
                           <h4
                             className={`text-sm font-black tracking-tight transition-colors ${
-                              isSelected ? "text-black" : "text-white"
+                              isSelected ? "text-night" : "text-chalk"
                             }`}
                           >
                             {tmpl.title}
                           </h4>
                           <p
                             className={`text-xs leading-relaxed transition-colors ${
-                              isSelected ? "text-neutral-600 font-medium" : "text-chalk-dim"
+                              isSelected ? "text-night/70 font-medium" : "text-chalk-dim"
                             }`}
                           >
                             {tmpl.subtitle}
@@ -1232,7 +1232,7 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-black tracking-wider text-chalk-dim uppercase flex items-center gap-2">
                       <span>👁️ Live Section Preview</span>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 border border-emerald-200/40 px-2 py-0.5 rounded">
                         Real-Time Render
                       </span>
                     </h4>

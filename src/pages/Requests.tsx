@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "@/api/client";
 import { Shell } from "@/components/Shell";
 import { ModalDialog } from "@/components/ModalDialog";
+import { StatTile } from "@/components/StatTile";
 import type { ModalDialogState } from "@/components/ModalDialog";
 
 export type AccessRequest = {
@@ -176,7 +177,7 @@ export function Requests() {
     <Shell title="Access Requests">
       <div className="space-y-6">
         {/* Top Header & Action Filter Bar */}
-        <div className="bg-white/[0.045] rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl p-5 border border-night-line shadow-xs flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-extrabold text-chalk">User Access Requests</h2>
             <p className="text-xs text-chalk-dim mt-0.5">
@@ -186,7 +187,7 @@ export function Requests() {
 
           <div className="flex items-center gap-3">
             {/* Filter Pills */}
-            <div className="flex rounded-2xl bg-white/[0.06] p-1 text-xs border border-night-line">
+            <div className="flex rounded-2xl bg-night p-1 text-xs border border-night-line">
               {(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((status) => (
                 <button
                   key={status}
@@ -194,7 +195,7 @@ export function Requests() {
                   onClick={() => setFilter(status)}
                   className={`rounded-xl px-3.5 py-1.5 font-bold transition cursor-pointer ${
                     filter === status
-                      ? "bg-white/[0.045] text-chalk shadow-xs border border-night-line"
+                      ? "bg-white text-chalk shadow-xs border border-night-line"
                       : "text-chalk-dim hover:text-chalk"
                   }`}
                 >
@@ -206,7 +207,7 @@ export function Requests() {
             <button
               type="button"
               onClick={() => void fetchRequests()}
-              className="rounded-2xl border border-night-line bg-white/[0.045] hover:bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
+              className="rounded-2xl border border-night-line bg-white hover:bg-night px-3.5 py-2 text-xs font-bold text-chalk transition shadow-xs cursor-pointer"
             >
               🔄 Refresh
             </button>
@@ -215,39 +216,27 @@ export function Requests() {
 
         {/* 3 Stats Overview for Requests */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-chalk-dim">Total Requests</span>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-chalk tabular-nums">{requests.length}</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.06] text-chalk border border-night-line">
-                All time
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-amber-600">Pending Review</span>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-chalk tabular-nums">
-                {requests.filter((r) => r.status === "PENDING").length}
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                Action needed
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-night-line bg-white/[0.045] p-5 shadow-xs flex flex-col justify-between">
-            <span className="text-xs font-extrabold text-emerald-600">Approved Colleges</span>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-black text-chalk tabular-nums">
-                {requests.filter((r) => r.status === "APPROVED").length}
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                Active
-              </span>
-            </div>
-          </div>
+          <StatTile
+            label="Total Requests"
+            sublabel="Every registration ever received"
+            value={requests.length}
+            badge="All time"
+            tone="lilac"
+          />
+          <StatTile
+            label="Pending Review"
+            sublabel="Waiting on a decision from you"
+            value={requests.filter((r) => r.status === "PENDING").length}
+            badge="Action needed"
+            tone="sun"
+          />
+          <StatTile
+            label="Approved Colleges"
+            sublabel="Accepted and provisioned"
+            value={requests.filter((r) => r.status === "APPROVED").length}
+            badge="Active"
+            tone="mint"
+          />
         </div>
 
         {error && (
@@ -262,7 +251,7 @@ export function Requests() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by email, name or college…"
-            className="flex-1 rounded-2xl border border-night-line bg-white/[0.045] px-4 py-2.5 text-xs font-medium text-chalk placeholder:text-chalk-dim shadow-xs outline-none focus:border-slate-400"
+            className="flex-1 rounded-2xl border border-night-line bg-white px-4 py-2.5 text-xs font-medium text-chalk placeholder:text-chalk-dim shadow-xs outline-none focus:border-chalk"
           />
           <span className="shrink-0 text-[11px] font-bold text-chalk-dim">
             {filtered.length} of {requests.length}
@@ -270,11 +259,11 @@ export function Requests() {
         </div>
 
         {loading ? (
-          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             Loading access requests...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white/[0.045] rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
+          <div className="bg-white rounded-3xl p-12 text-center text-xs text-chalk-dim border border-night-line shadow-xs">
             No access requests match {needle ? `"${search}"` : `"${filter}"`}.
           </div>
         ) : (
@@ -282,7 +271,7 @@ export function Requests() {
             {filtered.map((req) => (
               <div
                 key={req.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-night-line bg-white/[0.045] p-5 transition-all hover:shadow-sm hover:border-amber-300"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-night-line bg-white p-5 transition-all hover:shadow-sm hover:border-chalk/25"
               >
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-3">
@@ -303,7 +292,7 @@ export function Requests() {
                         🔑 Password set
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-white/[0.06] text-chalk-dim border border-night-line px-2.5 py-0.5 text-[10px] font-bold">
+                      <span className="inline-flex items-center rounded-full bg-night text-chalk-dim border border-night-line px-2.5 py-0.5 text-[10px] font-bold">
                         ⚡ Default password
                       </span>
                     )}
@@ -331,7 +320,7 @@ export function Requests() {
                   </div>
 
                   {req.message && (
-                    <p className="mt-2 text-xs text-chalk-dim bg-white/[0.03] p-3 rounded-2xl border border-night-line italic">
+                    <p className="mt-2 text-xs text-chalk-dim bg-night p-3 rounded-2xl border border-night-line italic">
                       "{req.message}"
                     </p>
                   )}
@@ -345,7 +334,7 @@ export function Requests() {
                         type="button"
                         disabled={processingId === req.id}
                         onClick={() => void handleApprove(req)}
-                        className="rounded-2xl bg-gradient-to-r from-emerald-500 to-orange-500 hover:from-emerald-600 hover:to-orange-600 px-4 py-2 text-xs font-extrabold text-white transition disabled:opacity-50 shadow-sm cursor-pointer"
+                        className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-extrabold text-white transition disabled:opacity-50 shadow-sm cursor-pointer"
                       >
                         {processingId === req.id ? "Processing..." : "Accept (Approve)"}
                       </button>

@@ -77,9 +77,9 @@ export function ModalDialog({
   const IconComponent = style.icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-night backdrop-blur-sm animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-chalk/40 backdrop-blur-sm animate-in fade-in duration-150">
       <div
-        className="w-full max-w-md bg-white/[0.045] border border-night-line rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-chalk"
+        className="w-full max-w-md bg-white border border-night-line rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-chalk"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -113,7 +113,7 @@ export function ModalDialog({
                 placeholder={placeholder || "Enter text..."}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
-                className="w-full bg-white/[0.03] border border-night-line rounded-xl px-4 py-3 text-xs font-semibold text-chalk outline-none focus:border-amber-500 focus:bg-white/[0.045] transition shadow-inner"
+                className="w-full bg-night border border-night-line rounded-xl px-4 py-3 text-xs font-semibold text-chalk outline-none focus:border-chalk focus:bg-white transition shadow-inner"
               />
             </div>
           </form>
@@ -125,7 +125,7 @@ export function ModalDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded-xl border border-night-line text-xs font-bold text-chalk-dim hover:bg-white/[0.03] transition cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-night-line text-xs font-bold text-chalk-dim hover:bg-night transition cursor-pointer"
             >
               {cancelText}
             </button>

@@ -230,14 +230,14 @@ export function SectionAddStudio() {
 
   return (
     <Shell title="Add Section Studio">
-      <div className="space-y-6 bg-black text-white min-h-[85vh] font-sans">
+      <div className="space-y-6 text-chalk min-h-[85vh] font-sans">
         
         {/* Header Navigation */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-night-line pb-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/templates")}
-              className="flex items-center gap-2 text-xs font-black px-3.5 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-2 text-xs font-black px-3.5 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-chalk-dim hover:text-chalk transition-all cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
@@ -246,7 +246,7 @@ export function SectionAddStudio() {
               <span className="text-[11px] font-mono uppercase text-chalk-dim font-bold tracking-wider">
                 Admin Section Studio
               </span>
-              <h1 className="text-xl font-black text-white tracking-tight">
+              <h1 className="text-xl font-black text-chalk tracking-tight">
                 Add Section Code — {typeName}
               </h1>
             </div>
@@ -256,10 +256,10 @@ export function SectionAddStudio() {
             <button
               onClick={() => void handleAutoResponsive()}
               disabled={aiFixing}
-              className={`flex items-center gap-2 text-black font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+              className={`flex items-center gap-2 text-night font-black text-xs px-4 py-2.5 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                 aiFixSuccess
-                  ? "bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-300 hover:to-green-400"
-                  : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-400 hover:to-purple-500"
+                  ? "bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-500 hover:to-green-600"
+                  : "bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600"
               }`}
               title="Auto-optimize section code with fluid responsive media queries for mobile and tablet"
             >
@@ -272,36 +272,36 @@ export function SectionAddStudio() {
               onClick={handleSaveToDatabase}
               disabled={saving}
               label={saving ? "Saving to Database..." : saveSuccess ? "Saved to DB ✓" : "Save Section to DB"}
-              icon={<Save className="w-4 h-4 text-chalk group-hover:text-slate-950" />}
+              icon={<Save className="w-4 h-4 text-night" />}
               size="sm"
             />
           </div>
         </div>
 
         {error && (
-          <div className="p-4 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs font-bold flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-red-400" />
+          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600" />
             <span>{error}</span>
           </div>
         )}
 
         {aiFixSuccess && (
-          <div className="p-4 rounded-xl bg-violet-950/60 border border-violet-700 text-violet-200 text-xs font-bold flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-violet-400" />
+          <div className="p-4 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-violet-600" />
             <span>⚡ Section normalised. Responsive behaviour is applied automatically at every breakpoint — on this preview, in the editor and on the published site — so there is nothing to bake in here. Review and save when ready.</span>
           </div>
         )}
 
         {optSuccess && (
-          <div className="p-4 rounded-xl bg-amber-950/60 border border-amber-800 text-amber-300 text-xs font-bold flex items-center gap-2 animate-bounce">
-            <CheckCircle className="w-4 h-4 text-amber-400" />
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold flex items-center gap-2 animate-bounce">
+            <CheckCircle className="w-4 h-4 text-amber-600" />
             <span>⚡ Section code auto-optimized with fluid responsive rules for Desktop (1200px), Tablet (768px), and Mobile (375px)!</span>
           </div>
         )}
 
         {saveSuccess && (
-          <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs font-bold flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-emerald-400" />
+          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-600" />
             <span>Section code saved successfully! Live database updated.</span>
           </div>
         )}
@@ -314,13 +314,13 @@ export function SectionAddStudio() {
               type="text"
               value={variantName}
               onChange={(e) => setVariantName(e.target.value)}
-              className="w-full mt-1.5 bg-black border border-night-line rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-night-line"
+              className="w-full mt-1.5 bg-night border border-night-line rounded-xl px-3.5 py-2 text-xs font-bold text-chalk focus:outline-none focus:border-night-line"
             />
           </div>
           <div>
             <label className="text-xs font-extrabold text-chalk-dim uppercase">Upload Code File (.html, .jsx, .tsx, .css)</label>
             <div className="mt-1.5 flex items-center gap-3">
-              <label className="flex items-center gap-2 bg-night-raised border border-night-line hover:border-night-line text-white px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer transition-all">
+              <label className="flex items-center gap-2 bg-night-raised border border-night-line hover:border-chalk/25 text-chalk px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer transition-all">
                 <Upload className="w-4 h-4" />
                 <span>Choose File</span>
                 <input type="file" onChange={handleFileUpload} accept=".html,.jsx,.tsx,.vue,.css,.txt" className="hidden" />
@@ -332,12 +332,12 @@ export function SectionAddStudio() {
 
         {/* Step-by-Step View Mode Switcher */}
         <div className="flex flex-wrap items-center justify-between gap-3 bg-night p-3.5 rounded-2xl border border-night-line">
-          <div className="flex items-center gap-2 bg-black p-1.5 rounded-xl border border-night-line">
+          <div className="flex items-center gap-2 bg-night p-1.5 rounded-xl border border-night-line">
             <button
               type="button"
               onClick={() => setViewMode("code")}
               className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "code" ? "bg-white/[0.045] text-black shadow-lg" : "text-chalk-dim hover:text-white"
+                viewMode === "code" ? "bg-accent text-night shadow-lg" : "text-chalk-dim hover:text-chalk"
               }`}
             >
               <FileCode className="w-4 h-4" />
@@ -347,7 +347,7 @@ export function SectionAddStudio() {
               type="button"
               onClick={() => setViewMode("preview")}
               className={`px-4 py-2 text-xs font-black rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "preview" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/40" : "text-chalk-dim hover:text-white"
+                viewMode === "preview" ? "bg-accent text-white shadow-lg shadow-chalk/20" : "text-chalk-dim hover:text-chalk"
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -357,7 +357,7 @@ export function SectionAddStudio() {
               type="button"
               onClick={() => setViewMode("split")}
               className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-2 ${
-                viewMode === "split" ? "bg-white/[0.06] text-white shadow-md" : "text-chalk-dim hover:text-neutral-300"
+                viewMode === "split" ? "bg-accent text-night shadow-md" : "text-chalk-dim hover:text-chalk"
               }`}
             >
               <span>↔️</span>
@@ -370,7 +370,7 @@ export function SectionAddStudio() {
               <button
                 type="button"
                 onClick={() => setViewMode("preview")}
-                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white shadow-md cursor-pointer transition-all"
+                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white shadow-md cursor-pointer transition-all"
               >
                 <Eye className="w-4 h-4" />
                 <span>Test Live Preview &rarr;</span>
@@ -380,7 +380,7 @@ export function SectionAddStudio() {
               <button
                 type="button"
                 onClick={() => setViewMode("code")}
-                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white cursor-pointer transition-all"
+                className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-chalk-dim hover:text-chalk cursor-pointer transition-all"
               >
                 <FileCode className="w-4 h-4" />
                 <span>&larr; Edit Code</span>
@@ -399,8 +399,8 @@ export function SectionAddStudio() {
             <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
               <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <FileCode className="w-4 h-4 text-white" />
-                  <span className="text-xs font-extrabold text-white tracking-wide uppercase">
+                  <FileCode className="w-4 h-4 text-chalk" />
+                  <span className="text-xs font-extrabold text-chalk tracking-wide uppercase">
                     Section Source Code {viewMode === "code" && "(Full Page Editor)"}
                   </span>
                 </div>
@@ -411,8 +411,8 @@ export function SectionAddStudio() {
                     disabled={aiFixing}
                     className={`text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                       aiFixSuccess
-                        ? "text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 hover:bg-emerald-500 hover:text-black"
-                        : "text-violet-300 bg-violet-500/20 border border-violet-500/40 hover:bg-violet-500 hover:text-black"
+                        ? "text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-600 hover:text-night"
+                        : "text-violet-700 bg-violet-100 border border-violet-300 hover:bg-violet-600 hover:text-night"
                     }`}
                   >
                     {aiFixing ? "⏳ Applying Fix..." : aiFixSuccess ? "✓ Responsive Applied" : "⚡ Auto Responsive Fix"}
@@ -420,12 +420,12 @@ export function SectionAddStudio() {
                 </div>
               </div>
 
-              <div className="flex-1 p-3.5 bg-black flex flex-col">
+              <div className="flex-1 p-3.5 bg-night flex flex-col">
                 <textarea
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Paste or write HTML/JSX section code here..."
-                  className="w-full flex-1 min-h-[500px] bg-black text-neutral-200 font-mono text-xs p-4 rounded-xl border border-neutral-900 focus:outline-none focus:border-night-line leading-relaxed resize-y"
+                  className="w-full flex-1 min-h-[500px] bg-white text-chalk font-mono text-xs p-4 rounded-xl border border-night-line focus:outline-none focus:border-chalk leading-relaxed resize-y"
                 />
 
                 {/* Bottom Action Footer for Code Tab */}
@@ -438,7 +438,7 @@ export function SectionAddStudio() {
                       <button
                         type="button"
                         onClick={() => setViewMode("preview")}
-                        className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30 cursor-pointer transition-all"
+                        className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white shadow-lg shadow-chalk/20 cursor-pointer transition-all"
                       >
                         <Eye className="w-4 h-4" />
                         <span>Preview & Test Section &rarr;</span>
@@ -462,19 +462,19 @@ export function SectionAddStudio() {
             <div className="flex flex-col bg-night border border-night-line rounded-2xl overflow-hidden shadow-2xl">
               <div className="p-3.5 border-b border-night-line bg-night-raised flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-white" />
-                  <span className="text-xs font-extrabold text-white tracking-wide uppercase">
+                  <Eye className="w-4 h-4 text-chalk" />
+                  <span className="text-xs font-extrabold text-chalk tracking-wide uppercase">
                     Live Section Preview {viewMode === "preview" && "(Full Width Canvas)"}
                   </span>
                 </div>
 
                 {/* Viewport Width Switcher */}
-                <div className="flex items-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-night-line">
+                <div className="flex items-center gap-1.5 bg-night p-1.5 rounded-xl border border-night-line">
                   <button
                     type="button"
                     onClick={() => setPreviewWidth("100%")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "100%" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
+                      previewWidth === "100%" ? "bg-accent text-white shadow-md" : "text-chalk-dim hover:text-chalk"
                     }`}
                   >
                     🖥️ Full Canvas (100%)
@@ -483,7 +483,7 @@ export function SectionAddStudio() {
                     type="button"
                     onClick={() => setPreviewWidth("1200px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "1200px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
+                      previewWidth === "1200px" ? "bg-accent text-white shadow-md" : "text-chalk-dim hover:text-chalk"
                     }`}
                   >
                     💻 Desktop (1200px)
@@ -492,7 +492,7 @@ export function SectionAddStudio() {
                     type="button"
                     onClick={() => setPreviewWidth("768px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "768px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
+                      previewWidth === "768px" ? "bg-accent text-white shadow-md" : "text-chalk-dim hover:text-chalk"
                     }`}
                   >
                     📱 Tablet (768px)
@@ -501,7 +501,7 @@ export function SectionAddStudio() {
                     type="button"
                     onClick={() => setPreviewWidth("375px")}
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      previewWidth === "375px" ? "bg-blue-600 text-white shadow-md" : "text-chalk-dim hover:text-white"
+                      previewWidth === "375px" ? "bg-accent text-white shadow-md" : "text-chalk-dim hover:text-chalk"
                     }`}
                   >
                     📱 Mobile (375px)
@@ -512,12 +512,12 @@ export function SectionAddStudio() {
               <div className="flex-1 p-4 bg-night-raised flex flex-col items-center justify-center overflow-auto min-h-[500px]">
                 <div
                   style={{ width: previewWidth, maxWidth: "100%" }}
-                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-night-line overflow-hidden bg-black flex flex-col"
+                  className="w-full flex-1 min-h-[480px] transition-all duration-300 mx-auto shadow-2xl rounded-xl border border-night-line overflow-hidden bg-white flex flex-col"
                 >
                   <iframe
                     title="Section Preview"
                     srcDoc={buildSectionPreviewDocument(previewCode)}
-                    className="w-full flex-1 min-h-[480px] bg-black border-0"
+                    className="w-full flex-1 min-h-[480px] bg-white border-0"
                     sandbox="allow-scripts"
                   />
                 </div>
@@ -529,7 +529,7 @@ export function SectionAddStudio() {
                   <button
                     type="button"
                     onClick={() => setViewMode("code")}
-                    className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-neutral-300 hover:text-white cursor-pointer transition-all"
+                    className="flex items-center gap-2 text-xs font-black px-4 py-2 rounded-xl bg-night-raised border border-night-line hover:border-night-line text-chalk-dim hover:text-chalk cursor-pointer transition-all"
                   >
                     <FileCode className="w-4 h-4" />
                     <span>&larr; Back to Code Editor</span>
@@ -539,7 +539,7 @@ export function SectionAddStudio() {
                       type="button"
                       onClick={() => void handleAutoResponsive()}
                       disabled={aiFixing}
-                      className="text-xs font-bold text-violet-400 hover:text-violet-300 transition-colors cursor-pointer"
+                      className="text-xs font-bold text-violet-600 hover:text-violet-700 transition-colors cursor-pointer"
                     >
                       ⚡ Auto Responsive Fix
                     </button>
