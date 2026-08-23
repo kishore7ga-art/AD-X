@@ -87,9 +87,20 @@ export function Requests() {
   }, []);
 
   const handleApprove = (reqItem: AccessRequest) => {
+    /**
+     * What approving actually does, rather than what it used to do.
+     *
+     * This notice promised "Default initial password 'college123' will be set",
+     * and the success alert that followed said the user could log in with their
+     * password — both true once, neither true now. An account approved without
+     * a password of its own is created with CSPRNG output nobody is told, and
+     * the activation link is the only way in. Telling an administrator that
+     * somebody can sign in when they cannot is worse than telling them nothing:
+     * it is the reason the failure gets discovered by the applicant.
+     */
     const pwdNotice = reqItem.hasPassword
-      ? "User set a custom password during registration. Approving will activate their account with their requested password."
-      : "No custom password was set by user. Default initial password 'college123' will be set.";
+      ? "They chose a password when they applied. Approving activates the account with that password, and they can sign in straight away."
+      : "They did not choose a password. The account is created with a random one nobody is told — the way in is the activation link, which is emailed on approval.";
 
     setModalConfig({
       isOpen: true,
@@ -104,18 +115,49 @@ export function Requests() {
         setModalConfig(null);
         try {
           setProcessingId(reqItem.id);
-          await api.post<{ approved: boolean }>(
-            `/api/v1/admin/access-requests/${reqItem.id}/approve`,
-            {}
-          );
+          const result = await api.post<{
+            approved: boolean;
+            delivered?: boolean;
+            deliveryError?: string;
+            activationUrl?: string;
+          }>(`/api/v1/admin/access-requests/${reqItem.id}/approve`, {});
           setRequests((prev) =>
             prev.map((r) => (r.id === reqItem.id ? { ...r, status: "APPROVED" } : r))
           );
-          showAlert(
-            "Access Approved!",
-            `Account activated for ${reqItem.name} (${reqItem.email}). User can now log in using their password!`,
-            "success"
-          );
+
+          /**
+           * Say whether the invite actually went out.
+           *
+           * The API has always reported `delivered`, and this screen has always
+           * ignored it — so a deployment with no `RESEND_API_KEY` approved
+           * college after college, told the administrator each one was ready,
+           * and left every applicant with no way to sign in. When delivery
+           * fails the API now hands back the activation link, and the only
+           * useful thing to do with it is put it in front of the person who can
+           * pass it on.
+           */
+          if (result?.delivered === false) {
+            showAlert(
+              "Approved — but the invite email did not send",
+              `${reqItem.name} (${reqItem.email}) is approved and the account exists.\n\n` +
+                `The email could not be sent${result.deliveryError ? `: ${result.deliveryError}` : ""}.\n\n` +
+                (result.activationUrl
+                  ? `Send them this activation link yourself — it is the only way into the account, and it expires:\n\n${result.activationUrl}`
+                  : reqItem.hasPassword
+                    ? "They chose their own password when applying, so they can still sign in with it."
+                    : "There is no way into this account until mail delivery is configured. Set a password for them from the Users screen."),
+              "warning",
+            );
+          } else {
+            showAlert(
+              "Access Approved",
+              `${reqItem.name} (${reqItem.email}) is approved and the activation link has been emailed to them.` +
+                (reqItem.hasPassword
+                  ? " They can also sign in with the password they chose when applying."
+                  : ""),
+              "success",
+            );
+          }
         } catch (err) {
           showAlert("Approval Failed", err instanceof ApiError ? err.message : "Failed to approve request", "danger");
         } finally {

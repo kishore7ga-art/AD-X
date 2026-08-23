@@ -89,7 +89,16 @@ export function ModalDialog({
             </div>
             <div>
               <h3 className="text-base font-extrabold text-chalk tracking-tight">{title}</h3>
-              <p className="text-xs text-chalk-dim mt-0.5 leading-relaxed">{message}</p>
+              {/*
+                Callers pass messages with blank lines between paragraphs, and
+                one of them is an activation URL long enough to overflow the
+                dialog. Without `whitespace-pre-line` every message collapsed to
+                one run-on line; without `break-words` the URL pushed the modal
+                sideways instead of wrapping.
+              */}
+              <p className="text-xs text-chalk-dim mt-0.5 leading-relaxed whitespace-pre-line break-words">
+                {message}
+              </p>
             </div>
           </div>
 
