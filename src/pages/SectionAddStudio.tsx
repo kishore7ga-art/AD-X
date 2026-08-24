@@ -184,47 +184,40 @@ export function SectionAddStudio() {
 
     const payload = { name: finalName, category: cleanCategory, description: `Admin section for ${typeName}`, code: cleanCode, isPublished: true };
 
-    // Try the simple endpoint first, then fall back to full endpoint
-    const endpoints = [
-      '/api/v1/admin/save-section',
-      '/api/v1/admin/templates',
-    ];
-
-    let lastError = 'All save endpoints failed';
-    for (const endpoint of endpoints) {
-      try {
-        const result = await api.post<any>(endpoint, payload);
-        // Success!
-        // Save to localStorage as backup too
-        try {
-          const cached = { id: result?.id || `tpl-${Date.now()}`, ...payload, colleges: 0, createdAt: new Date().toISOString() };
-          const raw = localStorage.getItem('xite_admin_local_templates');
-          const list = raw ? JSON.parse(raw) : [];
-          list.unshift(cached);
-          localStorage.setItem('xite_admin_local_templates', JSON.stringify(list.slice(0, 50)));
-          localStorage.setItem('xite_admin_templates_cache', JSON.stringify([cached, ...list].slice(0, 50)));
-        } catch {}
-        setSaveSuccess(true);
-        setSaving(false);
-        setTimeout(() => navigate('/templates'), 1400);
-        return;
-      } catch (err: any) {
-        const msg = err?.response?.data?.error || err?.message || 'Unknown error';
-        console.warn(`[SectionAddStudio] ${endpoint} failed:`, msg);
-        lastError = msg;
-      }
-    }
-    
-    // Both failed — save to localStorage as rescue
+    /**
+     * One endpoint, and a failure that fails.
+     *
+     * Two things used to happen here, both wrong.
+     *
+     * It posted to `/admin/save-section` and, on failure, to
+     * `/admin/templates` — two endpoints that write the same row, so a
+     * transient error produced a duplicate rather than a retry.
+     *
+     * And when both failed it wrote the section into
+     * `localStorage.xite_admin_local_templates`, showed the operator
+     * "The section was saved locally. It will sync to DB when the server is
+     * fixed", and returned. **Nothing synced it.** No code in this repo ever
+     * read that key and posted it. The Templates screen then merged it into the
+     * library list, so the section looked saved, looked published, and no
+     * tenant could ever use it — the editor reads the database. An author could
+     * lose a day's work and be told twice that it was safe.
+     *
+     * A save that did not save is an error.
+     */
     try {
-      const rescued = { id: `tpl-${Date.now()}`, ...payload, colleges: 0, createdAt: new Date().toISOString() };
-      const raw = localStorage.getItem('xite_admin_local_templates');
-      const list = raw ? JSON.parse(raw) : [];
-      list.unshift(rescued);
-      localStorage.setItem('xite_admin_local_templates', JSON.stringify(list.slice(0, 50)));
-    } catch {}
-    
-    setError(`Save failed: ${lastError} — The section was saved locally. It will sync to DB when the server is fixed.`);
+      await api.post("/api/v1/admin/templates", payload);
+      setSaveSuccess(true);
+      setSaving(false);
+      setTimeout(() => navigate("/templates"), 1400);
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "The API rejected the section.";
+      setError(
+        `Could not save this section: ${message}. It has not been stored — ` +
+          "copy your code somewhere safe before leaving this page.",
+      );
+      setSaving(false);
+    }
     setSaving(false);
   };
 

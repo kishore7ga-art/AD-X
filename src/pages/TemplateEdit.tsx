@@ -187,28 +187,26 @@ export function TemplateEdit() {
       isPublished,
     };
 
-    // Try simple endpoint first (no strict auth), then fall back
-    let lastError = 'Save failed';
-    const tryEndpoints: Array<() => Promise<any>> = [
-      () => api.patch<any>(`/api/v1/admin/update-section/${id}`, payload),
-      () => api.patch<TemplateRow>(`/api/v1/admin/templates/${id}`, payload),
-    ];
-
-    for (const tryFn of tryEndpoints) {
-      try {
-        await tryFn();
-        setSaveSuccess(true);
-        setSaving(false);
-        setTimeout(() => setSaveSuccess(false), 3000);
-        return;
-      } catch (err: any) {
-        lastError = err?.message || 'Unknown error';
-        console.warn('[TemplateEdit] endpoint failed:', lastError);
-      }
+    /**
+     * One endpoint.
+     *
+     * This tried `/admin/update-section/:id` first — annotated "no strict auth"
+     * — and fell back to `/admin/templates/:id`. The annotation stopped being
+     * true when `requireAdmin` was added to that route, so the fallback's whole
+     * premise was gone, and what remained was a second write of the same row on
+     * every failure.
+     */
+    try {
+      await api.patch<TemplateRow>(`/api/v1/admin/templates/${id}`, payload);
+      setSaveSuccess(true);
+      setSaving(false);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (cause) {
+      setError(
+        `Could not save: ${cause instanceof Error ? cause.message : "the API rejected the change"}`,
+      );
+      setSaving(false);
     }
-
-    setError(`Failed to save: ${lastError}`);
-    setSaving(false);
   };
 
   // Extract category from template name e.g. "Hero Banner [hero] - Hero Banner Variant"

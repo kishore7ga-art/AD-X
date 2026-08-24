@@ -1,4 +1,10 @@
 import { NavLink } from "react-router-dom";
+
+// The configured hosts, not literals. These three links were hardcoded to
+// production, so in local development the health check, the API docs and the
+// "open the studio" link all pointed at the live platform — which is both
+// confusing and, for anything that writes, dangerous.
+import { API_BASE, STUDIO_BASE } from "@/env";
 import type { ReactNode } from "react";
 import {
   Layers,
@@ -75,13 +81,13 @@ export function Shell({
           routes, and a nav item that never becomes active is a dead control.
         */}
         <div className="flex flex-col gap-0.5 px-3 pb-4">
-          <RailLink href="https://api.webxite.org/api/health" icon={<Activity className="h-[17px] w-[17px]" />}>
+          <RailLink href={`${API_BASE}/api/health`} icon={<Activity className="h-[17px] w-[17px]" />}>
             API health
           </RailLink>
-          <RailLink href="https://api.webxite.org/openapi.json" icon={<FileText className="h-[17px] w-[17px]" />}>
+          <RailLink href={`${API_BASE}/openapi.json`} icon={<FileText className="h-[17px] w-[17px]" />}>
             API reference
           </RailLink>
-          <RailLink href="https://webxite.org" icon={<LifeBuoy className="h-[17px] w-[17px]" />}>
+          <RailLink href={STUDIO_BASE} icon={<LifeBuoy className="h-[17px] w-[17px]" />}>
             Platform site
           </RailLink>
 

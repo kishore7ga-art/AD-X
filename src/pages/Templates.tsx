@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 
 import { api } from "@/api/client";
-import { API_BASE } from "@/env";
 import type { TemplateRow, TemplateStats } from "@/api/types";
 import { Shell } from "@/components/Shell";
 import { AddSectionModal } from "@/components/AddSectionModal";
@@ -127,44 +126,45 @@ export function Templates() {
   const currentPalette =
     STUDIO_PALETTES.find((p) => p.id === selectedPalette) ?? STUDIO_PALETTES[0]!;
 
+  /**
+   * The template library, from the database.
+   *
+   * It used to be the database **merged with this browser's localStorage**, and
+   * on failure it fell back to a localStorage snapshot. Both are gone, for the
+   * reason that matters most on this screen:
+   *
+   * When a save failed, `SectionAddStudio` wrote the section to
+   * `xite_admin_local_templates` and told the operator "it will sync to DB when
+   * the server is fixed". Nothing synced it — no code anywhere did. The section
+   * then appeared in this list with a plausible id, indistinguishable from a
+   * real one. So an admin could author a section, be told it was saved, watch it
+   * appear in the library, and have no tenant ever see it, because the editor
+   * reads the database. A second admin saw a different library.
+   *
+   * A cache only one person can see, that nothing reconciles, presented as the
+   * shared library, is worse than an error message.
+   */
   const fetchTemplates = async () => {
+    setLoadError(null);
     try {
       const listData = await api.get<{ templates: TemplateRow[] }>("/api/v1/admin/templates");
-      const fromDb = listData?.templates || [];
-
-      // Merge DB results with any localStorage-only entries not yet synced to DB
-      let localExtras: TemplateRow[] = [];
-      try {
-        const raw = localStorage.getItem("xite_admin_local_templates");
-        if (raw) {
-          const localList: TemplateRow[] = JSON.parse(raw);
-          const dbIds = new Set(fromDb.map((t) => t.id || t.name));
-          localExtras = localList.filter((t) => !dbIds.has(t.id) && !dbIds.has(t.name));
-        }
-      } catch {}
-
-      const merged = [...fromDb, ...localExtras];
-      setTemplates(merged);
-
-      // Cache to localStorage so refresh works even if API is briefly down
-      try {
-        localStorage.setItem("xite_admin_templates_cache", JSON.stringify(merged));
-      } catch {}
-
-      try {
-        const statsData = await api.get<TemplateStats>("/api/v1/admin/templates/stats");
-        if (statsData) setStats(statsData);
-      } catch {}
-    } catch (_cause) {
-      // API failed — try loading from localStorage cache so UI doesn't go blank
-      try {
-        const cached = localStorage.getItem("xite_admin_templates_cache");
-        if (cached) {
-          setTemplates(JSON.parse(cached));
-          return;
-        }
-      } catch {}
+      setTemplates(listData?.templates ?? []);
+    } catch (cause) {
+      // Reported, not swallowed into an empty list. An empty library and an
+      // unreachable API look identical otherwise, and the operator's next move
+      // is completely different in each case.
       setTemplates([]);
+      setLoadError(
+        cause instanceof Error ? cause.message : "Could not load templates from the API.",
+      );
+      return;
+    }
+
+    try {
+      const statsData = await api.get<TemplateStats>("/api/v1/admin/templates/stats");
+      if (statsData) setStats(statsData);
+    } catch {
+      // Stats are decoration beside the list; a failure here must not blank it.
     }
   };
 
@@ -172,6 +172,8 @@ export function Templates() {
     void fetchTemplates();
   }, []);
 
+  /** Why the list is empty, when the reason is not "there are none". */
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
 
   const handleDelete = (template: TemplateRow) => {
@@ -194,29 +196,18 @@ export function Templates() {
         setModalConfig(null);
         setBusyId(template.id);
         try {
-          // Try bypass endpoint first (no auth required), fall back to original
-          let deleted = false;
-          try {
-            await api.del(`/api/v1/admin/delete-section/${template.id}`);
-            deleted = true;
-          } catch {
-            // fallback to original authenticated endpoint
-          }
-          if (!deleted) {
-            await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
-          }
-
-          // Also remove from localStorage rescue cache
-          if (typeof window !== "undefined") {
-            try {
-              const raw = localStorage.getItem("xite_admin_local_templates");
-              if (raw) {
-                const list: TemplateRow[] = JSON.parse(raw);
-                const updated = list.filter((t) => t.id !== template.id && t.name !== template.name);
-                localStorage.setItem("xite_admin_local_templates", JSON.stringify(updated));
-              }
-            } catch {}
-          }
+          /**
+           * One endpoint, one meaning.
+           *
+           * This tried `/admin/delete-section/:id` and, on *any* failure, fell
+           * through to `/admin/templates/:id?hard=true`. Two faults. The comment
+           * called the first "no auth required", which stopped being true when
+           * `requireAdmin` was added to it — so the premise of the fallback was
+           * already gone. And the two do not mean the same thing: one deletes,
+           * the other hard-deletes. A 503 on the first silently escalated the
+           * operator's click into a permanent delete.
+           */
+          await api.del(`/api/v1/admin/templates/${template.id}?hard=true`);
           await fetchTemplates();
         } catch (cause) {
           setError(
@@ -246,17 +237,11 @@ export function Templates() {
         setModalConfig(null);
         setBusyId(template.id);
         try {
-          await api.del(`/api/v1/admin/templates/${template.id}`).catch(() => null);
-          if (typeof window !== "undefined") {
-            try {
-              const raw = localStorage.getItem("xite_admin_local_templates");
-              if (raw) {
-                const list: TemplateRow[] = JSON.parse(raw);
-                const updated = list.map((t) => (t.id === template.id ? { ...t, archivedAt: t.archivedAt ? null : new Date().toISOString() } : t));
-                localStorage.setItem("xite_admin_local_templates", JSON.stringify(updated));
-              }
-            } catch {}
-          }
+          // `.catch(() => null)` used to sit on this call, so a failed archive
+          // reported success — and the localStorage write below then flipped the
+          // badge in the UI, making the failure invisible until a refresh put it
+          // back. The error belongs to the operator.
+          await api.del(`/api/v1/admin/templates/${template.id}`);
           await fetchTemplates();
         } catch (cause) {
           setError(
@@ -396,15 +381,10 @@ export function Templates() {
           formData.append("files", file, file.webkitRelativePath || file.name);
         });
 
-        const res = await fetch(`${API_BASE}/api/v1/admin/templates`, {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        });
-        if (!res.ok) {
-          const body = await res.json().catch(() => null);
-          throw new Error(body?.error || `Upload failed (${res.status})`);
-        }
+        // Through the shared client, which is the one place that knows to send
+        // the admin cookie and how to read `{ error }` out of a failure. This
+        // was a bare `fetch` re-implementing both.
+        await api.postForm("/api/v1/admin/templates", formData);
       } else {
         await api.post("/api/v1/admin/templates", {
           name: newName.trim(),
@@ -448,12 +428,10 @@ export function Templates() {
         setModalConfig(null);
         setIsDeletingAll(true);
         try {
-          await api.del("/api/v1/admin/templates").catch(() => null);
-          if (typeof window !== "undefined") {
-            try {
-              localStorage.removeItem("xite_admin_local_templates");
-            } catch {}
-          }
+          // Was `.catch(() => null)`: "Delete all templates" could fail against
+          // the database and still refresh into an unchanged list with no error,
+          // which reads as the button doing nothing.
+          await api.del("/api/v1/admin/templates");
           await fetchTemplates();
         } catch (cause) {
           setError(
@@ -622,6 +600,27 @@ export function Templates() {
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700 flex items-center gap-2">
             <span>{error}</span>
+          </div>
+        )}
+
+        {/* The list could not be loaded.
+            Distinct from `error`, which reports a failed *action*. Without this
+            an unreachable API rendered as an empty library — and the operator's
+            next move differs completely between "there are none" and "I cannot
+            see them". It offers a retry rather than requiring a page reload. */}
+        {loadError && (
+          <div
+            role="alert"
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs font-bold text-amber-700"
+          >
+            <span>Could not load the template library: {loadError}</span>
+            <button
+              type="button"
+              onClick={() => void fetchTemplates()}
+              className="rounded-md border border-amber-300 bg-white px-3 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 cursor-pointer"
+            >
+              Retry
+            </button>
           </div>
         )}
 

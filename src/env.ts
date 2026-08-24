@@ -4,7 +4,15 @@
  * Production API Base: https://api.webxite.org
  * Local Development Base: http://localhost:4000
  */
-const raw = import.meta.env.VITE_API_BASE_URL?.trim();
+/**
+ * Vite replaces `import.meta.env.VITE_*` at build time. Outside a Vite build —
+ * a unit test, or any plain Node import of this module — `import.meta.env` is
+ * undefined, and reading a property off it throws before anything else runs.
+ * Optional chaining costs nothing and makes the module importable anywhere.
+ */
+const env = import.meta.env as Record<string, string | undefined> | undefined;
+
+const raw = env?.VITE_API_BASE_URL?.trim();
 
 function resolveApiBase(): string {
   if (raw) return raw.replace(/\/+$/, "");
@@ -20,7 +28,7 @@ function resolveApiBase(): string {
 /** Single API base URL. */
 export const API_BASE = resolveApiBase();
 
-const rawStudio = import.meta.env.VITE_STUDIO_BASE_URL?.trim();
+const rawStudio = env?.VITE_STUDIO_BASE_URL?.trim();
 const resolvedStudio = (() => {
   if (rawStudio) return rawStudio;
   if (typeof window !== "undefined") {

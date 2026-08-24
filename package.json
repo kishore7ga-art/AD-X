@@ -12,7 +12,8 @@
     "build": "tsc --noEmit && vite build",
     "check:shared": "node scripts/check-section-runtime.mjs",
     "preview": "vite preview --port 5174 --strictPort",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:unit": "tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {
     "lucide-react": "^1.28.0",
@@ -28,6 +29,7 @@
     "@vitejs/plugin-react": "^5.1.0",
     "tailwindcss": "^4.1.16",
     "typescript": "^5",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "tsx": "^4"
   }
 }

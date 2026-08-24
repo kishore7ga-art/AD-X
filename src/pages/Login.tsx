@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { ShieldCheck, Lock, Mail, KeyRound, Eye, EyeOff, Sparkles, AlertCircle, ArrowRight } from "lucide-react";
 
 import { ApiError } from "@/api/client";
 import { useAuth } from "@/auth/AuthContext";
 
 export function Login() {
-  const { admin, setup, signIn } = useAuth();
-  const navigate = useNavigate();
+  const { admin, setup, signIn, transportError, retry } = useAuth();
   const location = useLocation();
 
   const [email, setEmail] = useState("");
@@ -33,10 +32,20 @@ export function Login() {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  if (admin) return <Navigate to="/templates" replace />;
-
+  /**
+   * Where signing in should land.
+   *
+   * Computed *before* the redirect below, and used by it. That ordering is the
+   * whole fix: this guard used to send everyone to `/templates` unconditionally,
+   * and because it runs on every render it fired the moment `signIn` set the
+   * admin — overriding the `navigate(destination)` on the next line. So the page
+   * an admin was actually trying to reach was always discarded, and every deep
+   * link into the panel bounced them to the templates list instead.
+   */
   const destination =
     (location.state as { from?: string } | null)?.from ?? "/templates";
+
+  if (admin) return <Navigate to={destination} replace />;
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,7 +58,9 @@ export function Login() {
         password,
         ...(token ? { token } : {}),
       });
-      navigate(destination, { replace: true });
+      // No `navigate()` here. `signIn` sets the admin, which re-renders this
+      // component into the `<Navigate to={destination}>` above. Doing both is
+      // what made the destination unreachable: the two raced, and the guard won.
     } catch (cause: any) {
       let message = "Sign-in failed";
       if (cause instanceof ApiError) {
@@ -73,8 +84,26 @@ export function Login() {
         message.toLowerCase().includes("429");
 
       if (isRateLimit) {
-        setRetryCountdown(300);
-        setError("Too many login attempts. Please try again in 5:00 minutes.");
+        /**
+         * The wait the API actually enforces, from its `Retry-After` header.
+         *
+         * This used to hardcode 300 seconds and tell the operator "try again in
+         * 5:00 minutes". The API's admin-login bucket is five attempts per
+         * *fifteen* minutes, so the countdown expired, the button re-enabled,
+         * the next attempt was refused again, and the timer restarted — which
+         * reads as the panel being broken rather than as a lockout with ten
+         * minutes left on it.
+         */
+        const wait =
+          cause instanceof ApiError && typeof cause.retryAfterSeconds === "number"
+            ? cause.retryAfterSeconds
+            : null;
+        setRetryCountdown(wait);
+        setError(
+          wait
+            ? `Too many sign-in attempts. Try again in ${formatCountdown(wait)}.`
+            : "Too many sign-in attempts. Try again shortly.",
+        );
       } else if (message.includes("6-digit")) {
         setNeedsToken(true);
         setError("Enter the code from your authenticator app.");
@@ -113,8 +142,32 @@ export function Login() {
             </p>
           </div>
 
+          {/* The API could not be reached at all.
+              Shown above the form and instead of the setup banners, because
+              none of those diagnoses can be trusted when nothing answered.
+              Without this, an API outage looked exactly like a wrong password. */}
+          {transportError ? (
+            <div
+              role="alert"
+              className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-left"
+            >
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-600">
+                <AlertCircle className="h-4 w-4" />
+                <span>Cannot reach the API</span>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-chalk-dim">{transportError}</p>
+              <button
+                type="button"
+                onClick={retry}
+                className="mt-3 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 cursor-pointer"
+              >
+                Try again
+              </button>
+            </div>
+          ) : null}
+
           {/* Setup Warnings */}
-          {setup && !setup.configured ? (
+          {!transportError && setup && !setup.configured ? (
             <Setup
               title="Not configured"
               body="ADMIN_SESSION_SECRET is not set on the API, or it matches SESSION_SECRET."
@@ -124,7 +177,7 @@ export function Login() {
                 "Redeploy service",
               ]}
             />
-          ) : setup && !setup.hasAccounts ? (
+          ) : !transportError && setup && !setup.hasAccounts ? (
             <Setup
               title="No account yet"
               body="No Super Admin exists in the database."
@@ -219,7 +272,7 @@ export function Login() {
                 <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
                 <span>
                   {retryCountdown
-                    ? `Too many login attempts. Please try again in ${formatCountdown(retryCountdown)} minutes.`
+                    ? `Too many sign-in attempts. Try again in ${formatCountdown(retryCountdown)}.`
                     : error}
                 </span>
               </div>
