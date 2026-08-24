@@ -8,7 +8,9 @@
   },
   "scripts": {
     "dev": "vite --port 3002",
+    "prebuild": "node scripts/check-section-runtime.mjs",
     "build": "tsc --noEmit && vite build",
+    "check:shared": "node scripts/check-section-runtime.mjs",
     "preview": "vite preview --port 5174 --strictPort",
     "typecheck": "tsc --noEmit"
   },

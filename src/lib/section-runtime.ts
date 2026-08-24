@@ -178,7 +178,7 @@ ${at} ::-webkit-scrollbar { display: revert; width: revert; height: revert; }
 
   return `
 ${universal} { box-sizing: border-box; }${hostReset}
-${root} { margin: 0; padding: 0; background-color: #09090b; color: #ffffff; font-family: "Inter", system-ui, sans-serif; width: 100%; min-height: 100%; }
+${root} { margin: 0; padding: 0; background-color: var(--xite-surface, #09090b); color: var(--xite-text, #ffffff); font-family: var(--xite-font, "Inter", system-ui, sans-serif); width: 100%; min-height: 100%; }
 
 /* The box every section is measured against. On the canvas rather than on the
    root element: containment on <html> would make it the containing block for
@@ -460,6 +460,67 @@ export function extractStylesAndBody(rawCode: string): {
   }
 
   return { headCss, headLinks, bodyHtml };
+}
+
+/**
+ * A section's markup, ready to inject into a canvas.
+ *
+ * **This is the only correct way to render a section into a shared document,**
+ * and it exists because there used to be two.
+ *
+ * The published site and the preview called `extractStylesAndBody` and rendered
+ * `bodyHtml` — the markup with its `<style>` and `<link>` tags lifted out —
+ * because `useSectionRuntime` has already taken that CSS, fenced it to this
+ * section's id and put it in the one runtime stylesheet.
+ *
+ * The editor had its own, weaker stripper that removed the document wrapper and
+ * **left every `<style>` block in the markup** — and, when the section was a
+ * full document, explicitly copied the contents of `<head>` back in. So in the
+ * editor each section's CSS was injected twice: once fenced, and once
+ * unfenced into the whole page.
+ *
+ * The unfenced copy is the bug people actually saw. A section whose stylesheet
+ * says `h2 { color: #e11d48 }` or `.container { padding: 0 }` restyled *every
+ * other section on the page*, and with several sections open the last one in
+ * the DOM won every conflict — so sections appeared to lose their own styling
+ * for no reason, and the editor disagreed with the live site it is supposed to
+ * be showing. Fencing was working perfectly; a second, unfenced copy was
+ * defeating it.
+ *
+ * One function now, called by the editor and by the site, so the two cannot
+ * drift apart again.
+ */
+export function sectionCanvasHtml(rawCode: string): string {
+  const { bodyHtml } = extractStylesAndBody(rawCode || "");
+  return `<div class="section-canvas-box">${bodyHtml}</div>`;
+}
+
+/**
+ * A section's stored code, rebuilt after its markup was edited on the canvas.
+ *
+ * The inverse of `sectionCanvasHtml`, and the reason that function can safely
+ * strip a section's CSS out of the canvas at all.
+ *
+ * Inline text editing captures an edit by reading the section's markup back out
+ * of the live DOM. The canvas deliberately holds no `<style>` or `<link>` — the
+ * runtime lifted them out and fenced them — so what comes back is body markup
+ * and nothing else. Saving that verbatim would delete the section's entire
+ * stylesheet the first time somebody corrected a typo.
+ *
+ * So the head is taken from the section as stored and the body from the canvas.
+ * The result is normalised — several `<style>` blocks become one, and the stale
+ * `data-xite-auto-responsive` fork is dropped, both by `extractStylesAndBody` —
+ * which is the same normalisation every other read of a section already applies.
+ */
+export function recomposeSectionCode(originalCode: string, newBodyHtml: string): string {
+  const { headCss, headLinks } = extractStylesAndBody(originalCode || "");
+
+  const parts: string[] = [];
+  if (headLinks.trim()) parts.push(headLinks.trim());
+  if (headCss.trim()) parts.push(`<style>\n${headCss.trim()}\n</style>`);
+  parts.push((newBodyHtml || "").trim());
+
+  return parts.filter(Boolean).join("\n");
 }
 
 /**
