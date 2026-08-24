@@ -294,12 +294,76 @@ Recorded because "we checked and it was fine" is part of the answer.
 
 ---
 
+## 11. Four more, found by testing every endpoint
+
+Added `npm run test:api` in xite-B — 76 checks against a booted server and an
+in-memory MongoDB, so it touches nothing real and needs no credentials. It
+covers the layer neither existing suite did: that each route is reachable at
+the path the clients use, that its guard is the one intended, and that failures
+come back in the shape the frontends parse.
+
+It found four things.
+
+**Admin login charged the limiter for successful sign-ins.**
+`handleAdminLogin` called `rateLimit()`, which *records* an attempt as a side
+effect, before doing any work. Every sign-in was charged, including correct
+ones — so five successful logins in a quarter hour locked the administrator out
+of an account they had just proved they owned. Keyed on the address rather than
+the account, so one person doing that shut out everyone behind the same office
+IP. This is the exact bug `isRateLimited` was split out to fix for college
+sign-in; admin login was left on the old path. It checks without charging now,
+charges in the `catch`, and only for a 400/401 — a database outage no longer
+spends the operator's five attempts.
+
+**`GET /admin/templates/stats` had a decorative guard.** `requireAdmin` threw
+for an anonymous caller and the `catch` answered every failure — that one
+included — with 200 and a payload of zeros. The endpoint never returned 401 in
+its life, and the panel could not tell "signed out" from "library is empty".
+
+**`getTemplateForAdmin` answered confidently when it did not know.** It
+fabricated a template on a miss — synthetic row, title derived from the id,
+`isPublished: true`, `createdAt` now — so a stale bookmark opened an editor on
+a plausible blank section the admin could then save. And before giving up it
+guessed by name (`row.name.includes(id) || id.includes(row.id)`), so
+`GET /templates/hero` returned whichever template had "hero" in its name, while
+the PATCH beside it resolves by exact id. Open one template, save to another.
+Exact match or `NotFound` now.
+
+**The section library re-judged admin content by the tenant rule.** A
+regression introduced with `getSectionLibrary`: it called `sanitizeSectionHtml`,
+the policy for markup a *tenant* submits, which discards `<script>`. Applied to
+admin-authored templates it stripped the scripts `sanitizeTemplateCode`
+deliberately allows, so every hamburger menu and carousel would have arrived at
+the editor dead. Caught before anyone met it.
+
+`sanitize-policies.test.ts` pins both halves of that boundary, including the
+consequence worth keeping in view: **a template's script survives in the library
+and does not survive `PUT /api/v1/my-website`**, because tenant markup renders
+on the platform apex. Stated as a fact so nobody makes one side agree with the
+other without deciding which policy they meant.
+
+---
+
+## 12. The recovery tool overrode the machine's DNS resolver
+
+`scripts/admin.mjs` carried a copy of the `dns.setServers(["8.8.8.8",
+"1.1.1.1"])` call removed from `src/config/db.ts` in finding 08.
+
+It matters more there than it did in the service. This is the tool an operator
+reaches for when they cannot sign in, so it runs on laptops, on VPNs and behind
+corporate or split-horizon resolvers — exactly where replacing the system
+resolver with a public one makes the cluster *less* reachable. A recovery tool
+that fails to resolve is worse than no recovery tool. Behind `DNS_SERVERS` now.
+
+---
+
 ## Verification
 
 | Check | Scope | Result |
 | :--- | :--- | :--- |
 | Unit tests | xite-admin | 12 passed — the first tests in this repo |
-| Unit tests | xite-B | 129 passed |
+| Unit tests | xite-B | 138 passed |
+| **API end-to-end** | xite-B | **76 checks passed** against a booted server + in-memory MongoDB |
 | `tsc --noEmit` | all three repos | 0 errors |
 | Production build | all three repos | pass |
 | OpenAPI + shared-file gates | xite-B | both green |
