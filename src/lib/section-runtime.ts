@@ -147,6 +147,90 @@ export const SECTION_RUNTIME_HEAD_LINKS: string = [
 ].join("\n  ");
 
 /**
+ * Every inherited CSS property.
+ *
+ * These are the only properties that can reach a section from an ancestor, so
+ * this list is the complete boundary between the host document and the canvas.
+ * Resetting all of them is the difference between containment and a running
+ * list of symptoms — see `hostReset` in `sectionRuntimeCss`.
+ *
+ * Taken from the CSS specifications' "Inherited: yes" entries. Kept as data so
+ * the rule that uses it stays one line, and so adding a property is adding a
+ * string rather than editing a template literal.
+ */
+const INHERITED_PROPERTIES = [
+  // Text and font
+  "color",
+  "font",
+  "font-family",
+  "font-size",
+  "font-style",
+  "font-variant",
+  "font-weight",
+  "font-stretch",
+  "font-feature-settings",
+  "font-variation-settings",
+  "font-kerning",
+  "font-optical-sizing",
+  "line-height",
+  "letter-spacing",
+  "word-spacing",
+  "text-align",
+  "text-align-last",
+  "text-indent",
+  "text-transform",
+  "text-shadow",
+  "text-rendering",
+  "text-underline-position",
+  "text-underline-offset",
+  "text-decoration-color",
+  "text-decoration-style",
+  "text-decoration-thickness",
+  "text-emphasis",
+  "-webkit-font-smoothing",
+  "-moz-osx-font-smoothing",
+  "-webkit-text-size-adjust",
+  "-webkit-text-stroke",
+  "-webkit-tap-highlight-color",
+  "font-synthesis",
+  "hyphens",
+  "tab-size",
+  "white-space",
+  "word-break",
+  "overflow-wrap",
+  "line-break",
+  "quotes",
+  "hanging-punctuation",
+  // Writing mode and direction
+  "direction",
+  "writing-mode",
+  "text-orientation",
+  "text-combine-upright",
+  "unicode-bidi",
+  // Lists
+  "list-style",
+  "list-style-type",
+  "list-style-position",
+  "list-style-image",
+  // Tables
+  "border-collapse",
+  "border-spacing",
+  "caption-side",
+  "empty-cells",
+  // Interaction and rendering
+  "cursor",
+  "visibility",
+  "pointer-events",
+  "image-rendering",
+  "color-scheme",
+  "caret-color",
+  "accent-color",
+  "scrollbar-color",
+  "scrollbar-width",
+  "print-color-adjust",
+] as const;
+
+/**
  * The base stylesheet every section renders against.
  *
  * @param scope  A selector for the element that plays the part of `<body>` when
@@ -182,16 +266,73 @@ export function sectionRuntimeCss(
     : "*, ::before, ::after";
   const sel = (selector: string) => (at ? `${at} ${selector}` : selector);
 
-  // Inline, the canvas inherits from a page that has opinions the iframe does not:
-  // `globals.css` antialiases text, asks for `optimizeLegibility`, and hides every
-  // scrollbar in the app. All three are inherited or universal, so they reach into
-  // section markup and change how it renders. The canvas starts from the browser's
-  // defaults instead — which is where the iframe starts.
+  /**
+   * The containment layer: everything the host document must not be able to say
+   * about a section.
+   *
+   * ── Why this is a list and not three properties ───────────────────────────
+   *
+   * A section is authored against the Admin's iframe, which inherits nothing,
+   * and ships into the application's document, which inherits a great deal:
+   * `<html class="dark bg-black text-white font-sans antialiased scroll-smooth">`,
+   * a `globals.css` that sets font smoothing and text rendering on `body` and
+   * hides every scrollbar on `*`, and — because `globals.css` does
+   * `@import "tailwindcss"` while sections are compiled by the Tailwind Play
+   * CDN — *two* preflights from two different Tailwind majors.
+   *
+   * The same HTML therefore renders one way where it was designed and another
+   * way where it ships, for reasons no one authoring a section can see.
+   *
+   * This used to undo exactly three properties, named after the three symptoms
+   * somebody had chased down. That is a list that grows one incident at a time,
+   * and it is silently wrong the moment anyone adds a global style to the app.
+   *
+   * ── What it does instead ──────────────────────────────────────────────────
+   *
+   * Every *inherited* CSS property is reset on the canvas to the value it would
+   * have in a bare document. Inherited properties are the only ones that can
+   * cross into section markup from an ancestor, so resetting them at the canvas
+   * boundary is complete rather than anecdotal: whatever the app sets on `html`
+   * or `body`, a section starts from the same place the iframe starts from.
+   *
+   * `revert` is the mechanism — it rolls a property back to the user-agent
+   * value, which is precisely "what the iframe would have done".
+   *
+   * ── And the preflights ────────────────────────────────────────────────────
+   *
+   * A reset on the canvas cannot undo a preflight, because preflight rules
+   * target the elements themselves (`h1`, `ul`, `img`) rather than being
+   * inherited. So the base rules a section is entitled to assume are restated
+   * for the elements the two Tailwind majors disagree about. `:where()` keeps
+   * them at zero specificity, so a section's own CSS — and its Tailwind classes
+   * — still win.
+   *
+   * Only in the scoped case. In the iframe there is no host to contain.
+   */
   const hostReset = at
     ? `
-${at} { -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto; text-rendering: auto; }
+/* Inherited properties, back to the user-agent values. */
+${at} {
+  ${INHERITED_PROPERTIES.map((property) => `${property}: revert;`).join("\n  ")}
+}
+
+/* Scrollbars: globals.css hides every one in the app, with a rule on *. */
 ${at}, ${at} * { scrollbar-width: auto; -ms-overflow-style: auto; }
 ${at} ::-webkit-scrollbar { display: revert; width: revert; height: revert; }
+
+/* The base styles two Tailwind preflights disagree about, restated at zero
+   specificity so a section's own CSS and its utility classes still win. */
+${at} :where(h1, h2, h3, h4, h5, h6) { font-size: revert; font-weight: revert; margin: revert; }
+${at} :where(ul, ol) { list-style: revert; margin: revert; padding: revert; }
+${at} :where(p, blockquote, figure, dl, dd, pre) { margin: revert; }
+${at} :where(b, strong) { font-weight: revert; }
+${at} :where(em, i) { font-style: revert; }
+${at} :where(small) { font-size: revert; }
+${at} :where(hr) { border: revert; height: revert; color: revert; }
+${at} :where(table) { border-collapse: revert; }
+${at} :where(button, input, select, textarea) { font: revert; color: revert; letter-spacing: revert; }
+${at} :where(button) { cursor: revert; background-color: revert; }
+${at} :where(img, svg, video, canvas, audio, iframe, embed, object) { display: revert; vertical-align: revert; }
 `
     : "";
 

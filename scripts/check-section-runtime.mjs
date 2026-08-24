@@ -17,7 +17,13 @@
 import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 
-const FILE = "src/lib/section-runtime.ts";
+const FILES = [
+  // The environment every section is authored against and rendered into.
+  "src/lib/section-runtime.ts",
+  // What category a section is. A fourth, divergent copy of this list is what
+  // made every CTA template invisible in the editor and unswappable.
+  "src/lib/sections/categories.ts",
+];
 const MANIFEST = "shared-files.lock.json";
 
 /** Line endings differ between checkouts on Windows; content does not. */
@@ -27,9 +33,11 @@ const digest = (path) =>
     .digest("hex")
     .slice(0, 16);
 
-if (!existsSync(FILE)) {
-  console.error(`[shared] ${FILE} is missing.`);
-  process.exit(1);
+for (const file of FILES) {
+  if (!existsSync(file)) {
+    console.error(`[shared] ${file} is missing.`);
+    process.exit(1);
+  }
 }
 
 if (!existsSync(MANIFEST)) {
@@ -39,19 +47,23 @@ if (!existsSync(MANIFEST)) {
   process.exit(1);
 }
 
-const expected = JSON.parse(readFileSync(MANIFEST, "utf8"))[FILE];
-const actual = digest(FILE);
+const manifest = JSON.parse(readFileSync(MANIFEST, "utf8"));
+const drifted = FILES.filter((file) => manifest[file] !== digest(file));
 
-if (expected !== actual) {
+if (drifted.length > 0) {
+  console.error("\n[shared] These no longer match xite-F:\n");
+  for (const file of drifted) {
+    console.error(
+      `  ${file}\n    manifest ${manifest[file] ?? "(absent)"} · here ${digest(file)}`,
+    );
+  }
   console.error(
-    `\n[shared] ${FILE} no longer matches xite-F.\n` +
-      `    manifest ${expected ?? "(absent)"} · here ${actual}\n\n` +
-      "  Sections will render differently in the Admin preview than they do in\n" +
-      "  the editor and on the live site. Copy the change across all three repos,\n" +
-      "  run `node scripts/check-shared-files.mjs --update` in xite-F, and copy\n" +
-      "  the regenerated manifest here.\n",
+    "\n  Sections will render, or be categorised, differently here than in the\n" +
+      "  editor and on the live site. Copy the change across all three repos, run\n" +
+      "  `node scripts/check-shared-files.mjs --update` in xite-F, and copy the\n" +
+      "  regenerated manifest here.\n",
   );
   process.exit(1);
 }
 
-console.log(`[shared] ${FILE} matches xite-F.`);
+console.log(`[shared] ${FILES.length} shared files match xite-F.`);

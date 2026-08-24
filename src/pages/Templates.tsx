@@ -23,6 +23,7 @@ import type { StatTone } from "@/components/StatTile";
 import { ModalDialog } from "@/components/ModalDialog";
 import type { ModalDialogState } from "@/components/ModalDialog";
 import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
+import { resolveCategory } from "@/lib/sections/categories";
 
 const STUDIO_PALETTES = [
   {
@@ -861,25 +862,31 @@ export function Templates() {
               </p>
             </div>
             <span className="text-xs font-bold text-chalk-dim font-mono">
-              19 Supported Categories
+              {SECTION_CATEGORIES_GRID.length} Supported Categories
             </span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {SECTION_CATEGORIES_GRID.map((cat) => {
-              const matchingSections = (templates || []).filter((tpl) => {
-                const nameLower = (tpl.name || "").toLowerCase();
-                const catLower = (tpl.category || "").toLowerCase();
-                return (
-                  catLower === cat.id.toLowerCase() ||
-                  (cat.id === "header" && (catLower === "navbar" || nameLower.includes("nav"))) ||
-                  (cat.id === "navbar" && (catLower === "header" || nameLower.includes("header"))) ||
-                  (cat.id === "cta" && (catLower === "call" || catLower === "call_to_action" || nameLower.includes("call") || nameLower.includes("cta"))) ||
-                  nameLower.includes(`[${cat.id}]`) ||
-                  nameLower.includes(cat.id.toLowerCase()) ||
-                  nameLower.includes(cat.name.toLowerCase())
-                );
-              });
+              /**
+               * Which templates belong to this category — decided by the one
+               * resolver the whole platform uses.
+               *
+               * This was a ladder of six string tests with hand-written special
+               * cases for `header`/`navbar` and `cta`, and it was the fourth
+               * place in the codebase that decided what category a template is.
+               * Four answers meant a template could count towards a card here
+               * and be invisible in the editor's picker, which is precisely how
+               * the CTA problem stayed hidden.
+               */
+              const matchingSections = (templates || []).filter(
+                (tpl) =>
+                  resolveCategory({
+                    category: tpl.category ?? null,
+                    name: tpl.name ?? null,
+                    code: tpl.code ?? null,
+                  }) === cat.id,
+              );
 
               const count = matchingSections.length;
               const isLive = count > 0;

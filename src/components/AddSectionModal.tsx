@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { X, ArrowRight, Layout, Info, GraduationCap, Users, Calendar, Mail, Briefcase, Award } from "lucide-react";
+import { X, ArrowRight, Layout, Info, GraduationCap, Users, Calendar, Mail, Briefcase, Award, Megaphone } from "lucide-react";
 import { AddSectionButton } from "@/components/AddSectionButton";
+import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
+import type { SectionCategoryId } from "@/lib/sections/categories";
 
 interface AddSectionModalProps {
   isOpen: boolean;
@@ -8,11 +10,43 @@ interface AddSectionModalProps {
   onSelectSectionType: (type: { id: string; name: string; description: string }) => void;
 }
 
-import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
+/**
+ * One icon per category, keyed by the canonical id.
+ *
+ * A lookup rather than the nested ternary this replaces, which compared against
+ * `admission` and `awards` — ids the platform does not use. Those two branches
+ * had been dead since the aliases were introduced, and nothing said so until the
+ * ids became a union type.
+ *
+ * `Record<SectionCategoryId, ...>` is the point: a category added to the shared
+ * list without an icon here fails the build.
+ */
+const ICON_FOR_CATEGORY: Record<SectionCategoryId, typeof Layout> = {
+  navbar: Layout,
+  hero: Layout,
+  cta: Megaphone,
+  highlights: Award,
+  about: Info,
+  vision: Info,
+  courses: GraduationCap,
+  departments: GraduationCap,
+  admissions: GraduationCap,
+  placements: Briefcase,
+  facilities: Layout,
+  research: Layout,
+  news: Calendar,
+  events: Calendar,
+  gallery: Layout,
+  testimonials: Users,
+  achievements: Award,
+  contact: Mail,
+  map: Mail,
+  footer: Layout,
+};
 
 export const SECTION_TYPES_LIST = PLATFORM_SECTION_CATEGORIES.map((cat) => ({
   ...cat,
-  icon: cat.id === "about" || cat.id === "vision" ? Info : cat.id === "courses" || cat.id === "departments" || cat.id === "admission" ? GraduationCap : cat.id === "placements" ? Briefcase : cat.id === "testimonials" ? Users : cat.id === "highlights" || cat.id === "awards" ? Award : cat.id === "news" || cat.id === "events" ? Calendar : cat.id === "contact" || cat.id === "map" ? Mail : Layout,
+  icon: ICON_FOR_CATEGORY[cat.id] ?? Layout,
 }));
 
 export function AddSectionModal({
