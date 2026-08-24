@@ -153,7 +153,26 @@ export const SECTION_RUNTIME_HEAD_LINKS: string = [
  *               sections are rendered inline in a page, or `null` for a document
  *               of their own (the Admin iframe), where `html, body` is the subject.
  */
-export function sectionRuntimeCss(scope: string | null): string {
+export function sectionRuntimeCss(
+  scope: string | null,
+  options: { fillViewport?: boolean } = {},
+): string {
+  /**
+   * Whether the canvas should be at least a screenful tall.
+   *
+   * True for a published site and for the Admin's preview iframe: a short page
+   * should end in the site's own background rather than in a strip of whatever
+   * is behind it.
+   *
+   * False for the editor, where it is actively wrong. The editor's canvas sits
+   * on the studio's own white surface, so reserving height paints a band of the
+   * *site's* background below the last section — a dark rectangle with nothing
+   * in it, which reads as a section that failed to load rather than as the end
+   * of the page. Defaults to true so the two surfaces that want it keep it
+   * without opting in.
+   */
+  const fillViewport = options.fillViewport ?? true;
+
   // `:where()` keeps the scope weightless, so a scoped rule and its document-level
   // twin lose and win exactly the same cascade fights.
   const at = scope ? `:where(${scope})` : null;
@@ -178,7 +197,7 @@ ${at} ::-webkit-scrollbar { display: revert; width: revert; height: revert; }
 
   return `
 ${universal} { box-sizing: border-box; }${hostReset}
-${root} { margin: 0; padding: 0; background-color: var(--xite-surface, #09090b); color: var(--xite-text, #ffffff); font-family: var(--xite-font, "Inter", system-ui, sans-serif); width: 100%; min-height: 100%; }
+${root} { margin: 0; padding: 0; background-color: var(--xite-surface, #09090b); color: var(--xite-text, #ffffff); font-family: var(--xite-font, "Inter", system-ui, sans-serif); width: 100%;${fillViewport ? " min-height: 100%;" : ""} }
 
 /* The box every section is measured against. On the canvas rather than on the
    root element: containment on <html> would make it the containing block for
