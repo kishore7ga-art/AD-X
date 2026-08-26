@@ -132,10 +132,19 @@ export function sectionDeviceGroupOf(width: string): SectionDevicePreset["group"
   return SECTION_DEVICE_PRESETS.find((preset) => preset.width === width)?.group ?? null;
 }
 
-/** Stylesheets the environment loads, in order. */
+/**
+ * Stylesheets the environment loads, in order.
+ *
+ * The weight ranges are the full ones the two families ship — 100 to 900 —
+ * rather than the 300-and-up they used to be. A section authored with
+ * `font-weight: 100` or `200` had no font file to render in, so the browser
+ * either synthesised a thin face or quietly used the nearest weight it had;
+ * either way the author's setting appeared not to work. Both are variable
+ * fonts, so the wider axis is the same file and the same request.
+ */
 export const SECTION_RUNTIME_STYLESHEET_HREFS: readonly string[] = [
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
-  "https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&family=Outfit:wght@400..900&display=swap",
+  "https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap",
 ];
 
 /** The same stylesheets as markup, for the iframe document. */
@@ -143,7 +152,7 @@ export const SECTION_RUNTIME_HEAD_LINKS: string = [
   '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>',
   '<link rel="preconnect" href="https://fonts.googleapis.com">',
   '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-  '<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&family=Outfit:wght@400..900&display=swap" rel="stylesheet">',
+  '<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">',
 ].join("\n  ");
 
 /**
