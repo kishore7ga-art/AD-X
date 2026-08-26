@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Shell } from "@/components/Shell";
 import { api } from "@/api/client";
 import { ModalDialog } from "@/components/ModalDialog";
+import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
 import { AddSectionButton } from "@/components/AddSectionButton";
 import type { ModalDialogState } from "@/components/ModalDialog";
 import {
@@ -44,28 +45,51 @@ export type LibraryVariant = {
   isActive: boolean;
 };
 
-const SECTION_CATEGORIES = [
-  { id: "navbar", name: "Navbar / Header", bg: "bg-blue-50 text-blue-600 border-blue-200" },
-  { id: "hero", name: "Hero Banner", bg: "bg-purple-50 text-purple-600 border-purple-200" },
-  { id: "cta", name: "Call to Action (CTA) / Call", bg: "bg-emerald-50 text-emerald-600 border-emerald-200" },
-  { id: "highlights", name: "College Highlights / Stats", bg: "bg-amber-50 text-amber-600 border-amber-200" },
-  { id: "about", name: "About College", bg: "bg-amber-50 text-amber-600 border-amber-200" },
-  { id: "vision", name: "Vision & Mission Statement", bg: "bg-indigo-50 text-indigo-600 border-indigo-200" },
-  { id: "courses", name: "Courses / Programs Offered", bg: "bg-emerald-50 text-emerald-600 border-emerald-200" },
-  { id: "departments", name: "Academic Departments", bg: "bg-amber-50 text-amber-600 border-amber-200" },
-  { id: "admissions", name: "Admission Section", bg: "bg-violet-50 text-violet-600 border-violet-200" },
-  { id: "placements", name: "Placement & Top Recruiters", bg: "bg-orange-50 text-orange-600 border-orange-200" },
-  { id: "facilities", name: "Campus Facilities / Infrastructure", bg: "bg-orange-50 text-orange-600 border-orange-200" },
-  { id: "research", name: "Research & Innovation Labs", bg: "bg-pink-50 text-pink-600 border-pink-200" },
-  { id: "news", name: "News & Announcement Circulars", bg: "bg-lime-50 text-lime-600 border-lime-200" },
-  { id: "events", name: "Upcoming Campus Events", bg: "bg-fuchsia-50 text-fuchsia-600 border-fuchsia-200" },
-  { id: "gallery", name: "Gallery / Campus Life", bg: "bg-rose-50 text-rose-600 border-rose-200" },
-  { id: "testimonials", name: "Student Testimonials / Alumni", bg: "bg-yellow-50 text-yellow-600 border-yellow-200" },
-  { id: "achievements", name: "Achievements & Awards", bg: "bg-emerald-50 text-emerald-600 border-emerald-200" },
-  { id: "contact", name: "Contact / Inquiry Form", bg: "bg-blue-50 text-blue-600 border-blue-200" },
-  { id: "map", name: "Map & Location", bg: "bg-purple-50 text-purple-600 border-purple-200" },
-  { id: "footer", name: "Footer", bg: "bg-night text-chalk-dim border-night-line" },
-];
+/**
+ * The badge colour each category is drawn in.
+ *
+ * Colours only. This screen used to declare the whole list again — a fourth
+ * copy of the twenty ids, beside `constants/categories.ts`, the shared
+ * `lib/sections/categories.ts` and the editor's own — and a fourth copy is a
+ * fourth chance to drift. The last time these lists disagreed, `cta` was spelt
+ * differently in one of them and every Call to Action template an admin
+ * published was invisible in the editor and could never be swapped, with
+ * nothing anywhere reporting it.
+ *
+ * Names and order come from the shared list now, so a category added there
+ * appears here; a category with no colour listed falls back to the neutral
+ * badge rather than being dropped from the dropdown.
+ */
+const CATEGORY_BADGE: Record<string, string> = {
+  navbar: "bg-blue-50 text-blue-600 border-blue-200",
+  hero: "bg-purple-50 text-purple-600 border-purple-200",
+  cta: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  highlights: "bg-amber-50 text-amber-600 border-amber-200",
+  about: "bg-amber-50 text-amber-600 border-amber-200",
+  vision: "bg-indigo-50 text-indigo-600 border-indigo-200",
+  courses: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  departments: "bg-amber-50 text-amber-600 border-amber-200",
+  admissions: "bg-violet-50 text-violet-600 border-violet-200",
+  placements: "bg-orange-50 text-orange-600 border-orange-200",
+  facilities: "bg-orange-50 text-orange-600 border-orange-200",
+  research: "bg-pink-50 text-pink-600 border-pink-200",
+  news: "bg-lime-50 text-lime-600 border-lime-200",
+  events: "bg-fuchsia-50 text-fuchsia-600 border-fuchsia-200",
+  gallery: "bg-rose-50 text-rose-600 border-rose-200",
+  testimonials: "bg-yellow-50 text-yellow-600 border-yellow-200",
+  achievements: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  contact: "bg-blue-50 text-blue-600 border-blue-200",
+  map: "bg-purple-50 text-purple-600 border-purple-200",
+  footer: "bg-night text-chalk-dim border-night-line",
+};
+
+const NEUTRAL_BADGE = "bg-night text-chalk-dim border-night-line";
+
+const SECTION_CATEGORIES = PLATFORM_SECTION_CATEGORIES.map((category) => ({
+  id: category.id,
+  name: category.name,
+  bg: CATEGORY_BADGE[category.id] ?? NEUTRAL_BADGE,
+}));
 
 const PRESET_SECTION_TEMPLATES = [
   {
@@ -726,9 +750,8 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   }
 
   function getCategoryStyle(type?: string) {
-    if (!type || typeof type !== "string") return "bg-night text-chalk-dim border-night-line";
-    const cat = SECTION_CATEGORIES.find((c) => c.id === type.toLowerCase());
-    return cat?.bg || "bg-night text-chalk-dim border-night-line";
+    if (!type || typeof type !== "string") return NEUTRAL_BADGE;
+    return CATEGORY_BADGE[type.toLowerCase()] ?? NEUTRAL_BADGE;
   }
 
   return (
