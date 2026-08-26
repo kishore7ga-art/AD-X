@@ -596,6 +596,27 @@ export function extractStylesAndBody(rawCode: string): {
     return linkTag;
   });
 
+  /**
+   * Document-level metadata, dropped wherever it appears.
+   *
+   * A section is a fragment of a page, and `<title>`, `<meta>` and `<base>`
+   * describe the whole page. Sections in the library carry them anyway (most
+   * were authored as standalone HTML files), and the wrapper strip below only
+   * removes the ones that happen to sit inside a `<head>`. One that does not
+   * survives into the canvas, where the browser hoists it: a header section
+   * shipping `<title>Seoul National University Header</title>` puts that
+   * string into the document beside the tenant's own page title, which is the
+   * one field the whole SEO chain exists to get right. `<base>` is worse than
+   * cosmetic: it silently repoints every relative URL on the page.
+   *
+   * Before the `<body>` extraction, so it catches them inside a document
+   * wrapper and outside one alike.
+   */
+  code = code
+    .replace(/<title\b[^>]*>[\s\S]*?<\/title\s*>/gi, "")
+    .replace(/<meta\b[^>]*>/gi, "")
+    .replace(/<base\b[^>]*>/gi, "");
+
   // Extract content inside <body>...</body> if present.
   //
   // Every tag name below carries a `\b`, which is not decoration: `<head[\s\S]*?>`
