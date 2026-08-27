@@ -35,6 +35,16 @@ export type DefaultWebsitePage = {
 
 export type DefaultWebsiteConfig = {
   pages: DefaultWebsitePage[];
+  /**
+   * How many times the server has written this config.
+   *
+   * Read with the config and sent back with every save. The API refuses a save
+   * whose version has been overtaken, which is what stops a tab left open since
+   * before someone else's change from writing its stale copy back over the top
+   * — the failure that put `/home` back to six sections after it had been
+   * filled to twenty.
+   */
+  version?: number;
 };
 
 export type LibraryVariant = {
@@ -647,7 +657,11 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     }
 
     try {
-      const updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", newConfig);
+      const updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", {
+        ...newConfig,
+        // The version this screen was built from. See DefaultWebsiteConfig.
+        version: newConfig.version ?? config?.version,
+      });
       if (!updated || !Array.isArray(updated.pages) || updated.pages.length === 0) {
         throw new Error("the server returned no pages");
       }
@@ -658,6 +672,28 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         text: `Saved — ${boxes} section boxes across ${updated.pages.length} pages, live for new colleges.`,
       });
     } catch (err) {
+      /**
+       * A refusal, not a failure.
+       *
+       * The server rejects a save built on a version it has moved past. That is
+       * the whole point of the version, so this reloads rather than offering a
+       * retry that would re-send the same stale copy: the operator sees what is
+       * actually stored, and the local copy is still on the recovery banner if
+       * their version was the one worth keeping.
+       */
+      const status = (err as { status?: number } | null)?.status;
+      if (status === 409) {
+        setSaving(false);
+        // Before the message, not after: `loadConfig` clears the status line on
+        // entry, so setting it first would show it for the length of a fetch.
+        await loadConfig();
+        setStatusMsg({
+          type: "error",
+          text: `NOT saved — ${err instanceof Error ? err.message : "the default website changed elsewhere."} What the server has is now on screen; your version is offered above if you want it instead.`,
+        });
+        return;
+      }
+
       setStatusMsg({
         type: "error",
         text: `NOT saved: ${err instanceof Error ? err.message : "the request failed"}. Reload the page to see what the server actually has.`,
