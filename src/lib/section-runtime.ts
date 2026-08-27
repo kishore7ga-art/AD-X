@@ -330,7 +330,21 @@ ${at}, ${at} * { scrollbar-width: auto; -ms-overflow-style: auto; }
 ${at} ::-webkit-scrollbar { display: revert; width: revert; height: revert; }
 
 /* The base styles two Tailwind preflights disagree about, restated at zero
-   specificity so a section's own CSS and its utility classes still win. */
+   specificity so a section's own CSS and its utility classes still win.
+
+   The universal rule first, and it is not redundant. Tailwind 4 — the app's
+   own build — zeroes margin and padding on *every* element, with one rule on
+   the universal selector. Tailwind 3, which is what compiles sections, does
+   not: it zeroes them element by element (h1-h6, p, ul, blockquote, figure)
+   and leaves everything else at the user-agent value. So an element on
+   neither of v3's lists — an option, a td, a fieldset, a legend — keeps its
+   browser padding in the Admin's iframe and loses it in the editor, and no
+   rule named after an element could have covered all of them.
+
+   revert here returns to the user-agent value; v3's preflight then sets its
+   own on the elements it covers, because an element selector outranks
+   :where(). Which is exactly the Admin's cascade, reproduced. */
+${at} :where(*), ${at} :where(*)::before, ${at} :where(*)::after { margin: revert; padding: revert; }
 ${at} :where(h1, h2, h3, h4, h5, h6) { font-size: revert; font-weight: revert; margin: revert; }
 ${at} :where(ul, ol) { list-style: revert; margin: revert; padding: revert; }
 ${at} :where(p, blockquote, figure, dl, dd, pre) { margin: revert; }
@@ -682,7 +696,10 @@ export function extractStylesAndBody(rawCode: string): {
  */
 export function sectionCanvasHtml(rawCode: string): string {
   const { bodyHtml } = extractStylesAndBody(rawCode || "");
-  return `<div class="section-canvas-box">${bodyHtml}</div>`;
+  // Inline `style="width: 40vw"` needs the same substitution the section's
+  // stylesheet gets, or half of a section is container-relative and half of it
+  // is window-relative. `recomposeSectionCode` puts it back on the way out.
+  return `<div class="section-canvas-box">${mapInlineStyles(bodyHtml, viewportUnitsToContainer)}</div>`;
 }
 
 /**
@@ -708,7 +725,9 @@ export function recomposeSectionCode(originalCode: string, newBodyHtml: string):
   const parts: string[] = [];
   if (headLinks.trim()) parts.push(headLinks.trim());
   if (headCss.trim()) parts.push(`<style>\n${headCss.trim()}\n</style>`);
-  parts.push((newBodyHtml || "").trim());
+  // The canvas renders `vw` as `cqw`; what is stored is what the author wrote.
+  // Idempotent, so it costs nothing on markup that never held one.
+  parts.push(mapInlineStyles((newBodyHtml || "").trim(), containerUnitsToViewport));
 
   return parts.filter(Boolean).join("\n");
 }
@@ -744,6 +763,145 @@ export function viewportMediaToContainer(css: string): string {
 
     return `@container ${SECTION_CONTAINER_NAME} ${clauses.join(" and ")} {`;
   });
+}
+
+/**
+ * One `@import`, and the reason it is not a one-line regex.
+ *
+ * The rule this replaced was
+ *
+ *     /@import\s+(?:url\(\s*)?["']?([^"')\s;]+)["']?\s*\)?[^;]*;/
+ *
+ * whose href stops at the first `;`. Google Fonts puts semicolons **inside the
+ * URL** — `family=EB+Garamond:ital,wght@0,600;0,700;1,400` is the ordinary
+ * shape of a multi-weight request — so the match ended mid-URL and left the
+ * tail of it sitting at the top of the stylesheet:
+ *
+ *     0,700;1,400&family=Open+Sans:wght@700;800&display=swap');
+ *     .penn-header { position: relative; z-index: 9999; ... }
+ *
+ * A CSS parser meeting that skips to the end of the next block to resynchronise
+ * — so **the section's first rule was eaten as well**. Two failures from one
+ * regex, both silent: the section rendered in a fallback font *and* lost
+ * whatever its opening rule said. On the platform's own default header that was
+ * `position: relative; z-index: 9999`, which is what keeps a sticky navbar
+ * above the section under it.
+ *
+ * The alternation closes the URL on its own delimiter — a quote or the closing
+ * paren — rather than on the first `;` it meets.
+ */
+const IMPORT_RULE =
+  /@import\s+(?:url\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*?))\s*\)|"([^"]*)"|'([^']*)')[^;]*;/gi;
+
+/**
+ * A section's `@import`s, lifted out of its CSS and returned as hrefs.
+ *
+ * Every surface has to do this, for two different reasons that happen to have
+ * the same answer.
+ *
+ * Inline — the editor and the published site — `@import` cannot survive at all:
+ * `CSSStyleSheet.replaceSync()`, which the fencing pass uses to parse and
+ * re-scope the CSS, discards `@import` outright, and the rule is only legal at
+ * the very top of a stylesheet while every section's CSS is concatenated after
+ * the runtime blocks.
+ *
+ * In the Admin's iframe it was legal and **still did nothing**, for the same
+ * positional reason: `buildSectionPreviewDocument` puts the section's CSS after
+ * `sectionRuntimeCss` inside one `<style>`, so the `@import` was no longer the
+ * first thing in the sheet and the browser ignored it. Silently — that is what
+ * ignoring an `@import` looks like. Every section importing its own webfont was
+ * previewed in a fallback: the platform's default header is authored in EB
+ * Garamond and the Admin has been showing it in Georgia.
+ *
+ * So both sides load it as a `<link>` instead, which has no position rule.
+ */
+export function extractCssImports(css: string): { css: string; hrefs: string[] } {
+  const hrefs: string[] = [];
+  const stripped = (css || "").replace(IMPORT_RULE, (_full, ...groups: unknown[]) => {
+    const href = groups.slice(0, 5).find((group): group is string => typeof group === "string");
+    const trimmed = href?.trim();
+    if (trimmed && !hrefs.includes(trimmed)) hrefs.push(trimmed);
+    return "";
+  });
+  return { css: stripped, hrefs };
+}
+
+/**
+ * Width-relative viewport units, asked about the container instead.
+ *
+ * ── The bug this is the fix for ────────────────────────────────────────────
+ *
+ * Sections in this library are full-bleed, and the way they stay full-bleed at
+ * every width is `vw`: `padding: clamp(0.75rem, 1.2vw, 1.5rem) clamp(1rem,
+ * 3.5vw, 4rem)` on a header bar, `font-size: clamp(2.3rem, 3.4vw, 4rem)` on a
+ * wordmark, `width: clamp(38px, 4vw, 56px)` on a crest. The platform's own
+ * default header uses eleven of them.
+ *
+ * `vw` is 1% of **the viewport**, and only on one of the three surfaces is the
+ * viewport the box the section actually occupies:
+ *
+ * | | the section is this wide | `100vw` is |
+ * | :--- | :--- | :--- |
+ * | Admin preview | the iframe | the iframe — *the same* |
+ * | Editor canvas | the selected width, 1440 | the studio window, 1920 |
+ * | Published site | the window | the window — *the same* |
+ *
+ * So the editor resolved every one of those against the operator's monitor.
+ * On a 1920px window showing a 1440px canvas the header's side padding came
+ * out at 64px instead of 50, the wordmark at 62px instead of 49, and the nav
+ * gaps proportionally wider — a header visibly taller and looser than the one
+ * the Admin had just shown, from markup neither side had touched. Nothing in
+ * the section is wrong, and nothing in either stylesheet disagrees; the unit
+ * simply means two different numbers in two different documents.
+ *
+ * It also made the editor's own device switcher lie: selecting Phone narrowed
+ * the canvas to 390px while `vw` went on answering 1920.
+ *
+ * ── The fix ───────────────────────────────────────────────────────────────
+ *
+ * `cqw` is 1% of the query container's inline size, and the query container is
+ * `.xite-site-canvas` — the box the section occupies, on every surface. So the
+ * author's intent ("one percent of my own width") is asked of the thing that
+ * actually has that width, which is the same substitution
+ * `viewportMediaToContainer` already makes for a section's `@media` rules and
+ * for the same reason.
+ *
+ * On a published site at full width the two are the same number, so nothing
+ * about a live page changes. In the Admin's iframe they are the same number
+ * too, give or take a scrollbar — which is why this is applied on all three
+ * surfaces rather than only on the one that was wrong. A rewrite that ran on
+ * one surface would be a second environment to keep in step.
+ *
+ * `vh`, `vmin` and `vmax` are **left alone**. There is no container-relative
+ * height unit unless the container declares `container-type: size`, which
+ * needs a height the canvas does not have — it is as tall as its sections. So
+ * `vh` still means the window, which is right on the published site and in the
+ * editor and wrong only in the Admin's fixed-height iframe. See
+ * SECTION-ARCHITECTURE.md §9.
+ */
+export function viewportUnitsToContainer(css: string): string {
+  // A number, then `vw`, and only where a unit can legally be: not inside an
+  // identifier (`--vw-scale`), not inside a word (`review`).
+  return css.replace(/(^|[^\w.-])(-?(?:\d+\.?\d*|\.\d+))vw\b/gi, "$1$2cqw");
+}
+
+/** The inverse, for markup read back out of the canvas. See `sectionCanvasHtml`. */
+export function containerUnitsToViewport(css: string): string {
+  return css.replace(/(^|[^\w.-])(-?(?:\d+\.?\d*|\.\d+))cqw\b/gi, "$1$2vw");
+}
+
+/**
+ * Applies `transform` to every inline `style="…"` attribute in `html`.
+ *
+ * Sections are authored as desktop HTML with inline styles, so a rewrite that
+ * only reached `<style>` blocks would reach about half of them.
+ */
+export function mapInlineStyles(html: string, transform: (css: string) => string): string {
+  if (!html) return html;
+  return html.replace(
+    /\sstyle\s*=\s*(["'])([\s\S]*?)\1/gi,
+    (_full, quote: string, css: string) => ` style=${quote}${transform(css)}${quote}`,
+  );
 }
 
 /**
@@ -815,7 +973,14 @@ export function buildSectionPreviewDocument(
   const code =
     rawCode ||
     `<section style="padding: 60px 24px; text-align: center;"><h2>${displayTitle}</h2></section>`;
-  const { headCss, headLinks, bodyHtml } = extractStylesAndBody(code);
+  const extracted = extractStylesAndBody(code);
+  const { headLinks, bodyHtml } = extracted;
+  // The section's own `@import`s, as `<link>`s — see `extractCssImports`. In
+  // the iframe they were legal and inert, which is the harder kind of broken.
+  const { css: headCss, hrefs } = extractCssImports(extracted.headCss);
+  const importedLinks = hrefs
+    .map((href) => `<link rel="stylesheet" href="${href}"/>`)
+    .join("\n  ");
 
   return [
     "<!DOCTYPE html>",
@@ -826,16 +991,18 @@ export function buildSectionPreviewDocument(
     `  <script src="${SECTION_RUNTIME_TAILWIND_CDN_SRC}"></script>`,
     "  " + SECTION_RUNTIME_HEAD_LINKS,
     headLinks ? "  " + headLinks : "",
+    importedLinks ? "  " + importedLinks : "",
     "  <style>",
     sectionRuntimeCss(null),
     sectionResponsiveCss(null),
     headCss
-      ? "    /* Extracted User Custom Web CSS */\n" + viewportMediaToContainer(headCss)
+      ? "    /* Extracted User Custom Web CSS */\n" +
+        viewportUnitsToContainer(viewportMediaToContainer(headCss))
       : "",
     "  </style>",
     "</head>",
     "<body>",
-    "  " + (bodyHtml || code),
+    "  " + mapInlineStyles(bodyHtml || code, viewportUnitsToContainer),
     "</body>",
     "</html>",
   ]
