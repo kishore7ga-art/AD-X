@@ -596,6 +596,75 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     }
   }
 
+  /**
+   * Bring a page — or all five — up to all twenty section categories.
+   *
+   * The composition happens on the server, not here. It reads the template
+   * library to decide what each category should be, and a browser doing that
+   * would need the twenty fallback blocks as well, which is a second copy of
+   * markup the backend already owns. So this posts an instruction and renders
+   * what comes back.
+   *
+   * Non-destructive and idempotent: a page keeps every section it already has,
+   * a leftover is kept after the twenty, and pressing it twice changes nothing.
+   * Said in the confirmation, because a button that rewrites five pages should
+   * say what it will not do.
+   */
+  const [filling, setFilling] = useState(false);
+
+  function handleFillSections(scope: "page" | "all") {
+    const targetPage = activeConfig.pages.find((p) => matchesSlug(p.slug, activeSlug));
+    const targetSlug = targetPage?.slug || activeSlug;
+
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "info",
+      title: scope === "all" ? "Add every section to all pages?" : `Add every section to ${targetPage?.title || targetSlug}?`,
+      message:
+        (scope === "all"
+          ? "All five pages will be brought up to the full set of 20 section categories, in the order a college website is read — navbar first, footer last."
+          : `${targetPage?.title || targetSlug} will be brought up to the full set of 20 section categories, in the order a college website is read — navbar first, footer last.`) +
+        "\n\nSections you have already arranged are kept exactly as they are and moved into their category's place. Anything that belongs to no category stays after the twenty. Where the Templates library has a published design for a category it is used; only the categories with no template get a built-in starter.",
+      confirmText: scope === "all" ? "Add to all pages" : "Add to this page",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        setFilling(true);
+        setStatusMsg(null);
+        try {
+          const updated = await api.post<DefaultWebsiteConfig>(
+            "/api/v1/admin/default-website/fill",
+            scope === "all" ? {} : { slugs: [targetSlug] },
+          );
+          if (updated && Array.isArray(updated.pages) && updated.pages.length > 0) {
+            setConfig(updated);
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.setItem("xite_admin_default_website", JSON.stringify(updated));
+              } catch {}
+            }
+            const filled = scope === "all" ? updated.pages : updated.pages.filter((p) => matchesSlug(p.slug, targetSlug));
+            const total = filled.reduce((sum, p) => sum + (p.sections?.length || 0), 0);
+            setStatusMsg({
+              type: "success",
+              text: `${total} section boxes across ${filled.length} page${filled.length === 1 ? "" : "s"} — saved and live for new colleges.`,
+            });
+          } else {
+            setStatusMsg({ type: "error", text: "The server returned no pages. Nothing was changed." });
+          }
+        } catch (err) {
+          setStatusMsg({
+            type: "error",
+            text: `Could not add the sections: ${err instanceof Error ? err.message : "the request failed"}. Nothing was changed.`,
+          });
+        } finally {
+          setFilling(false);
+        }
+      },
+    });
+  }
+
   async function handleSave() {
     if (!config) return;
     await persistConfig(config);
@@ -852,12 +921,38 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                   Visual layout of default section boxes for route <code className="text-chalk bg-night px-1.5 py-0.5 rounded">{activeSlug}</code>
                 </p>
               </div>
-              <AddSectionButton
-                type="button"
-                onClick={() => setAddingSection(true)}
-                label="Add Section Box"
-                size="sm"
-              />
+              {/*
+                Three actions, narrowest first.
+
+                "Add Section Box" opens the editor for one section. The two
+                beside it fill in every category the page is missing — the
+                whole-set action, which is what a new page actually needs and
+                what previously took twenty passes through the same form.
+              */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleFillSections("page")}
+                  disabled={filling || saving || loading}
+                  className="rounded-lg border border-night-line bg-white px-4 py-2.5 text-xs font-semibold text-chalk transition hover:border-chalk/25 hover:bg-night disabled:opacity-50 cursor-pointer"
+                >
+                  {filling ? "Adding…" : "Add all 20 to this page"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFillSections("all")}
+                  disabled={filling || saving || loading}
+                  className="rounded-lg border border-night-line bg-white px-4 py-2.5 text-xs font-semibold text-chalk transition hover:border-chalk/25 hover:bg-night disabled:opacity-50 cursor-pointer"
+                >
+                  {filling ? "Adding…" : "Add all 20 to every page"}
+                </button>
+                <AddSectionButton
+                  type="button"
+                  onClick={() => setAddingSection(true)}
+                  label="Add Section Box"
+                  size="sm"
+                />
+              </div>
             </div>
 
             {/* Visual Section Cards Grid (Mini-Boxes Layout) */}
