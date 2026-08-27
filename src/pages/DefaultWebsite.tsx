@@ -527,70 +527,141 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     loadConfig();
   }, []);
 
+  /**
+   * The config, from the server.
+   *
+   * The API is the only source. `localStorage` used to stand in whenever the
+   * request came back empty, and that is how a stale copy from an earlier
+   * session became the config on screen — after which the next edit PUT it back
+   * over whatever the server had, silently reverting work. A recovery copy is
+   * still written on every save, but it is offered rather than applied: if it
+   * disagrees with the server the operator is told, and restoring it is a
+   * button, not something that happens while nobody is looking.
+   *
+   * A failed load is now a failure on screen too. It used to fall through to
+   * `FALLBACK_DEFAULT_CONFIG` — five pages, two sections — which is
+   * indistinguishable from "the platform default really is nearly empty", and
+   * saving from that state overwrites the real config with the fallback.
+   */
   async function loadConfig() {
     setLoading(true);
     setStatusMsg(null);
     try {
-      let data: DefaultWebsiteConfig | null = null;
-      try {
-        data = await api.get<DefaultWebsiteConfig>("/api/v1/admin/default-website");
-      } catch {
-        data = null;
-      }
+      const data = await api.get<DefaultWebsiteConfig>("/api/v1/admin/default-website");
 
-      if (!data || !data.pages || data.pages.length === 0) {
-        if (typeof window !== "undefined") {
-          try {
-            const cached = localStorage.getItem("xite_admin_default_website");
-            if (cached) {
-              const parsed = JSON.parse(cached);
-              if (parsed && Array.isArray(parsed.pages) && parsed.pages.length > 0) {
-                data = parsed;
-              }
-            }
-          } catch {}
-        }
-      }
-
-      if (data && data.pages && data.pages.length > 0) {
+      if (data && Array.isArray(data.pages) && data.pages.length > 0) {
         setConfig(data);
         if (!data.pages.some((p) => matchesSlug(p.slug, activeSlug))) {
           const firstPage = data.pages[0];
-          if (firstPage) {
-            setActiveSlug(firstPage.slug);
-          }
+          if (firstPage) setActiveSlug(firstPage.slug);
         }
+        setRecovery(unsavedRecovery(data));
       } else {
         setConfig(FALLBACK_DEFAULT_CONFIG);
+        setStatusMsg({
+          type: "error",
+          text: "The server returned no pages. Showing the built-in fallback — do not save from here, it would replace the real default website.",
+        });
       }
     } catch (err) {
-      console.warn("Could not load default website from API, using fallback:", err);
-      setConfig(FALLBACK_DEFAULT_CONFIG);
+      // Deliberately not the fallback: saving from it would overwrite the real
+      // config with two sections, and the operator would have had no way to
+      // know the screen was not showing the truth.
+      setConfig(null);
+      setStatusMsg({
+        type: "error",
+        text: `Could not load the default website: ${err instanceof Error ? err.message : "the request failed"}. Nothing is shown rather than a guess — reload once the API is reachable.`,
+      });
     } finally {
       setLoading(false);
     }
   }
 
+  /**
+   * The last locally-saved copy, if it does not match what the server returned.
+   *
+   * Only surfaced when the two disagree, because that is the only case where it
+   * tells the operator something: a save that reported failure, or a tab closed
+   * mid-edit. Identical copies are the normal case and would be noise.
+   */
+  const [recovery, setRecovery] = useState<{ savedAt: string; config: DefaultWebsiteConfig } | null>(null);
+
+  function unsavedRecovery(server: DefaultWebsiteConfig) {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem("xite_admin_default_website");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      const config = parsed?.config;
+      if (!config || !Array.isArray(config.pages) || config.pages.length === 0) return null;
+
+      const tally = (c: DefaultWebsiteConfig) =>
+        c.pages.reduce((sum, p) => sum + (p.sections?.length || 0), 0);
+      if (tally(config) === tally(server)) return null;
+
+      return { savedAt: String(parsed.savedAt || ""), config };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Save the config, and say what actually happened.
+   *
+   * ── The bug this is the fix for ──────────────────────────────────────────
+   *
+   * The `catch` here read
+   *
+   *     setStatusMsg({ type: "success", text: "…updated & saved!" });
+   *
+   * so **every** failed save reported success — an expired admin session, a
+   * rejected body, an API that never answered. This screen routes every action
+   * through this function: add a section, edit one, delete one, reorder,
+   * Save. All of them said "saved" and none of them had. The operator found
+   * out on the next reload, when the server served what it still had, and the
+   * only description available for that is "it saved and then it was gone".
+   *
+   * ── And the localStorage copy ────────────────────────────────────────────
+   *
+   * This also wrote the config to `localStorage` before the request, and
+   * `loadConfig` read it back whenever the API returned nothing. A cache that
+   * feeds the load path is a cache that can be saved back: a stale copy from a
+   * previous session became the config on screen, and the next edit PUT it over
+   * whatever the server had. The write stays — it is a genuine safety net for a
+   * page half-built when a session expires — but it is stamped, and `loadConfig`
+   * no longer treats it as a source. See there.
+   */
   async function persistConfig(newConfig: DefaultWebsiteConfig) {
     setConfig(newConfig);
     setSaving(true);
     setStatusMsg(null);
 
-    // Save to localStorage immediately as backup
+    // A recovery copy, never a source. See loadConfig.
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("xite_admin_default_website", JSON.stringify(newConfig));
+        localStorage.setItem(
+          "xite_admin_default_website",
+          JSON.stringify({ savedAt: new Date().toISOString(), config: newConfig }),
+        );
       } catch {}
     }
 
     try {
       const updated = await api.put<DefaultWebsiteConfig>("/api/v1/admin/default-website", newConfig);
-      if (updated && Array.isArray(updated.pages) && updated.pages.length > 0) {
-        setConfig(updated);
+      if (!updated || !Array.isArray(updated.pages) || updated.pages.length === 0) {
+        throw new Error("the server returned no pages");
       }
-      setStatusMsg({ type: "success", text: "Default Website structure successfully saved & updated live!" });
+      setConfig(updated);
+      const boxes = updated.pages.reduce((sum, p) => sum + (p.sections?.length || 0), 0);
+      setStatusMsg({
+        type: "success",
+        text: `Saved — ${boxes} section boxes across ${updated.pages.length} pages, live for new colleges.`,
+      });
     } catch (err) {
-      setStatusMsg({ type: "success", text: "Default Website structure updated & saved!" });
+      setStatusMsg({
+        type: "error",
+        text: `NOT saved: ${err instanceof Error ? err.message : "the request failed"}. Reload the page to see what the server actually has.`,
+      });
     } finally {
       setSaving(false);
     }
@@ -877,9 +948,66 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
           </div>
         ) : null}
 
+        {/*
+          A local copy the server does not have.
+
+          Offered, never applied. It appears only when the two disagree, which
+          means either a save that failed or a tab closed mid-edit — and in both
+          cases the operator is the one who knows which version is right.
+        */}
+        {recovery && !loading ? (
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p className="text-xs font-semibold text-amber-700">
+              A copy saved in this browser
+              {recovery.savedAt ? ` at ${new Date(recovery.savedAt).toLocaleString()}` : ""} does not
+              match what the server has. It holds{" "}
+              {recovery.config.pages.reduce((sum, p) => sum + (p.sections?.length || 0), 0)} section
+              boxes; the server has{" "}
+              {(config?.pages || []).reduce((sum, p) => sum + (p.sections?.length || 0), 0)}.
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const restore = recovery.config;
+                  setRecovery(null);
+                  void persistConfig(restore);
+                }}
+                className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 cursor-pointer"
+              >
+                Save the local copy to the server
+              </button>
+              <button
+                type="button"
+                onClick={() => setRecovery(null)}
+                className="rounded-lg border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-100 cursor-pointer"
+              >
+                Keep the server&apos;s
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {loading ? (
           <div className="rounded-xl border border-night-line bg-white p-16 text-center text-xs font-semibold text-chalk-dim">
             Loading Master Website Boxes...
+          </div>
+        ) : !config ? (
+          /* The load failed. Deliberately no fallback config on screen: saving
+             from one would replace the real default website with it. */
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-12 text-center">
+            <p className="text-sm font-bold text-rose-700">The default website could not be loaded.</p>
+            <p className="mx-auto mt-2 max-w-lg text-xs text-rose-700">
+              Nothing is shown rather than a guess — editing from a guess would overwrite the real
+              configuration. Check that you are still signed in, then try again.
+            </p>
+            <button
+              type="button"
+              onClick={() => void loadConfig()}
+              className="mt-5 rounded-lg bg-rose-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-rose-700 cursor-pointer"
+            >
+              Retry
+            </button>
           </div>
         ) : (
           <div className="space-y-6">
