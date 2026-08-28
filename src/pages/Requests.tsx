@@ -14,6 +14,16 @@ export type AccessRequest = {
   subdomain?: string;
   role?: string;
   organization?: string | null;
+  /**
+   * How to reach the applicant, and how to check they are who they say.
+   *
+   * Both were being collected by the sign-up form and neither reached this
+   * screen: they were concatenated into `message`, which the API returns as
+   * null unconditionally. Approving an account meant deciding on a name, an
+   * address and nothing else.
+   */
+  phone?: string | null;
+  website?: string | null;
   message?: string | null;
   status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
@@ -360,6 +370,47 @@ export function Requests() {
                       })}
                     </span>
                   </div>
+
+                  {/*
+                    The two details an approval actually turns on.
+
+                    Rendered only when present, because every request written
+                    before these were fields has neither — and an empty "Phone:"
+                    label reads as a missing number rather than as a request
+                    that predates the column.
+
+                    The phone is a `tel:` link and the website an external one so
+                    that verifying an application is a click rather than a
+                    copy-paste. `rel="noreferrer"` on the website: this is an
+                    unverified URL supplied by an anonymous applicant, and it
+                    should not be handed this panel's address as a referrer.
+                  */}
+                  {(req.phone || req.website) && (
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                      {req.phone && (
+                        <a
+                          href={`tel:${req.phone.replace(/[^\d+]/g, "")}`}
+                          className="font-semibold text-chalk hover:underline"
+                        >
+                          📞 {req.phone}
+                        </a>
+                      )}
+                      {req.website && (
+                        <a
+                          href={
+                            /^https?:\/\//i.test(req.website)
+                              ? req.website
+                              : `https://${req.website}`
+                          }
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="font-semibold text-chalk hover:underline"
+                        >
+                          🌐 {req.website}
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                   {req.message && (
                     <p className="mt-2 text-xs text-chalk-dim bg-night p-3 rounded-lg border border-night-line italic">

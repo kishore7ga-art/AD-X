@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "@/auth/AuthContext";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
+import { Dashboard } from "@/pages/Dashboard";
 import { DefaultWebsite } from "@/pages/DefaultWebsite";
 import { Login } from "@/pages/Login";
 import { Requests } from "@/pages/Requests";
@@ -34,6 +35,14 @@ export function App() {
       <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/templates"
             element={
@@ -82,14 +91,19 @@ export function App() {
               </ProtectedRoute>
             }
           />
-          {/* Templates is the landing screen because it is the only one built. */}
-          <Route path="/" element={<Navigate to="/templates" replace />} />
+          {/*
+            The dashboard is the landing screen now that one exists. It used to
+            be /templates, "because it is the only one built" — which meant an
+            operator signing in landed on the section library rather than on the
+            queue of people waiting for a decision.
+          */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           {/*
             Anything else, rather than a blank page. A wrong URL in an admin panel
             is nearly always a stale bookmark, and the useful answer is the screen
             that does exist.
           */}
-          <Route path="*" element={<Navigate to="/templates" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

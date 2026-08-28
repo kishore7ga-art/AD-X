@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 import { API_BASE, STUDIO_BASE } from "@/env";
 import type { ReactNode } from "react";
 import {
+  LayoutDashboard,
   Layers,
   Globe,
   Users as UsersIcon,
@@ -57,6 +58,9 @@ export function Shell({
           </div>
 
           <nav className="mt-2 flex flex-col gap-0.5 px-3">
+            <Rail to="/dashboard" icon={<LayoutDashboard className="h-[17px] w-[17px]" />}>
+              Dashboard
+            </Rail>
             <Rail to="/templates" icon={<Layers className="h-[17px] w-[17px]" />}>
               Templates &amp; Sections
             </Rail>
@@ -142,6 +146,9 @@ export function Shell({
 
         {/* The rail is hidden below lg; navigation has to survive that. */}
         <nav className="flex items-center gap-1 overflow-x-auto border-b border-night-line px-4 py-2 lg:hidden">
+          <Rail to="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} compact>
+            Dashboard
+          </Rail>
           <Rail to="/templates" icon={<Layers className="h-4 w-4" />} compact>
             Templates
           </Rail>

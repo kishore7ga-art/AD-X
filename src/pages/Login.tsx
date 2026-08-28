@@ -41,9 +41,14 @@ export function Login() {
    * admin — overriding the `navigate(destination)` on the next line. So the page
    * an admin was actually trying to reach was always discarded, and every deep
    * link into the panel bounced them to the templates list instead.
+   *
+   * The fallback is the dashboard now that one exists. It was `/templates`
+   * because that was the only screen built — so an operator signing in landed
+   * on the section library rather than on the queue of people waiting for a
+   * decision. Deep links are unaffected: `from` still wins.
    */
   const destination =
-    (location.state as { from?: string } | null)?.from ?? "/templates";
+    (location.state as { from?: string } | null)?.from ?? "/dashboard";
 
   if (admin) return <Navigate to={destination} replace />;
 
