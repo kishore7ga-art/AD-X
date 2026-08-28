@@ -177,6 +177,23 @@ export function Templates() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [modalConfig, setModalConfig] = useState<ModalDialogState | null>(null);
 
+  /** Same helper the Requests screen uses, so the two report outcomes alike. */
+  const showAlert = (
+    title: string,
+    message: string,
+    variant: "success" | "danger" | "info" | "warning" = "info",
+  ) => {
+    setModalConfig({
+      isOpen: true,
+      type: "alert",
+      variant,
+      title,
+      message,
+      confirmText: "OK",
+      onConfirm: () => setModalConfig(null),
+    });
+  };
+
   const handleDelete = (template: TemplateRow) => {
     setError(null);
     const inUseMsg =
@@ -421,7 +438,18 @@ export function Templates() {
       type: "confirm",
       variant: "danger",
       title: "DELETE ALL TEMPLATES?",
-      message: "PERMANENTLY DELETE ALL TEMPLATES from the database? This will remove all template records across all colleges and cannot be undone.",
+      /*
+       * The old wording said this "will remove all template records across all
+       * colleges", which is not what happens and understates the one real risk.
+       * Colleges keep every section they already have — the markup is stored on
+       * the section, not fetched from the template. What they lose is any
+       * template `<script>`, which the API re-injects on read: a section whose
+       * content is *assembled* by that script renders as an empty rectangle
+       * afterwards, on published sites included. The response says how many.
+       */
+      message:
+        "Permanently delete every section template? Colleges keep the sections they have already placed — their markup is stored on the section itself. " +
+        "But any section whose content is built by a template script will render empty afterwards, published sites included, and re-uploading will not restore it. This cannot be undone.",
       confirmText: "Delete All Templates",
       cancelText: "Cancel",
       onCancel: () => setModalConfig(null),
@@ -432,8 +460,34 @@ export function Templates() {
           // Was `.catch(() => null)`: "Delete all templates" could fail against
           // the database and still refresh into an unchanged list with no error,
           // which reads as the button doing nothing.
-          await api.del("/api/v1/admin/templates");
+          const result = await api.del<{
+            deletedCount: number;
+            sectionsAffected: number;
+            collegesAffected: number;
+            publishedSitesAffected: number;
+          }>("/api/v1/admin/templates");
           await fetchTemplates();
+
+          // Reported rather than assumed. "Deleted" is the easy half; whether
+          // it broke a live site is the half somebody needs to hear about, and
+          // only the server can count it.
+          if (result?.sectionsAffected > 0) {
+            showAlert(
+              "Library cleared — with side effects",
+              `Deleted ${result.deletedCount} template(s). ${result.sectionsAffected} section(s) across ` +
+                `${result.collegesAffected} college(s) were built by a template script and will now render empty` +
+                (result.publishedSitesAffected > 0
+                  ? `, including ${result.publishedSitesAffected} published site(s).`
+                  : " (drafts only)."),
+              "warning",
+            );
+          } else {
+            showAlert(
+              "Library cleared",
+              `Deleted ${result?.deletedCount ?? 0} template(s). No college section depended on a template script, so no live site changed.`,
+              "success",
+            );
+          }
         } catch (cause) {
           setError(
             cause instanceof Error
