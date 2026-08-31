@@ -377,6 +377,18 @@ ${sel("a")} { color: inherit; }
 
 /* Media the author dropped in at its natural size must not push the page sideways. */
 ${sel("video")}, ${sel("svg")}, ${sel("iframe")} { max-width: 100%; }
+
+/* The section toolbar's Animation control's entire vocabulary. Global rather
+   than scoped — a @keyframes name is not a selector, and every surface a
+   section renders on (this canvas, the Admin's preview iframe, the published
+   site) needs the same six names to resolve the same way. Adding one here
+   means adding it to the Animation dropdown in section-schema.ts too. */
+@keyframes xite-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes xite-slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes xite-slide-down { from { opacity: 0; transform: translateY(-24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes xite-slide-left { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes xite-slide-right { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes xite-zoom-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
 `.trim();
 }
 
