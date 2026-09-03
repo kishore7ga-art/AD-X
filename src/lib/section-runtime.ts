@@ -382,23 +382,44 @@ ${sel("video")}, ${sel("svg")}, ${sel("iframe")} { max-width: 100%; }
 ${sel(".xite-bg-video-container")} {
   position: absolute !important;
   inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 / -1 !important;
+  grid-area: 1 / 1 / -1 / -1 !important;
+  flex: 0 0 auto !important;
+  order: -9999 !important;
   pointer-events: none !important;
   z-index: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 ${sel(".xite-bg-video-container video")}, ${sel("video.xite-bg-video")} {
   position: absolute !important;
   inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
+  object-position: center !important;
   pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
 }
-:where(header, section, footer, div, main):has(> .xite-bg-video-container) > :not(.xite-bg-video-container) {
+${sel(":where(header, section, footer, div, main):has(> .xite-bg-video-container)")} {
   position: relative;
-  z-index: 1;
 }
 
 /* The section toolbar's Animation control's entire vocabulary. Global rather
