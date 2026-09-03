@@ -779,6 +779,8 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
 
   const activeConfig = config || FALLBACK_DEFAULT_CONFIG;
   const activePage = activeConfig.pages.find((p) => matchesSlug(p.slug, activeSlug)) || activeConfig.pages[0];
+  const totalSectionBoxes = (config?.pages || []).reduce((sum, p) => sum + (p.sections?.length || 0), 0);
+  const activePageSectionsCount = activePage?.sections?.length || 0;
 
   async function moveSection(index: number, direction: "up" | "down") {
     const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
@@ -837,6 +839,48 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
         const updatedPages = currentConfig.pages.map((p) =>
           matchesSlug(p.slug, targetSlug) ? { ...p, sections } : p
         );
+        await persistConfig({ ...currentConfig, pages: updatedPages });
+      },
+    });
+  }
+
+  function handleDeleteAllSections(scope: "page" | "all") {
+    const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
+    const targetPage = currentConfig.pages.find((p) => matchesSlug(p.slug, activeSlug)) || currentConfig.pages[0];
+    const targetSlug = targetPage?.slug || activeSlug;
+    const pageTitle = targetPage?.title || targetSlug;
+
+    const totalCount =
+      scope === "all"
+        ? currentConfig.pages.reduce((sum, p) => sum + (p.sections?.length || 0), 0)
+        : targetPage?.sections?.length || 0;
+
+    if (totalCount === 0) return;
+
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "danger",
+      title:
+        scope === "all"
+          ? "Delete All Default Sections Across All Pages?"
+          : `Delete All Sections on ${pageTitle}?`,
+      message:
+        scope === "all"
+          ? `Are you sure you want to permanently delete all ${totalCount} default section boxes across all ${currentConfig.pages.length} pages (${currentConfig.pages.map((p) => p.title).join(", ")})?\n\nNew colleges signing up will receive clean empty pages until sections are added again. Existing colleges' websites will not be affected.`
+          : `Are you sure you want to delete all ${totalCount} default section boxes on the "${pageTitle}" page?\n\nNew colleges signing up will receive an empty ${pageTitle} page until sections are added again. Existing colleges' websites will not be affected.`,
+      confirmText: scope === "all" ? "Delete All Default Sections" : `Delete All on ${pageTitle}`,
+      cancelText: "Keep Section Boxes",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        const updatedPages = currentConfig.pages.map((p) => {
+          if (scope === "all" || matchesSlug(p.slug, targetSlug)) {
+            return { ...p, sections: [] };
+          }
+          return p;
+        });
+
         await persistConfig({ ...currentConfig, pages: updatedPages });
       },
     });
@@ -961,14 +1005,27 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
               Each section box below defines the <strong>starting website layout</strong> that is copied to a new user when they first sign up. Existing users&apos; websites are independent and unaffected.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving || loading}
-            className="flex items-center gap-2 rounded-lg bg-accent hover:bg-accent-hover px-6 py-3 text-xs font-semibold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
-          >
-            <span>{saving ? "Saving Changes..." : "Save Default Template ⚡"}</span>
-          </button>
+          <div className="flex items-center gap-3">
+            {totalSectionBoxes > 0 && (
+              <button
+                type="button"
+                onClick={() => handleDeleteAllSections("all")}
+                disabled={saving || loading || filling}
+                className="flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 px-5 py-3 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                title="Delete all default section boxes across all pages"
+              >
+                <span>🗑️ Delete All Default Sections</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving || loading}
+              className="flex items-center gap-2 rounded-lg bg-accent hover:bg-accent-hover px-6 py-3 text-xs font-semibold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <span>{saving ? "Saving Changes..." : "Save Default Template ⚡"}</span>
+            </button>
+          </div>
         </div>
 
         {/* Status Notification */}
@@ -1110,6 +1167,28 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
                 >
                   {filling ? "Adding…" : "Add all 20 to every page"}
                 </button>
+                {activePageSectionsCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteAllSections("page")}
+                    disabled={filling || saving || loading}
+                    className="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2.5 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
+                    title={`Delete all default sections on ${activePage?.title || "this page"}`}
+                  >
+                    🗑️ Delete all on this page
+                  </button>
+                )}
+                {totalSectionBoxes > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteAllSections("all")}
+                    disabled={filling || saving || loading}
+                    className="rounded-lg border border-rose-300 bg-rose-100 hover:bg-rose-200 text-rose-700 px-4 py-2.5 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
+                    title="Delete all default section boxes across all pages"
+                  >
+                    🗑️ Delete All Default Sections
+                  </button>
+                )}
                 <AddSectionButton
                   type="button"
                   onClick={() => setAddingSection(true)}
