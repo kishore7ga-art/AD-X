@@ -420,6 +420,54 @@ const PRESET_SECTION_TEMPLATES = [
   </div>
 </section>`,
   },
+  {
+    id: "preset-faq",
+    title: "Frequently Asked Questions",
+    category: "faq",
+    icon: "❓",
+    subtitle: "Common questions, admissions answers, hostel details & accordion FAQ items.",
+    code: `<section class="w-full py-20 px-6 bg-night border-b border-slate-800/80 text-white font-sans">
+  <div class="max-w-4xl mx-auto space-y-12">
+    <div class="space-y-3 text-center">
+      <span class="text-xs font-black uppercase tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full">
+        Help & Support
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Frequently Asked Questions</h2>
+      <p class="text-chalk-dim text-sm max-w-xl mx-auto">Find answers to common questions about admissions, courses, campus life, and fees.</p>
+    </div>
+    <div class="space-y-4">
+      <details class="p-6 rounded-2xl bg-night-raised border border-slate-800 text-left cursor-pointer group" open>
+        <summary class="text-base font-bold text-white flex justify-between items-center outline-none list-none">
+          <span>What is the eligibility criteria for undergraduate admissions?</span>
+          <span class="text-indigo-400 font-bold text-xl group-open:rotate-180 transition-transform">▾</span>
+        </summary>
+        <p class="text-chalk-dim text-sm mt-4 leading-relaxed">Applicants must have passed Higher Secondary (10+2) or equivalent with a minimum of 60% aggregate marks in Physics, Chemistry, and Mathematics/Biology.</p>
+      </details>
+      <details class="p-6 rounded-2xl bg-night-raised border border-slate-800 text-left cursor-pointer group">
+        <summary class="text-base font-bold text-white flex justify-between items-center outline-none list-none">
+          <span>Are scholarships available for meritorious students?</span>
+          <span class="text-indigo-400 font-bold text-xl group-open:rotate-180 transition-transform">▾</span>
+        </summary>
+        <p class="text-chalk-dim text-sm mt-4 leading-relaxed">Yes! We provide merit-based scholarships offering up to 100% tuition waivers for top entrance rank holders and sports achievers.</p>
+      </details>
+      <details class="p-6 rounded-2xl bg-night-raised border border-slate-800 text-left cursor-pointer group">
+        <summary class="text-base font-bold text-white flex justify-between items-center outline-none list-none">
+          <span>What accommodation facilities are available on campus?</span>
+          <span class="text-indigo-400 font-bold text-xl group-open:rotate-180 transition-transform">▾</span>
+        </summary>
+        <p class="text-chalk-dim text-sm mt-4 leading-relaxed">We offer air-conditioned and non-AC residential rooms with attached bathrooms, Wi-Fi, round-the-clock security, laundry, and hygienic dining halls.</p>
+      </details>
+      <details class="p-6 rounded-2xl bg-night-raised border border-slate-800 text-left cursor-pointer group">
+        <summary class="text-base font-bold text-white flex justify-between items-center outline-none list-none">
+          <span>How are campus placements and internship opportunities?</span>
+          <span class="text-indigo-400 font-bold text-xl group-open:rotate-180 transition-transform">▾</span>
+        </summary>
+        <p class="text-chalk-dim text-sm mt-4 leading-relaxed">Over 250+ top global companies visit annually. Students receive structured pre-placement training, mock coding interviews, and internship stipends.</p>
+      </details>
+    </div>
+  </div>
+</section>`,
+  },
 ];
 
 function matchesSlug(slugA?: string, slugB?: string): boolean {

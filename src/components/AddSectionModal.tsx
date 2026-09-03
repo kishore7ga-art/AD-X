@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, ArrowRight, Layout, Info, GraduationCap, Users, Calendar, Mail, Briefcase, Award, Megaphone } from "lucide-react";
+import { X, ArrowRight, Layout, Info, GraduationCap, Users, Calendar, Mail, Briefcase, Award, Megaphone, HelpCircle } from "lucide-react";
 import { AddSectionButton } from "@/components/AddSectionButton";
 import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
 import type { SectionCategoryId } from "@/lib/sections/categories";
@@ -39,6 +39,7 @@ const ICON_FOR_CATEGORY: Record<SectionCategoryId, typeof Layout> = {
   gallery: Layout,
   testimonials: Users,
   achievements: Award,
+  faq: HelpCircle,
   contact: Mail,
   map: Mail,
   footer: Layout,

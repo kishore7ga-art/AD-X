@@ -49,6 +49,7 @@ export const PLATFORM_SECTION_CATEGORIES = [
   { id: "gallery", name: "Gallery / Campus Life", description: "Campus photos, student life, sports & event moments" },
   { id: "testimonials", name: "Student Testimonials / Alumni", description: "Student feedback, parent reviews & alumni success stories" },
   { id: "achievements", name: "Achievements & Awards", description: "Institutional honors, NIRF ranks & NAAC accreditations" },
+  { id: "faq", name: "FAQ / Frequently Asked Questions", description: "Common questions, answers & accordion FAQ items" },
   { id: "contact", name: "Contact / Inquiry Form", description: "Campus address, email, phone numbers & inquiry form" },
   { id: "map", name: "Map & Location", description: "Google Map integration & campus location directions" },
   { id: "footer", name: "Footer", description: "Bottom site links, copyright, social icons & disclaimers" },
