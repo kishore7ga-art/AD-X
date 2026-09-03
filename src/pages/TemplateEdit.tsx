@@ -489,7 +489,8 @@ export function TemplateEdit() {
                     title="Section Preview"
                     srcDoc={buildSectionPreviewDocument(previewCode)}
                     className="w-full flex-1 min-h-[480px] bg-white border-0"
-                    sandbox="allow-scripts"
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                    allow="autoplay; fullscreen"
                   />
                 </div>
               </div>

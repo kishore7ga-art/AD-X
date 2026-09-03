@@ -460,8 +460,9 @@ function SectionLivePreviewIframe({
       <iframe
         title="Live Section Sandbox"
         srcDoc={fullHtmlDoc}
-        className="w-full h-full min-h-[400px] border-0 bg-black block"
-        sandbox="allow-scripts allow-same-origin"
+        className="w-full h-full min-h-[400px] border-0 bg-night block"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+        allow="autoplay; fullscreen"
       />
     </div>
   );

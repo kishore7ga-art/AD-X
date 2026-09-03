@@ -378,6 +378,29 @@ ${sel("a")} { color: inherit; }
 /* Media the author dropped in at its natural size must not push the page sideways. */
 ${sel("video")}, ${sel("svg")}, ${sel("iframe")} { max-width: 100%; }
 
+/* Background Video Container & Video Layout for all devices (Desktop, Tablet, Mobile) */
+${sel(".xite-bg-video-container")} {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+${sel(".xite-bg-video-container video")}, ${sel("video.xite-bg-video")} {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  pointer-events: none !important;
+}
+:where(header, section, footer, div, main):has(> .xite-bg-video-container) > :not(.xite-bg-video-container) {
+  position: relative;
+  z-index: 1;
+}
+
 /* The section toolbar's Animation control's entire vocabulary. Global rather
    than scoped — a @keyframes name is not a selector, and every surface a
    section renders on (this canvas, the Admin's preview iframe, the published
@@ -1015,6 +1038,37 @@ export function buildSectionPreviewDocument(
     "</head>",
     "<body>",
     "  " + mapInlineStyles(bodyHtml || code, viewportUnitsToContainer),
+    "  <script>",
+    "    (function() {",
+    "      function autoPlayAllVideos() {",
+    '        var vids = document.querySelectorAll("video");',
+    "        vids.forEach(function(v) {",
+    "          v.muted = true;",
+    "          v.defaultMuted = true;",
+    "          v.playsInline = true;",
+    '          v.setAttribute("muted", "");',
+    '          v.setAttribute("autoplay", "");',
+    '          v.setAttribute("loop", "");',
+    '          v.setAttribute("playsinline", "");',
+    '          v.setAttribute("webkit-playsinline", "");',
+    "          if (v.paused) {",
+    "            var p = v.play();",
+    "            if (p && p.catch) p.catch(function() {});",
+    "          }",
+    "        });",
+    "      }",
+    '      if (document.readyState === "loading") {',
+    '        document.addEventListener("DOMContentLoaded", autoPlayAllVideos);',
+    "      } else {",
+    "        autoPlayAllVideos();",
+    "      }",
+    '      window.addEventListener("load", autoPlayAllVideos);',
+    "      try {",
+    "        var obs = new MutationObserver(autoPlayAllVideos);",
+    "        obs.observe(document.documentElement, { childList: true, subtree: true });",
+    "      } catch(e) {}",
+    "    })();",
+    "  </script>",
     "</body>",
     "</html>",
   ]
