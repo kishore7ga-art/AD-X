@@ -781,9 +781,19 @@ export function recomposeSectionCode(originalCode: string, newBodyHtml: string):
   const parts: string[] = [];
   if (headLinks.trim()) parts.push(headLinks.trim());
   if (headCss.trim()) parts.push(`<style>\n${headCss.trim()}\n</style>`);
+
+  const cleanBody = (newBodyHtml || "").trim();
+  // Extract and preserve any scripts from originalCode that may have been stripped during DOM reading
+  const originalScripts = (originalCode || "").match(/<script[\s\S]*?<\/script>/gi) || [];
+  const bodyHasScripts = /<script[\s\S]*?<\/script>/i.test(cleanBody);
+
   // The canvas renders `vw` as `cqw`; what is stored is what the author wrote.
   // Idempotent, so it costs nothing on markup that never held one.
-  parts.push(mapInlineStyles((newBodyHtml || "").trim(), containerUnitsToViewport));
+  parts.push(mapInlineStyles(cleanBody, containerUnitsToViewport));
+
+  if (!bodyHasScripts && originalScripts.length > 0) {
+    parts.push(originalScripts.join("\n"));
+  }
 
   return parts.filter(Boolean).join("\n");
 }

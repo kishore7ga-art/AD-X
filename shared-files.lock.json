@@ -4,5 +4,5 @@
   "src/lib/auth/cookie-domain.ts": "b58e8314c98c1385",
   "src/lib/api-contract.ts": "a5750ba76da105c8",
   "src/lib/sections/categories.ts": "daec15b153d35b44",
-  "src/lib/section-runtime.ts": "43827949cc566e3d"
+  "src/lib/section-runtime.ts": "ca7dfe544d54c890"
 }
