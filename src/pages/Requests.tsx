@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { api, ApiError } from "@/api/client";
 import { Shell } from "@/components/Shell";
 import { ModalDialog } from "@/components/ModalDialog";
@@ -205,6 +206,93 @@ export function Requests() {
     });
   };
 
+  const handleDelete = (id: string, name: string) => {
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "danger",
+      title: `Delete Request for ${name}?`,
+      message: `Are you sure you want to permanently delete the access request for ${name}? This record will be removed immediately.`,
+      confirmText: "Delete Request",
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        try {
+          setProcessingId(id);
+          await api.del<{ deleted: boolean }>(`/api/v1/admin/access-requests/${id}`);
+          setRequests((prev) => prev.filter((r) => r.id !== id));
+          showAlert("Request Deleted", `Access request for ${name} has been deleted.`, "info");
+        } catch (err) {
+          showAlert("Deletion Failed", err instanceof ApiError ? err.message : "Failed to delete request", "danger");
+        } finally {
+          setProcessingId(null);
+        }
+      },
+    });
+  };
+
+  const handleRemoveAll = () => {
+    const countToDelete =
+      filter === "ALL" ? requests.length : requests.filter((r) => r.status === filter).length;
+
+    if (countToDelete === 0) {
+      showAlert(
+        "No Requests",
+        `There are no ${filter === "ALL" ? "" : filter.toLowerCase() + " "}requests to remove.`,
+        "info",
+      );
+      return;
+    }
+
+    const scopeDescription =
+      filter === "ALL"
+        ? `ALL ${countToDelete} access request(s)`
+        : `all ${countToDelete} ${filter.toLowerCase()} request(s)`;
+
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      variant: "danger",
+      title: filter === "ALL" ? "Remove All Access Requests?" : `Remove All ${filter} Requests?`,
+      message: `Are you sure you want to permanently remove ${scopeDescription} from the database?\n\n⚠️ This will delete the records permanently and cannot be undone.`,
+      confirmText: filter === "ALL" ? "Remove All Requests" : `Remove All ${filter}`,
+      cancelText: "Cancel",
+      onCancel: () => setModalConfig(null),
+      onConfirm: async () => {
+        setModalConfig(null);
+        try {
+          setLoading(true);
+          const endpoint =
+            filter === "ALL"
+              ? "/api/v1/admin/access-requests"
+              : `/api/v1/admin/access-requests?status=${filter}`;
+          const result = await api.del<{ deletedCount: number }>(endpoint);
+
+          if (filter === "ALL") {
+            setRequests([]);
+          } else {
+            setRequests((prev) => prev.filter((r) => r.status !== filter));
+          }
+
+          showAlert(
+            "Requests Removed",
+            `Successfully removed ${result?.deletedCount ?? countToDelete} access request(s).`,
+            "success",
+          );
+        } catch (err) {
+          showAlert(
+            "Removal Failed",
+            err instanceof ApiError ? err.message : "Failed to remove requests",
+            "danger",
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
+
   /**
    * Status, then search.
    *
@@ -247,7 +335,7 @@ export function Requests() {
                   onClick={() => setFilter(status)}
                   className={`rounded-lg px-3.5 py-1.5 font-bold transition cursor-pointer ${
                     filter === status
-                      ? "bg-white text-chalk  border border-night-line"
+                      ? "bg-white text-chalk border border-night-line"
                       : "text-chalk-dim hover:text-chalk"
                   }`}
                 >
@@ -262,6 +350,19 @@ export function Requests() {
               className="rounded-lg border border-night-line bg-white hover:bg-night px-3.5 py-2 text-xs font-bold text-chalk transition cursor-pointer"
             >
               🔄 Refresh
+            </button>
+
+            <button
+              type="button"
+              disabled={requests.length === 0 || loading}
+              onClick={() => handleRemoveAll()}
+              className="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 px-3.5 py-2 text-xs font-bold text-rose-700 transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+              title={
+                filter === "ALL" ? "Remove all requests" : `Remove all ${filter.toLowerCase()} requests`
+              }
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+              <span>{filter === "ALL" ? "Remove All Requests" : `Remove All ${filter}`}</span>
             </button>
           </div>
         </div>
@@ -419,7 +520,7 @@ export function Requests() {
                   )}
                 </div>
 
-                {/* Actions: Accept (Approve) & Reject */}
+                {/* Actions: Accept (Approve), Reject & Delete */}
                 <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0">
                   {req.status === "PENDING" ? (
                     <>
@@ -442,10 +543,20 @@ export function Requests() {
                       </button>
                     </>
                   ) : (
-                    <div className="text-right text-[11px] text-chalk-dim font-mono">
+                    <div className="text-right text-[11px] text-chalk-dim font-mono mr-1">
                       Reviewed by {req.reviewedByEmail || "Admin"}
                     </div>
                   )}
+
+                  <button
+                    type="button"
+                    disabled={processingId === req.id}
+                    onClick={() => void handleDelete(req.id, req.name)}
+                    className="rounded-lg border border-night-line bg-white hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 p-2 text-xs font-semibold text-chalk-dim transition disabled:opacity-50 cursor-pointer flex items-center justify-center shrink-0 shadow-xs"
+                    title="Delete this request"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                  </button>
                 </div>
               </div>
             ))}
