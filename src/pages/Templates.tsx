@@ -22,6 +22,8 @@ import { StatTile } from "@/components/StatTile";
 import type { StatTone } from "@/components/StatTile";
 import { ModalDialog } from "@/components/ModalDialog";
 import type { ModalDialogState } from "@/components/ModalDialog";
+import { SectionThumbnailPreview } from "@/components/SectionThumbnailPreview";
+import { QuickSectionPreviewModal } from "@/components/QuickSectionPreviewModal";
 import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
 import { resolveCategory } from "@/lib/sections/categories";
 
@@ -97,6 +99,9 @@ export function Templates() {
   const [statusFilter, setStatusFilter] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
   const [viewFormat, setViewFormat] = useState<"grid" | "list">("grid");
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // Quick Preview Modal State
+  const [selectedPreviewTemplate, setSelectedPreviewTemplate] = useState<TemplateRow | null>(null);
 
   // Category Details Popup Modal State
   const [selectedCategoryModal, setSelectedCategoryModal] = useState<{ id: string; name: string; description: string } | null>(null);
@@ -728,44 +733,28 @@ export function Templates() {
                     key={sec.id}
                     className="bg-white rounded-xl border border-night-line p-4 hover:border-chalk/20 transition-all flex flex-col justify-between group relative hover:border-chalk/25"
                   >
-                    {/* Top Image Preview / Visual Banner (Matching Reference Image) */}
-                    <div className="relative w-full h-36 rounded-lg overflow-hidden bg-night mb-3 border border-night-line">
-                      {sec.thumbnailUrl ? (
-                        <img
-                          src={sec.thumbnailUrl}
-                          alt={sec.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-50 via-night to-violet-50 p-3 flex flex-col justify-between text-chalk">
-                          <div className="flex items-center justify-between text-[10px] font-mono text-accent font-bold">
-                            <span>⚡ {derivedCategory}</span>
-                            <span className="text-chalk-dim">v2.0</span>
-                          </div>
-                          <div className="text-center py-2">
-                            <span className="text-xs font-bold text-chalk line-clamp-2 px-2">
-                              {sec.name}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-[9px] text-chalk-dim font-mono">
-                            <span>HTML/CSS</span>
-                            <span className="text-emerald-600">Clean Code</span>
-                          </div>
-                        </div>
-                      )}
+                    {/* Top Image Preview / Visual Banner with Live Code & Image Previews */}
+                    <div className="relative w-full h-36 rounded-lg overflow-hidden bg-slate-950 mb-3 border border-night-line shadow-sm">
+                      <SectionThumbnailPreview
+                        name={sec.name}
+                        category={derivedCategory}
+                        thumbnailUrl={sec.thumbnailUrl}
+                        code={sec.code}
+                        onQuickPreview={() => setSelectedPreviewTemplate(sec)}
+                      />
 
                       {/* Floating Platform & Status Badges */}
-                      <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                        <span className="bg-chalk/85 backdrop-blur-md text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-chalk">
+                      <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none z-10">
+                        <span className="bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-slate-700 shadow-sm">
                           {derivedCategory}
                         </span>
                       </div>
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-2 right-2 pointer-events-none z-10">
                         <span
-                          className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border backdrop-blur-md ${
+                          className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-sm ${
                             isLive
                               ? "bg-emerald-500/90 text-white border-emerald-400"
-                              : "bg-chalk-dim text-chalk border-night-line"
+                              : "bg-slate-800/90 text-slate-300 border-slate-700"
                           }`}
                         >
                           {isLive ? "Active" : "Draft"}
@@ -862,12 +851,24 @@ export function Templates() {
                   key={sec.id}
                   className="p-4 flex items-center justify-between hover:bg-night transition-colors gap-4"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-bold text-sm shrink-0">
-                      ⚡
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-14 h-10 rounded-lg overflow-hidden border border-night-line shrink-0 shadow-sm bg-slate-950">
+                      <SectionThumbnailPreview
+                        name={sec.name}
+                        category={sec.category}
+                        thumbnailUrl={sec.thumbnailUrl}
+                        code={sec.code}
+                        onQuickPreview={() => setSelectedPreviewTemplate(sec)}
+                        compact
+                      />
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-chalk">{sec.name}</h4>
+                      <h4
+                        className="text-sm font-semibold text-chalk hover:text-accent transition-colors cursor-pointer"
+                        onClick={() => setSelectedPreviewTemplate(sec)}
+                      >
+                        {sec.name}
+                      </h4>
                       <p className="text-xs text-chalk-dim font-mono">
                         {sec.category || "Section"} · {new Date(sec.createdAt || Date.now()).toLocaleDateString()}
                       </p>
@@ -1083,16 +1084,33 @@ export function Templates() {
                     {matchingSections.map((sec) => (
                       <div
                         key={sec.id}
-                        className="p-4 rounded-lg bg-night border border-night-line hover:border-chalk/25 flex items-center justify-between transition-all"
+                        className="p-3.5 rounded-xl bg-night border border-night-line hover:border-chalk/25 flex items-center justify-between transition-all gap-3"
                       >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-chalk">{sec.name}</span>
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
-                              {sec.isPublished ? "Published" : "Draft"}
-                            </span>
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-16 h-12 rounded-lg overflow-hidden border border-night-line shrink-0 shadow-sm bg-slate-950">
+                            <SectionThumbnailPreview
+                              name={sec.name}
+                              category={sec.category}
+                              thumbnailUrl={sec.thumbnailUrl}
+                              code={sec.code}
+                              onQuickPreview={() => setSelectedPreviewTemplate(sec)}
+                              compact
+                            />
                           </div>
-                          <p className="text-xs text-chalk-dim mt-1 font-mono">{sec.description || "Admin uploaded template section"}</p>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="text-sm font-semibold text-chalk truncate cursor-pointer hover:text-accent transition-colors"
+                                onClick={() => setSelectedPreviewTemplate(sec)}
+                              >
+                                {sec.name}
+                              </span>
+                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                                {sec.isPublished ? "Published" : "Draft"}
+                              </span>
+                            </div>
+                            <p className="text-xs text-chalk-dim mt-0.5 font-mono truncate">{sec.description || "Admin uploaded template section"}</p>
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -1550,6 +1568,20 @@ export function Templates() {
           });
         }}
       />
+
+      {/* Quick Interactive Section Preview Modal */}
+      {selectedPreviewTemplate && (
+        <QuickSectionPreviewModal
+          template={selectedPreviewTemplate}
+          onClose={() => setSelectedPreviewTemplate(null)}
+          onUpdateTemplate={(updated) => {
+            setSelectedPreviewTemplate(updated);
+            setTemplates((prev) =>
+              prev ? prev.map((t) => (t.id === updated.id ? updated : t)) : prev
+            );
+          }}
+        />
+      )}
 
       {modalConfig && <ModalDialog {...modalConfig} />}
     </Shell>

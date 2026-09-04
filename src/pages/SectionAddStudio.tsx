@@ -46,6 +46,7 @@ export function SectionAddStudio() {
   const typeId = state?.typeId || "hero";
 
   const [variantName, setVariantName] = useState(`${typeName} Variant`);
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [code, setCode] = useState(DEFAULT_STARTER_CODE);
   const [fileName, setFileName] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -182,7 +183,14 @@ export function SectionAddStudio() {
     const customTitle = variantName.trim() || `Variant ${Date.now().toString().slice(-4)}`;
     const finalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
 
-    const payload = { name: finalName, category: cleanCategory, description: `Admin section for ${typeName}`, code: cleanCode, isPublished: true };
+    const payload = {
+      name: finalName,
+      category: cleanCategory,
+      description: `Admin section for ${typeName}`,
+      code: cleanCode,
+      thumbnailUrl: thumbnailUrl.trim() || undefined,
+      isPublished: true,
+    };
 
     /**
      * One endpoint, and a failure that fails.
@@ -300,7 +308,7 @@ export function SectionAddStudio() {
         )}
 
         {/* Component Key & Metadata Bar */}
-        <div className="grid gap-4 sm:grid-cols-2 bg-night p-4 rounded-lg border border-night-line">
+        <div className="grid gap-4 sm:grid-cols-3 bg-night p-4 rounded-lg border border-night-line">
           <div>
             <label className="text-xs font-semibold text-chalk-dim uppercase">Section Variant Title</label>
             <input
@@ -308,6 +316,16 @@ export function SectionAddStudio() {
               value={variantName}
               onChange={(e) => setVariantName(e.target.value)}
               className="w-full mt-1.5 bg-night border border-night-line rounded-lg px-3.5 py-2 text-xs font-bold text-chalk focus:outline-none focus:border-night-line"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-chalk-dim uppercase">Thumbnail Image URL (optional)</label>
+            <input
+              type="text"
+              value={thumbnailUrl}
+              onChange={(e) => setThumbnailUrl(e.target.value)}
+              placeholder="https://... or /image.png"
+              className="w-full mt-1.5 bg-night border border-night-line rounded-lg px-3.5 py-2 text-xs font-mono text-chalk focus:outline-none focus:border-night-line"
             />
           </div>
           <div>

@@ -22,6 +22,7 @@ export function TemplateEdit() {
   const [template, setTemplate] = useState<TemplateRow | null>(null);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [isPublished, setIsPublished] = useState(true);
   const [fileName, setFileName] = useState<string | null>(null);
 
@@ -109,6 +110,7 @@ export function TemplateEdit() {
         setTemplate(row);
         setName(row.name);
         setCode(row.code ?? "");
+        setThumbnailUrl(row.thumbnailUrl ?? "");
         setIsPublished(row.isPublished);
         setError(null);
       } catch (cause) {
@@ -183,6 +185,7 @@ export function TemplateEdit() {
     const payload = {
       name: name.trim(),
       code: cleanCode,
+      thumbnailUrl: thumbnailUrl.trim() || null,
       category: template?.category || undefined,
       isPublished,
     };
@@ -315,8 +318,8 @@ export function TemplateEdit() {
           </div>
         )}
 
-        {/* Metadata Bar: Section Variant Title + Upload File */}
-        <div className="grid gap-4 sm:grid-cols-2 bg-night p-4 rounded-lg border border-night-line">
+        {/* Metadata Bar: Section Variant Title + Thumbnail URL + Upload File */}
+        <div className="grid gap-4 sm:grid-cols-3 bg-night p-4 rounded-lg border border-night-line">
           <div>
             <label className="text-xs font-semibold text-chalk-dim uppercase">Section Variant Title</label>
             <input
@@ -324,6 +327,16 @@ export function TemplateEdit() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full mt-1.5 bg-night border border-night-line rounded-lg px-3.5 py-2 text-xs font-bold text-chalk focus:outline-none focus:border-night-line"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-chalk-dim uppercase">Thumbnail Image URL (optional)</label>
+            <input
+              type="text"
+              value={thumbnailUrl}
+              onChange={(e) => setThumbnailUrl(e.target.value)}
+              placeholder="https://... or /image.png"
+              className="w-full mt-1.5 bg-night border border-night-line rounded-lg px-3.5 py-2 text-xs font-mono text-chalk focus:outline-none focus:border-night-line"
             />
           </div>
           <div>
