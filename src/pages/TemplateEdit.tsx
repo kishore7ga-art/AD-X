@@ -9,7 +9,8 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { buildSectionPreviewDocument, normalizeSectionCode } from "@/lib/section-runtime";
+import { normalizeSectionCode } from "@/lib/section-runtime";
+import { previewDocument } from "@/lib/preview-document";
 
 import { api } from "@/api/client";
 import type { TemplateRow } from "@/api/types";
@@ -500,7 +501,7 @@ export function TemplateEdit() {
                 >
                   <iframe
                     title="Section Preview"
-                    srcDoc={buildSectionPreviewDocument(previewCode)}
+                    srcDoc={previewDocument(previewCode)}
                     className="w-full flex-1 min-h-[480px] bg-white border-0"
                     sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                     allow="autoplay; fullscreen"

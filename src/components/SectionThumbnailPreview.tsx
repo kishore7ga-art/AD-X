@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Eye, Sparkles, HelpCircle, Megaphone, Users } from "lucide-react";
-import { buildSectionPreviewDocument } from "@/lib/section-runtime";
+import { previewDocument } from "@/lib/preview-document";
 
 interface SectionThumbnailPreviewProps {
   name: string;
@@ -263,7 +263,7 @@ export function SectionThumbnailPreview({
           >
             <iframe
               title={name}
-              srcDoc={buildSectionPreviewDocument(code!)}
+              srcDoc={previewDocument(code!)}
               className="w-[1024px] h-[580px] border-0 bg-white"
               sandbox="allow-scripts allow-same-origin"
               tabIndex={-1}

@@ -12,7 +12,7 @@ import {
   Code2,
   Calendar,
 } from "lucide-react";
-import { buildSectionPreviewDocument } from "@/lib/section-runtime";
+import { previewDocument } from "@/lib/preview-document";
 import type { TemplateRow } from "@/api/types";
 import { api } from "@/api/client";
 
@@ -216,7 +216,7 @@ export function QuickSectionPreviewModal({
                 {previewCode ? (
                   <iframe
                     title={template.name}
-                    srcDoc={buildSectionPreviewDocument(previewCode)}
+                    srcDoc={previewDocument(previewCode)}
                     className="w-full min-h-[600px] border-0 bg-white"
                     sandbox="allow-scripts allow-same-origin allow-popups"
                     allow="autoplay; fullscreen"

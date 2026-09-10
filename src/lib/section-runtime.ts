@@ -34,6 +34,32 @@
 export const SECTION_RUNTIME_TAILWIND_CDN_SRC = "https://cdn.tailwindcss.com";
 
 /**
+ * Marks an `<img>` that failed to load, so the runtime CSS can keep its box.
+ *
+ * `error` does not bubble, so it is caught in the capture phase on the
+ * document — which also covers images added later by the editor or by a
+ * section's own script. Images that already failed before this ran are swept
+ * once. A later successful load (a new `src`) clears the mark.
+ *
+ * A string, because the Admin's iframe gets it as an inline `<script>` and the
+ * site installs it from an effect; one source, two installs.
+ */
+export const SECTION_RUNTIME_IMAGE_FALLBACK_SCRIPT = `(function () {
+  function mark(img) { if (img && img.tagName === "IMG") img.setAttribute("data-xite-broken", ""); }
+  function clear(img) { if (img && img.tagName === "IMG") img.removeAttribute("data-xite-broken"); }
+  document.addEventListener("error", function (e) { mark(e.target); }, true);
+  document.addEventListener("load", function (e) { clear(e.target); }, true);
+  function sweep() {
+    var imgs = document.querySelectorAll("img");
+    for (var i = 0; i < imgs.length; i++) {
+      var img = imgs[i];
+      if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) mark(img);
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", sweep); else sweep();
+})();`;
+
+/**
  * The container every section is measured against.
  *
  * Not the viewport. A section is rendered at three different widths on three
@@ -374,6 +400,11 @@ ${sel(".legal-links a")} { color: inherit; text-decoration: none; font-weight: 5
 ${sel(".legal-links a:hover")} { text-decoration: underline; }
 ${sel("img")} { max-width: 100%; height: auto; }
 ${sel("a")} { color: inherit; }
+
+/* An image that failed to load keeps a box, so the frame around it — a card, a
+   clipped blob, a grid cell — holds its shape while the asset is missing or on
+   its way. Marked by the runtime's error listener; see \`SECTION_RUNTIME_IMAGE_FALLBACK_SCRIPT\`. */
+${sel("img[data-xite-broken]")} { min-height: 120px; min-width: 48px; object-fit: cover; color: transparent; background-color: #e8ebf1; background-image: repeating-linear-gradient(135deg, rgba(148,163,184,0.18) 0 10px, transparent 10px 20px); }
 
 /* Media the author dropped in at its natural size must not push the page sideways. */
 ${sel("video")}, ${sel("svg")}, ${sel("iframe")} { max-width: 100%; }
@@ -722,6 +753,124 @@ export function extractStylesAndBody(rawCode: string): {
   return { headCss, headLinks, bodyHtml };
 }
 
+/* ── References that must not cross sections ─────────────────────────────── */
+
+/**
+ * Why an SVG id and a `@keyframes` name are scoped per section.
+ *
+ * The Admin renders one section per iframe: every `<clipPath id="blob">` is
+ * alone in its document. The editor and the published site render every
+ * section of a page in *one* document, and `url(#blob)` resolves to the first
+ * `#blob` in it — which, on a page with a team grid before the About block, or
+ * a duplicated section, is somebody else's clip. The image is then clipped to
+ * a shape drawn for a different box, usually to nothing, while the outline
+ * beside it (a separate `<path>`) still paints. A frame with nothing in it,
+ * on the site only, never in the Admin. Keyframes collide the same way: two
+ * sections each defining `@keyframes fade-in` get the last one.
+ *
+ * So ids defined inside `<svg>` and keyframe names are suffixed with the
+ * section's id on the way onto the canvas, and every reference to them with
+ * it — `url(#…)`, `href="#…"`, `animation-name`. Ids outside SVG are left
+ * alone: `<section id="contact">` is a navigation target other sections link
+ * to, and it must stay findable. The suffix is stripped on the way back out,
+ * so what is stored is what the author wrote.
+ */
+const REF_SUFFIX = "__xs_";
+
+/** The suffix for one section. Characters an id or a keyframe name accepts. */
+export function sectionRefSuffix(sectionId: string): string {
+  return `${REF_SUFFIX}${sectionId.replace(/[^A-Za-z0-9_-]/g, "")}`;
+}
+
+export type SectionRefs = { ids: string[]; keyframes: string[] };
+
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Ids defined inside `<svg>` elements and `@keyframes` names, in a section's code. */
+export function collectSectionRefs(rawCode: string): SectionRefs {
+  const code = rawCode || "";
+  const ids = new Set<string>();
+  const keyframes = new Set<string>();
+
+  // Every <svg>…</svg> range, nesting-aware.
+  const tag = /<(\/?)svg\b[^>]*>/gi;
+  let depth = 0;
+  let start = -1;
+  let match: RegExpExecArray | null;
+  const collect = (block: string) => {
+    for (const id of block.matchAll(/\sid\s*=\s*["']([^"']+)["']/gi)) ids.add(id[1]!);
+  };
+  while ((match = tag.exec(code)) !== null) {
+    if (match[1] === "") {
+      if (depth === 0) start = match.index;
+      depth++;
+    } else if (depth > 0) {
+      depth--;
+      if (depth === 0 && start >= 0) {
+        collect(code.slice(start, match.index));
+        start = -1;
+      }
+    }
+  }
+  if (depth > 0 && start >= 0) collect(code.slice(start));
+
+  for (const kf of code.matchAll(/@(?:-webkit-)?keyframes\s+([A-Za-z_][\w-]*)/g)) keyframes.add(kf[1]!);
+
+  return { ids: Array.from(ids), keyframes: Array.from(keyframes) };
+}
+
+/**
+ * Suffixes the given ids and keyframe names, and every reference to them, in
+ * `text` — which may be a section's markup, its stylesheet, or one `style`
+ * attribute. Applying it twice is safe: a token already carrying the suffix
+ * no longer matches the bare name.
+ */
+export function scopeSectionRefs(text: string, refs: SectionRefs, suffix: string): string {
+  if (!text || (refs.ids.length === 0 && refs.keyframes.length === 0)) return text;
+  let out = text;
+
+  for (const id of refs.ids) {
+    const e = escapeRegExp(id);
+    out = out
+      .replace(new RegExp(`(\\sid\\s*=\\s*["'])${e}(["'])`, "g"), `$1${id}${suffix}$2`)
+      .replace(new RegExp(`(url\\(\\s*["']?#)${e}(["']?\\s*\\))`, "g"), `$1${id}${suffix}$2`)
+      .replace(new RegExp(`(\\s(?:xlink:)?href\\s*=\\s*["']#)${e}(["'])`, "g"), `$1${id}${suffix}$2`);
+  }
+
+  for (const name of refs.keyframes) {
+    const e = escapeRegExp(name);
+    out = out
+      .replace(new RegExp(`(@(?:-webkit-)?keyframes\\s+)${e}(?![\\w-])`, "g"), `$1${name}${suffix}`)
+      // The name inside `animation` / `animation-name` declarations only, so a
+      // class or a word that happens to match is not renamed.
+      .replace(/animation(?:-name)?\s*:[^;}"']*/g, (decl) =>
+        decl.replace(new RegExp(`(^|[\\s,:])${e}(?![\\w-])`, "g"), `$1${name}${suffix}`),
+      );
+  }
+  return out;
+}
+
+/** The inverse: every suffix removed, whichever section put it there. */
+export function unscopeSectionRefs(text: string): string {
+  if (!text || !text.includes(REF_SUFFIX)) return text;
+  return text.replace(new RegExp(`${REF_SUFFIX}[A-Za-z0-9_-]*`, "g"), "");
+}
+
+/* ── Uploaded assets ──────────────────────────────────────────────────────── */
+
+/**
+ * `/uploads/…` is a path on the API, and a section carries it as authored.
+ * Wherever the section is shown from a different origin — the Admin's
+ * iframe, a frontend without a rewrite for it — that path resolves against
+ * the wrong host and the image is a 404 with a perfectly reasonable-looking
+ * URL. This prefixes the API's origin where one is known.
+ */
+export function absolutiseUploadUrls(html: string, assetBase: string | null | undefined): string {
+  const base = (assetBase || "").trim().replace(/\/+$/, "");
+  if (!html || !base) return html;
+  return html.replace(/((?:src|href|poster|srcset)\s*=\s*["']|url\(\s*["']?)(\/uploads\/)/gi, `$1${base}$2`);
+}
+
 /**
  * A section's markup, ready to inject into a canvas.
  *
@@ -750,12 +899,16 @@ export function extractStylesAndBody(rawCode: string): {
  * One function now, called by the editor and by the site, so the two cannot
  * drift apart again.
  */
-export function sectionCanvasHtml(rawCode: string): string {
+export function sectionCanvasHtml(rawCode: string, sectionId?: string): string {
   const { bodyHtml } = extractStylesAndBody(rawCode || "");
   // Inline `style="width: 40vw"` needs the same substitution the section's
   // stylesheet gets, or half of a section is container-relative and half of it
   // is window-relative. `recomposeSectionCode` puts it back on the way out.
-  return `<div class="section-canvas-box">${mapInlineStyles(bodyHtml, viewportUnitsToContainer)}</div>`;
+  let body = mapInlineStyles(bodyHtml, viewportUnitsToContainer);
+  // SVG ids and keyframe names made this section's own — see `scopeSectionRefs`.
+  // The stylesheet gets the same treatment in `buildSectionRuntimeStylesheet`.
+  if (sectionId) body = scopeSectionRefs(body, collectSectionRefs(rawCode || ""), sectionRefSuffix(sectionId));
+  return `<div class="section-canvas-box">${body}</div>`;
 }
 
 /**
@@ -782,7 +935,8 @@ export function recomposeSectionCode(originalCode: string, newBodyHtml: string):
   if (headLinks.trim()) parts.push(headLinks.trim());
   if (headCss.trim()) parts.push(`<style>\n${headCss.trim()}\n</style>`);
 
-  const cleanBody = (newBodyHtml || "").trim();
+  // Section-scoped SVG ids and keyframe names back to what the author wrote.
+  const cleanBody = unscopeSectionRefs((newBodyHtml || "").trim());
   // Extract and preserve any scripts from originalCode that may have been stripped during DOM reading
   const originalScripts = (originalCode || "").match(/<script[\s\S]*?<\/script>/gi) || [];
   const bodyHasScripts = /<script[\s\S]*?<\/script>/i.test(cleanBody);
@@ -823,7 +977,7 @@ export function viewportMediaToContainer(css: string): string {
 
     const clauses = withoutType.split(/\s+and\s+/i).map((clause) => clause.trim());
     const isWidthClause = (clause: string) =>
-      /^\(\s*(?:min-|max-)?width\s*:\s*[^)]+\)$/i.test(clause);
+      /^\(\s*(?:(?:min-|max-)?width\s*:|width\s*[<>=])\s*[^)]+\)$/i.test(clause);
 
     if (!clauses.every(isWidthClause)) return full;
 
@@ -1033,17 +1187,25 @@ export function normalizeSectionCode(rawCode: string): string {
  */
 export function buildSectionPreviewDocument(
   rawCode: string,
-  options: { title?: string } = {},
+  options: { title?: string; assetBase?: string | null } = {},
 ): string {
   const displayTitle = options.title || "Empty Section Box";
-  const code =
+  const code = absolutiseUploadUrls(
     rawCode ||
-    `<section style="padding: 60px 24px; text-align: center;"><h2>${displayTitle}</h2></section>`;
+      `<section style="padding: 60px 24px; text-align: center;"><h2>${displayTitle}</h2></section>`,
+    options.assetBase,
+  );
   const extracted = extractStylesAndBody(code);
-  const { headLinks, bodyHtml } = extracted;
+  const { headLinks } = extracted;
+  // The iframe holds one section, so nothing here can collide — the scoping is
+  // applied anyway, so the preview exercises the exact transform the site does.
+  const refs = collectSectionRefs(code);
+  const suffix = sectionRefSuffix("preview");
+  const bodyHtml = scopeSectionRefs(extracted.bodyHtml, refs, suffix);
   // The section's own `@import`s, as `<link>`s — see `extractCssImports`. In
   // the iframe they were legal and inert, which is the harder kind of broken.
-  const { css: headCss, hrefs } = extractCssImports(extracted.headCss);
+  const { css: importedCss, hrefs } = extractCssImports(extracted.headCss);
+  const headCss = scopeSectionRefs(importedCss, refs, suffix);
   const importedLinks = hrefs
     .map((href) => `<link rel="stylesheet" href="${href}"/>`)
     .join("\n  ");
@@ -1100,6 +1262,7 @@ export function buildSectionPreviewDocument(
     "      } catch(e) {}",
     "    })();",
     "  </script>",
+    "  <script>" + SECTION_RUNTIME_IMAGE_FALLBACK_SCRIPT + "</script>",
     "</body>",
     "</html>",
   ]

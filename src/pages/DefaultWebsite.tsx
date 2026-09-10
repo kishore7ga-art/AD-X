@@ -7,10 +7,10 @@ import { AddSectionButton } from "@/components/AddSectionButton";
 import type { ModalDialogState } from "@/components/ModalDialog";
 import {
   SECTION_DEVICE_PRESETS,
-  buildSectionPreviewDocument,
   normalizeSectionCode,
   type SectionDevicePreset,
 } from "@/lib/section-runtime";
+import { previewDocument } from "@/lib/preview-document";
 
 /** The device ladder, as the preview's toggle. */
 const DEVICE_TOGGLES: { group: SectionDevicePreset["group"]; label: string }[] = [
@@ -494,7 +494,7 @@ function SectionLivePreviewIframe({
   // rendering — a section that looks right here has to look identical live — and
   // the only way to keep that true is for there to be one definition of what
   // "here" is.
-  const fullHtmlDoc = buildSectionPreviewDocument(code, { title });
+  const fullHtmlDoc = previewDocument(code, { title });
 
   return (
     <div
