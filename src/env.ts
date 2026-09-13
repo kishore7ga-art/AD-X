@@ -28,6 +28,15 @@ function resolveApiBase(): string {
 /** Single API base URL. */
 export const API_BASE = resolveApiBase();
 
+/**
+ * Where the editor is.
+ *
+ * `app.webxite.org`, not the apex. The apex serves the public landing site, so
+ * the "open in studio" links this base builds used to land an admin on a
+ * marketing page instead of the tenant's editor. `VITE_STUDIO_BASE_URL`
+ * overrides it and is what production actually sets; this fallback only has to
+ * be right for a build that forgot to.
+ */
 const rawStudio = env?.VITE_STUDIO_BASE_URL?.trim();
 const resolvedStudio = (() => {
   if (rawStudio) return rawStudio;
@@ -37,7 +46,7 @@ const resolvedStudio = (() => {
       return "http://localhost:3000";
     }
   }
-  return "https://webxite.org";
+  return "https://app.webxite.org";
 })();
 
 export const STUDIO_BASE = resolvedStudio.replace(/\/+$/, "");
