@@ -18,8 +18,46 @@ export type UserItem = {
   };
 };
 
+/**
+ * A tenant's subscription, as the admin panel is allowed to see it.
+ *
+ * Identifiers and status. `sub_...` and `pay_...` are what an operator needs to
+ * find a payment in the Razorpay Dashboard when somebody writes in, and they
+ * are useless to anyone who cannot already sign in there. No card data exists
+ * anywhere in this platform to show, and no key or secret is reachable from
+ * this app.
+ */
+export type AdminSubscription = {
+  id: string;
+  tenantId: string;
+  razorpaySubscriptionId: string;
+  razorpayPlanId: string;
+  status: string;
+  isActive: boolean;
+  currentEnd: string | null;
+  cancelledAt: string | null;
+  cancelAtCycleEnd: boolean;
+  lastPaymentId: string | null;
+};
+
+const SUBSCRIPTION_TONE: Record<string, string> = {
+  active: "text-emerald-600",
+  authenticated: "text-emerald-600",
+  created: "text-chalk-dim",
+  pending: "text-amber-600",
+  halted: "text-red-500",
+  cancelled: "text-chalk-dim",
+  completed: "text-chalk-dim",
+  expired: "text-chalk-dim",
+};
+
 export function Users() {
   const [users, setUsers] = useState<UserItem[]>([]);
+  /**
+   * Keyed by tenant id, so a card can find its own subscription without a
+   * second request per row.
+   */
+  const [subscriptions, setSubscriptions] = useState<Record<string, AdminSubscription>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -78,8 +116,34 @@ export function Users() {
     }
   };
 
+  /**
+   * Subscriptions, fetched separately and allowed to fail.
+   *
+   * Billing is supplementary information on this screen. A Razorpay outage, or
+   * a deployment with no payment provider configured at all, must not take the
+   * user list down with it — so a failure here leaves the cards rendering
+   * exactly as they did before subscriptions existed.
+   */
+  const fetchSubscriptions = async () => {
+    try {
+      const data = await api.get<{ subscriptions: AdminSubscription[] }>(
+        "/api/v1/admin/subscriptions",
+      );
+      const byTenant: Record<string, AdminSubscription> = {};
+      for (const row of data.subscriptions ?? []) {
+        // Newest first from the API, so the first row for a tenant is the live
+        // one and later (older) rows must not overwrite it.
+        if (!byTenant[row.tenantId]) byTenant[row.tenantId] = row;
+      }
+      setSubscriptions(byTenant);
+    } catch {
+      setSubscriptions({});
+    }
+  };
+
   useEffect(() => {
     void fetchUsers();
+    void fetchSubscriptions();
   }, []);
 
   const toggleStatus = async (user: UserItem) => {
@@ -254,6 +318,51 @@ export function Users() {
                       https://{user.college?.subdomain || "greenfield"}.edu.in
                     </p>
                     <div className="mt-3 p-3 rounded-lg bg-night border border-night-line text-xs font-mono text-chalk-dim space-y-1">
+                      {/*
+                        Subscription, when there is one. Absent rather than
+                        "None" when billing is not configured on the server:
+                        every tenant reading "no subscription" on a platform
+                        that cannot sell one is noise, not information.
+                      */}
+                      {subscriptions[user.college?.id ?? ""] && (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <span className="text-chalk-dim">Subscription:</span>
+                            <span
+                              className={`font-bold ${
+                                SUBSCRIPTION_TONE[
+                                  subscriptions[user.college.id]!.status
+                                ] ?? "text-chalk-dim"
+                              }`}
+                            >
+                              {subscriptions[user.college.id]!.status}
+                              {subscriptions[user.college.id]!.cancelAtCycleEnd
+                                ? " (ending)"
+                                : ""}
+                            </span>
+                          </div>
+                          {subscriptions[user.college.id]!.currentEnd && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-chalk-dim">
+                                {subscriptions[user.college.id]!.cancelAtCycleEnd
+                                  ? "Ends:"
+                                  : "Renews:"}
+                              </span>
+                              <span className="text-chalk">
+                                {new Date(
+                                  subscriptions[user.college.id]!.currentEnd as string,
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <span className="text-chalk-dim">Razorpay ref:</span>
+                            <span className="text-chalk-dim">
+                              {subscriptions[user.college.id]!.razorpaySubscriptionId}
+                            </span>
+                          </div>
+                        </>
+                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-chalk-dim">Auto-Saved Pages:</span>
                         <span className="text-emerald-600 font-bold">11 Pages Active</span>
