@@ -1185,9 +1185,47 @@ export function normalizeSectionCode(rawCode: string): string {
  * This is the reference rendering. Anything the published site does differently
  * is, by definition, the bug.
  */
+/**
+ * ── Why this takes a theme ─────────────────────────────────────────────────
+ *
+ * It used to take none, and that was the whole of the "the Editor invents a
+ * background" bug. Measured in Chromium, a section configured with no
+ * background at all came out:
+ *
+ *   editor canvas root  rgb(255, 255, 255)
+ *   published site      rgb(255, 255, 255)   <- identical, as designed
+ *   Admin preview       rgb(9, 9, 11)        <- the odd one out
+ *
+ * The section itself is transparent on all three; nothing forces a background
+ * onto it. What differs is the canvas behind it. The runtime paints the root
+ * `var(--xite-surface, #09090b)`, and this document stamped no
+ * `data-xite-theme` anywhere — so the variable never resolved and every section
+ * an administrator looked at sat on near-black, whatever the site it was bound
+ * for actually looked like.
+ *
+ * So the Editor was right and the Admin was wrong, which is the reverse of how
+ * it reads from the Admin's side.
+ *
+ * The caller builds `themeCss` against the `html` scope, matching where the
+ * attribute is stamped below.
+ *
+ * `themeCss` is passed in rather than imported so this file keeps its one
+ * useful property: no dependencies, therefore trivially mirrorable between
+ * xite-F and xite-admin. The caller supplies the same `themeStylesheet()`
+ * output the editor and the published site already use, so there is still
+ * exactly one definition of what a theme is.
+ */
 export function buildSectionPreviewDocument(
   rawCode: string,
-  options: { title?: string; assetBase?: string | null } = {},
+  options: {
+    title?: string;
+    assetBase?: string | null;
+    /** `themeStylesheet(scope)` output. Omit for the unthemed default. */
+    themeCss?: string | null;
+    /** Stamped on <body>, which is the scope the CSS above is built against. */
+    themeId?: string | null;
+    fontId?: string | null;
+  } = {},
 ): string {
   const displayTitle = options.title || "Empty Section Box";
   const code = absolutiseUploadUrls(
@@ -1212,7 +1250,13 @@ export function buildSectionPreviewDocument(
 
   return [
     "<!DOCTYPE html>",
-    '<html lang="en">',
+    // The theme is stamped on <html>, not <body>. Custom properties inherit, so
+    // one attribute here resolves --xite-surface for the root element *and* the
+    // body; on <body> alone the root keeps the #09090b fallback and shows as a
+    // dark band below any section shorter than the viewport.
+    `<html lang="en"${options.themeId ? ` data-xite-theme="${options.themeId}"` : ""}${
+      options.fontId ? ` data-xite-font="${options.fontId}"` : ""
+    }>`,
     "<head>",
     '  <meta charset="utf-8"/>',
     '  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>',
@@ -1227,6 +1271,11 @@ export function buildSectionPreviewDocument(
       ? "    /* Extracted User Custom Web CSS */\n" +
         viewportUnitsToContainer(viewportMediaToContainer(headCss))
       : "",
+    // Closed and reopened so the theme lands in its own block, after the
+    // section's CSS, exactly where the editor's cascade puts it.
+    options.themeCss ? "  </style>" : "",
+    options.themeCss ? "  <style>" : "",
+    options.themeCss || "",
     "  </style>",
     "</head>",
     "<body>",

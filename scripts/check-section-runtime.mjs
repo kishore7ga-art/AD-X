@@ -20,6 +20,7 @@ import { readFileSync, existsSync } from "node:fs";
 const FILES = [
   // The environment every section is authored against and rendered into.
   "src/lib/section-runtime.ts",
+  "src/lib/editor-themes.ts",
   // What category a section is. A fourth, divergent copy of this list is what
   // made every CTA template invisible in the editor and unswappable.
   "src/lib/sections/categories.ts",
