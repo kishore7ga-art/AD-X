@@ -330,10 +330,10 @@ export function getMatchingPaletteId(
   const normSecondary = normalizeHex(secondaryColor);
 
   if (normPrimary === "#000000" && normSecondary === "#FFFFFF") {
-    return "black-and-white";
+    return "black-white";
   }
   if (normPrimary === "#FFFFFF" && normSecondary === "#000000") {
-    return "white-and-black";
+    return "white-black";
   }
   return "custom";
 }
@@ -665,10 +665,12 @@ export function themeStylesheet(scope: string): string {
    */
   for (const theme of EDITOR_THEMES) {
     blocks.push(`${scope}[data-xite-theme="${theme.id}"] {\n${declarations(theme)}\n}`);
-    if (theme.id === "black-and-white") {
+    if (theme.id === "black-white" || theme.id === "black-and-white") {
       blocks.push(`${scope}[data-xite-theme="black-white"] {\n${declarations(theme)}\n}`);
-    } else if (theme.id === "white-and-black") {
+      blocks.push(`${scope}[data-xite-theme="black-and-white"] {\n${declarations(theme)}\n}`);
+    } else if (theme.id === "white-black" || theme.id === "white-and-black") {
       blocks.push(`${scope}[data-xite-theme="white-black"] {\n${declarations(theme)}\n}`);
+      blocks.push(`${scope}[data-xite-theme="white-and-black"] {\n${declarations(theme)}\n}`);
     }
   }
 
