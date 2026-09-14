@@ -42,6 +42,8 @@
 export type EditorThemeId =
   | "black-and-white"
   | "white-and-black"
+  | "black-white"
+  | "white-black"
   | "academic-blue"
   | "emerald-gold"
   | "crimson-slate"
@@ -49,6 +51,34 @@ export type EditorThemeId =
   | "custom";
 
 export type EditorFontId = "inter" | "outfit" | "serif";
+
+export type ColorPalette = {
+  id: string;
+  name: string;
+  description?: string;
+  primary: string;
+  secondary: string;
+  type: "default" | "custom";
+};
+
+export const DEFAULT_PALETTES: readonly ColorPalette[] = [
+  {
+    id: "black-white",
+    name: "Black & White",
+    description: "Classic monochrome",
+    primary: "#000000",
+    secondary: "#FFFFFF",
+    type: "default",
+  },
+  {
+    id: "white-black",
+    name: "White & Black",
+    description: "Light monochrome",
+    primary: "#FFFFFF",
+    secondary: "#000000",
+    type: "default",
+  },
+];
 
 export type EditorThemeTokens = {
   /** Page background, and the background of full-bleed bands. */
@@ -94,44 +124,44 @@ export type EditorTheme = {
 
 /**
  * Default dual-preset themes:
- * 1. Black & White (Obsidian Dark)
- * 2. White & Black (Crisp Clean Light)
+ * 1. Black & White (Classic monochrome: Primary #000000, Secondary #FFFFFF)
+ * 2. White & Black (Light monochrome: Primary #FFFFFF, Secondary #000000)
  */
 export const DEFAULT_DUAL_THEMES: readonly EditorTheme[] = [
   {
-    id: "white-and-black",
-    name: "White & Black",
-    description: "Crisp modern white background with deep black typography and contrast.",
-    swatch: { base: "#ffffff", accent: "#000000" },
-    tokens: {
-      surface: "#ffffff",
-      surfaceRaised: "#f4f4f5",
-      header: "#ffffff",
-      footer: "#f8fafc",
-      accent: "#000000",
-      accentSoft: "#27272a",
-      onAccent: "#ffffff",
-      text: "#000000",
-      textMuted: "#71717a",
-      border: "rgba(0, 0, 0, 0.12)",
-    },
-  },
-  {
     id: "black-and-white",
     name: "Black & White",
-    description: "Sleek obsidian black base with crisp pure white accents and high contrast.",
-    swatch: { base: "#000000", accent: "#ffffff" },
+    description: "Classic monochrome",
+    swatch: { base: "#ffffff", accent: "#000000" },
     tokens: {
       surface: "#000000",
       surfaceRaised: "#141416",
       header: "#000000",
       footer: "#000000",
-      accent: "#ffffff",
-      accentSoft: "#e4e4e7",
-      onAccent: "#000000",
+      accent: "#000000",
+      accentSoft: "rgba(0, 0, 0, 0.16)",
+      onAccent: "#ffffff",
       text: "#ffffff",
       textMuted: "#a1a1aa",
       border: "rgba(255, 255, 255, 0.16)",
+    },
+  },
+  {
+    id: "white-and-black",
+    name: "White & Black",
+    description: "Light monochrome",
+    swatch: { base: "#000000", accent: "#ffffff" },
+    tokens: {
+      surface: "#ffffff",
+      surfaceRaised: "#f4f4f5",
+      header: "#ffffff",
+      footer: "#f8fafc",
+      accent: "#ffffff",
+      accentSoft: "rgba(255, 255, 255, 0.16)",
+      onAccent: "#000000",
+      text: "#000000",
+      textMuted: "#71717a",
+      border: "rgba(0, 0, 0, 0.12)",
     },
   },
 ] as const;
@@ -271,8 +301,57 @@ export const EDITOR_FONTS: readonly EditorFont[] = [
 export const EDITOR_FONT_IDS = EDITOR_FONTS.map((f) => f.id);
 export const DEFAULT_FONT_ID: EditorFontId = "inter";
 
+export function normalizeHex(hex: string): string {
+  if (!hex || typeof hex !== "string") return "#000000";
+  let clean = hex.trim();
+  if (!clean.startsWith("#")) {
+    clean = "#" + clean;
+  }
+  if (/^#[0-9a-fA-F]{3}$/.test(clean)) {
+    clean = `#${clean[1]}${clean[1]}${clean[2]}${clean[2]}${clean[3]}${clean[3]}`;
+  }
+  return clean.toUpperCase();
+}
+
+export function isValidHex(hex: string): boolean {
+  if (!hex || typeof hex !== "string") return false;
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(hex.trim());
+}
+
+/**
+ * Derives the active default palette ID if current primary and secondary colors
+ * match a default palette, or returns 'custom'.
+ */
+export function getMatchingPaletteId(
+  primaryColor: string,
+  secondaryColor: string,
+): EditorThemeId {
+  const normPrimary = normalizeHex(primaryColor);
+  const normSecondary = normalizeHex(secondaryColor);
+
+  if (normPrimary === "#000000" && normSecondary === "#FFFFFF") {
+    return "black-and-white";
+  }
+  if (normPrimary === "#FFFFFF" && normSecondary === "#000000") {
+    return "white-and-black";
+  }
+  return "custom";
+}
+
+export function normalizeThemeId(id: string | null | undefined): EditorThemeId {
+  if (!id) return DEFAULT_THEME_ID;
+  if (id === "black-white") return "black-and-white";
+  if (id === "white-black") return "white-and-black";
+  return id as EditorThemeId;
+}
+
 export function themeById(id: string | null | undefined): EditorTheme {
-  return EDITOR_THEMES.find((t) => t.id === id) ?? EDITOR_THEMES.find((t) => t.id === DEFAULT_THEME_ID) ?? EDITOR_THEMES[0]!;
+  const norm = normalizeThemeId(id);
+  return (
+    EDITOR_THEMES.find((t) => t.id === norm || t.id === id) ??
+    EDITOR_THEMES.find((t) => t.id === DEFAULT_THEME_ID) ??
+    EDITOR_THEMES[0]!
+  );
 }
 
 export function fontById(id: string | null | undefined): EditorFont {
@@ -586,6 +665,11 @@ export function themeStylesheet(scope: string): string {
    */
   for (const theme of EDITOR_THEMES) {
     blocks.push(`${scope}[data-xite-theme="${theme.id}"] {\n${declarations(theme)}\n}`);
+    if (theme.id === "black-and-white") {
+      blocks.push(`${scope}[data-xite-theme="black-white"] {\n${declarations(theme)}\n}`);
+    } else if (theme.id === "white-and-black") {
+      blocks.push(`${scope}[data-xite-theme="white-black"] {\n${declarations(theme)}\n}`);
+    }
   }
 
   for (const font of EDITOR_FONTS) {
@@ -643,14 +727,14 @@ export function themeFontsHref(): string {
 /**
  * The two brand colours a preset starts the tenant off with.
  *
- * Picking "White & Black" makes the whole template white with black brand
- * elements, so the colour cards read primary = the preset's accent (black) and
- * secondary = its base (white). "Black & White" is the reverse. The tenant can
- * then replace either one on its own; the surfaces and text stay the preset's.
+ * "Black & White" starts with Primary = #000000, Secondary = #ffffff.
+ * "White & Black" starts with Primary = #ffffff, Secondary = #000000.
  */
 export function presetBrandTokens(theme: EditorTheme): EditorThemeTokens {
-  const primary = theme.swatch.accent;
-  const secondary = theme.swatch.base;
+  const isWb = theme.id === "white-and-black" || (theme.id as string) === "white-black";
+  const isBw = theme.id === "black-and-white" || (theme.id as string) === "black-white";
+  const primary = theme.tokens.primary ?? (isWb ? "#ffffff" : isBw ? "#000000" : theme.swatch.accent);
+  const secondary = theme.tokens.secondary ?? (isWb ? "#000000" : isBw ? "#ffffff" : theme.swatch.base);
   const primContrast = calculateOppositeContrast(primary);
   const secContrast = calculateOppositeContrast(secondary);
   return {
@@ -679,9 +763,8 @@ export function presetBrandTokens(theme: EditorTheme): EditorThemeTokens {
  */
 export function customThemeCss(scope: string, tokens: EditorThemeTokens): string {
   const primary = tokens.primary || tokens.accent || "#000000";
-  // No secondary chosen yet: the template's base colour, which is what the
-  // presets start on (white for White & Black), rather than an unrelated blue.
-  const secondary = tokens.secondary || tokens.surface || "#2563eb";
+  // Fall back cleanly to the token's secondary or surface or pure white
+  const secondary = tokens.secondary || tokens.surface || "#ffffff";
 
   /**
    * Text and borders are always computed from the colour they sit on, never
