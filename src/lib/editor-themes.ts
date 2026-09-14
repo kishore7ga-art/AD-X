@@ -61,6 +61,70 @@ export type ColorPalette = {
   type: "default" | "custom";
 };
 
+export interface ColorTokenMap {
+  light1: string; // Page Canvas / Primary Background
+  light2: string; // Card Background / Secondary Layer
+  accent: string; // CTA Buttons, Hyperlinks, Active Rings
+  dark1: string;  // Secondary text, Borders, Muted Icons
+  dark2: string;  // Primary Headings, High-Contrast Text
+}
+
+export interface PalettePreset {
+  id: string;
+  name: string;
+  description?: string;
+  tokens: ColorTokenMap;
+  isCustom?: boolean;
+}
+
+export interface SectionThemeDerived {
+  lightest: { bg: string; text: string; accent: string };
+  light:    { bg: string; text: string; accent: string };
+  bright:   { bg: string; text: string; accent: string };
+  dark:     { bg: string; text: string; accent: string };
+  darkest:  { bg: string; text: string; accent: string };
+}
+
+export const DEFAULT_SQUARESPACE_PALETTES: readonly PalettePreset[] = [
+  {
+    id: "white-black",
+    name: "White & Black",
+    description: "Light monochrome canvas with deep accents",
+    tokens: {
+      light1: "#FFFFFF",
+      light2: "#F4F4F5",
+      accent: "#09090B",
+      dark1: "#27272A",
+      dark2: "#09090B",
+    },
+  },
+  {
+    id: "black-white",
+    name: "Black & White",
+    description: "Classic high contrast dark palette",
+    tokens: {
+      light1: "#18181B",
+      light2: "#27272A",
+      accent: "#FAFAFA",
+      dark1: "#A1A1AA",
+      dark2: "#FAFAFA",
+    },
+  },
+  {
+    id: "custom",
+    name: "Custom Palette",
+    description: "Click to customize",
+    isCustom: true,
+    tokens: {
+      light1: "#FFFFFF",
+      light2: "#EFF6FF",
+      accent: "#2563EB",
+      dark1: "#334155",
+      dark2: "#0F172A",
+    },
+  },
+] as const;
+
 export const DEFAULT_PALETTES: readonly ColorPalette[] = [
   {
     id: "black-white",
@@ -631,10 +695,20 @@ function mapSectionCss(html: string, transform: (css: string) => string): string
 export function themeStylesheet(scope: string): string {
   const blocks: string[] = [];
 
-  const declarations = (theme: EditorTheme) =>
-    Object.entries(theme.tokens)
-      .map(([name, value]) => `  --xite-${kebab(name)}: ${value};`)
-      .join("\n");
+  const declarations = (theme: EditorTheme) => {
+    const lines = Object.entries(theme.tokens).map(([name, value]) => `  --xite-${kebab(name)}: ${value};`);
+    const light1 = theme.tokens.surface;
+    const light2 = theme.tokens.surfaceRaised;
+    const accent = theme.tokens.accent;
+    const dark1 = theme.tokens.textMuted || theme.tokens.secondary || theme.tokens.border;
+    const dark2 = theme.tokens.text;
+    lines.push(`  --theme-light-1: ${light1};`);
+    lines.push(`  --theme-light-2: ${light2};`);
+    lines.push(`  --theme-accent: ${accent};`);
+    lines.push(`  --theme-dark-1: ${dark1};`);
+    lines.push(`  --theme-dark-2: ${dark2};`);
+    return lines.join("\n");
+  };
 
   /**
    * No unconditional default block. This is the fix, and it was the bug.
@@ -687,6 +761,134 @@ export function themeStylesheet(scope: string): string {
   );
 
   return blocks.join("\n\n");
+}
+
+/**
+ * Converts a 5-token Squarespace ColorTokenMap to the full EditorThemeTokens schema.
+ */
+export function colorTokenMapToThemeTokens(tokens: ColorTokenMap): EditorThemeTokens {
+  const primContrast = calculateOppositeContrast(tokens.accent);
+  const secContrast = calculateOppositeContrast(tokens.dark1);
+  return {
+    surface: tokens.light1,
+    surfaceRaised: tokens.light2,
+    header: tokens.dark2,
+    footer: tokens.dark2,
+    accent: tokens.accent,
+    accentSoft: primContrast.softBackground,
+    onAccent: primContrast.textColor,
+    accentBorder: primContrast.borderColor,
+    text: tokens.dark2,
+    textMuted: tokens.dark1,
+    border: "rgba(0, 0, 0, 0.12)",
+    primary: tokens.accent,
+    secondary: tokens.dark1,
+    onSecondary: secContrast.textColor,
+    secondaryBorder: secContrast.borderColor,
+  };
+}
+
+/**
+ * Converts partial or full EditorThemeTokens to a 5-token ColorTokenMap.
+ */
+export function themeTokensToColorTokenMap(tokens: Partial<EditorThemeTokens>): ColorTokenMap {
+  return {
+    light1: tokens.surface || "#FFFFFF",
+    light2: tokens.surfaceRaised || "#F4F4F5",
+    accent: tokens.accent || tokens.primary || "#2563EB",
+    dark1: tokens.textMuted || tokens.secondary || "#27272A",
+    dark2: tokens.text || "#09090B",
+  };
+}
+
+/**
+ * Generates an accessible 5-token ColorTokenMap from a single brand seed color.
+ * Algorithm computes:
+ * - light1: tint-mixed 98% lightness
+ * - light2: 92% tint of the seed color
+ * - dark1: 35% shade of the seed color
+ * - dark2: 10% ultra-dark tone for high contrast headings
+ */
+export function generateTokensFromSeed(seedHex: string): ColorTokenMap {
+  const norm = normalizeHex(seedHex);
+  const { r, g, b } = hexToRgb(norm);
+  const hsl = rgbToHsl(r, g, b);
+
+  return {
+    accent: norm,
+    light1: hslToHex(hsl.h, Math.min(hsl.s, 15), 98),
+    light2: hslToHex(hsl.h, Math.min(hsl.s, 25), 92),
+    dark1: hslToHex(hsl.h, Math.min(hsl.s, 30), 35),
+    dark2: hslToHex(hsl.h, Math.min(hsl.s, 40), 10),
+  };
+}
+
+/**
+ * Derives the 5 section themes (lightest, light, bright, dark, darkest)
+ * from a 5-token ColorTokenMap.
+ */
+export function deriveSectionThemes(
+  tokens: ColorTokenMap,
+  autoGenerateWcag = true
+): SectionThemeDerived {
+  const accentContrast = calculateOppositeContrast(tokens.accent);
+  const brightText = autoGenerateWcag ? accentContrast.textColor : tokens.light1;
+  const brightAccent = accentContrast.isLight ? tokens.dark2 : tokens.light1;
+
+  return {
+    lightest: {
+      bg: tokens.light1,
+      text: tokens.dark2,
+      accent: tokens.accent,
+    },
+    light: {
+      bg: tokens.light2,
+      text: tokens.dark2,
+      accent: tokens.accent,
+    },
+    bright: {
+      bg: tokens.accent,
+      text: brightText,
+      accent: brightAccent,
+    },
+    dark: {
+      bg: tokens.dark1,
+      text: tokens.light1,
+      accent: tokens.accent,
+    },
+    darkest: {
+      bg: tokens.dark2,
+      text: tokens.light1,
+      accent: tokens.accent,
+    },
+  };
+}
+
+/**
+ * Dynamically applies CSS custom properties directly to the root / canvas element.
+ * Injects both Squarespace --theme-* and backward-compatible --xite-* variables.
+ */
+export function applyThemeTokens(
+  tokens: ColorTokenMap,
+  targetElement?: HTMLElement | null
+): void {
+  const target = targetElement ?? (typeof document !== "undefined" ? document.documentElement : null);
+  if (!target) return;
+
+  target.style.setProperty("--theme-light-1", tokens.light1);
+  target.style.setProperty("--theme-light-2", tokens.light2);
+  target.style.setProperty("--theme-accent", tokens.accent);
+  target.style.setProperty("--theme-dark-1", tokens.dark1);
+  target.style.setProperty("--theme-dark-2", tokens.dark2);
+
+  // Backward compatibility with --xite-* variables
+  target.style.setProperty("--xite-accent", tokens.accent);
+  target.style.setProperty("--xite-primary", tokens.accent);
+  target.style.setProperty("--xite-secondary", tokens.dark1);
+  target.style.setProperty("--xite-surface", tokens.light1);
+  target.style.setProperty("--xite-surface-raised", tokens.light2);
+  target.style.setProperty("--xite-text", tokens.dark2);
+  target.style.setProperty("--xite-text-muted", tokens.dark1);
 }
 
 /**
@@ -763,10 +965,18 @@ export function presetBrandTokens(theme: EditorTheme): EditorThemeTokens {
  * replacing just the primary or secondary colour: the preset supplies
  * everything, and this block overrides the brand colours on top of it.
  */
-export function customThemeCss(scope: string, tokens: EditorThemeTokens): string {
-  const primary = tokens.primary || tokens.accent || "#000000";
+export function customThemeCss(scope: string, tokens: EditorThemeTokens | ColorTokenMap): string {
+  const isColorMap = "light1" in tokens;
+  const tokenMap: ColorTokenMap = isColorMap
+    ? (tokens as ColorTokenMap)
+    : themeTokensToColorTokenMap(tokens as EditorThemeTokens);
+  const themeTokens: EditorThemeTokens = isColorMap
+    ? colorTokenMapToThemeTokens(tokens as ColorTokenMap)
+    : (tokens as EditorThemeTokens);
+
+  const primary = themeTokens.primary || themeTokens.accent || tokenMap.accent || "#000000";
   // Fall back cleanly to the token's secondary or surface or pure white
-  const secondary = tokens.secondary || tokens.surface || "#ffffff";
+  const secondary = themeTokens.secondary || themeTokens.surface || tokenMap.dark1 || "#ffffff";
 
   /**
    * Text and borders are always computed from the colour they sit on, never
@@ -784,6 +994,11 @@ export function customThemeCss(scope: string, tokens: EditorThemeTokens): string
   const accentSoft = primContrast.softBackground;
 
   const declarations = [
+    `  --theme-light-1: ${tokenMap.light1};`,
+    `  --theme-light-2: ${tokenMap.light2};`,
+    `  --theme-accent: ${tokenMap.accent};`,
+    `  --theme-dark-1: ${tokenMap.dark1};`,
+    `  --theme-dark-2: ${tokenMap.dark2};`,
     `  --xite-accent: ${primary};`,
     `  --xite-primary: ${primary};`,
     `  --xite-on-accent: ${onPrimary};`,
