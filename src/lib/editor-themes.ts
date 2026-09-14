@@ -40,6 +40,9 @@
  */
 
 export type EditorThemeId =
+  | "ocean-navy"
+  | "forest-emerald"
+  | "warm-terracotta"
   | "black-and-white"
   | "white-and-black"
   | "black-white"
@@ -87,27 +90,39 @@ export interface SectionThemeDerived {
 
 export const DEFAULT_SQUARESPACE_PALETTES: readonly PalettePreset[] = [
   {
-    id: "white-black",
-    name: "White & Black",
-    description: "Light monochrome canvas with deep accents",
+    id: "ocean-navy",
+    name: "Ocean Navy",
+    description: "Clean canvas with deep navy headings and blue accent",
     tokens: {
       light1: "#FFFFFF",
-      light2: "#F4F4F5",
-      accent: "#09090B",
-      dark1: "#27272A",
-      dark2: "#09090B",
+      light2: "#F8FAFC",
+      accent: "#2563EB",
+      dark1: "#334155",
+      dark2: "#0F172A",
     },
   },
   {
-    id: "black-white",
-    name: "Black & White",
-    description: "Classic high contrast dark palette",
+    id: "forest-emerald",
+    name: "Forest Emerald",
+    description: "Soft mint canvas with lush emerald and deep forest tones",
     tokens: {
-      light1: "#18181B",
-      light2: "#27272A",
-      accent: "#FAFAFA",
-      dark1: "#A1A1AA",
-      dark2: "#FAFAFA",
+      light1: "#FFFFFF",
+      light2: "#ECFDF5",
+      accent: "#059669",
+      dark1: "#334155",
+      dark2: "#064E3B",
+    },
+  },
+  {
+    id: "warm-terracotta",
+    name: "Warm Terracotta",
+    description: "Warm cream canvas with earthy terracotta accents",
+    tokens: {
+      light1: "#FFFBEB",
+      light2: "#FEF3C7",
+      accent: "#EA580C",
+      dark1: "#44403C",
+      dark2: "#1C1917",
     },
   },
   {
@@ -127,19 +142,27 @@ export const DEFAULT_SQUARESPACE_PALETTES: readonly PalettePreset[] = [
 
 export const DEFAULT_PALETTES: readonly ColorPalette[] = [
   {
-    id: "black-white",
-    name: "Black & White",
-    description: "Classic monochrome",
-    primary: "#000000",
-    secondary: "#FFFFFF",
+    id: "ocean-navy",
+    name: "Ocean Navy",
+    description: "Clean canvas with deep navy and vibrant blue accents",
+    primary: "#2563EB",
+    secondary: "#0F172A",
     type: "default",
   },
   {
-    id: "white-black",
-    name: "White & Black",
-    description: "Light monochrome",
-    primary: "#FFFFFF",
-    secondary: "#000000",
+    id: "forest-emerald",
+    name: "Forest Emerald",
+    description: "Soft mint canvas with lush emerald and deep forest tones",
+    primary: "#059669",
+    secondary: "#064E3B",
+    type: "default",
+  },
+  {
+    id: "warm-terracotta",
+    name: "Warm Terracotta",
+    description: "Warm cream canvas with earthy terracotta accents",
+    primary: "#EA580C",
+    secondary: "#1C1917",
     type: "default",
   },
 ];
@@ -187,56 +210,76 @@ export type EditorTheme = {
 };
 
 /**
- * Default dual-preset themes:
- * 1. Black & White (Classic monochrome: Primary #000000, Secondary #FFFFFF)
- * 2. White & Black (Light monochrome: Primary #FFFFFF, Secondary #000000)
+ * Default preset themes:
+ * 1. Ocean Navy (Clean canvas #FFFFFF, surface #F8FAFC, blue accent #2563EB, dark text #334155, deep navy heading #0F172A)
+ * 2. Forest Emerald (Clean canvas #FFFFFF, soft mint surface #ECFDF5, emerald accent #059669, slate text #334155, deep forest #064E3B)
+ * 3. Warm Terracotta (Warm canvas #FFFBEB, soft cream surface #FEF3C7, terracotta accent #EA580C, stone text #44403C, deep charcoal #1C1917)
  */
-export const DEFAULT_DUAL_THEMES: readonly EditorTheme[] = [
+export const DEFAULT_PRESET_THEMES: readonly EditorTheme[] = [
   {
-    id: "black-and-white",
-    name: "Black & White",
-    description: "Classic monochrome",
-    swatch: { base: "#ffffff", accent: "#000000" },
+    id: "ocean-navy",
+    name: "Ocean Navy",
+    description: "Clean canvas with deep navy and vibrant blue accents",
+    swatch: { base: "#0f172a", accent: "#2563eb" },
     tokens: {
-      surface: "#000000",
-      surfaceRaised: "#141416",
-      header: "#000000",
-      footer: "#000000",
-      accent: "#000000",
-      accentSoft: "rgba(0, 0, 0, 0.16)",
+      surface: "#ffffff",
+      surfaceRaised: "#f8fafc",
+      header: "#0f172a",
+      footer: "#0f172a",
+      accent: "#2563eb",
+      accentSoft: "rgba(37, 99, 235, 0.16)",
       onAccent: "#ffffff",
-      text: "#ffffff",
-      textMuted: "#a1a1aa",
-      border: "rgba(255, 255, 255, 0.16)",
+      text: "#0f172a",
+      textMuted: "#334155",
+      border: "rgba(15, 23, 42, 0.12)",
     },
   },
   {
-    id: "white-and-black",
-    name: "White & Black",
-    description: "Light monochrome",
-    swatch: { base: "#000000", accent: "#ffffff" },
+    id: "forest-emerald",
+    name: "Forest Emerald",
+    description: "Soft mint canvas with lush emerald and deep forest tones",
+    swatch: { base: "#064e3b", accent: "#059669" },
     tokens: {
       surface: "#ffffff",
-      surfaceRaised: "#f4f4f5",
-      header: "#ffffff",
-      footer: "#f8fafc",
-      accent: "#ffffff",
-      accentSoft: "rgba(255, 255, 255, 0.16)",
-      onAccent: "#000000",
-      text: "#000000",
-      textMuted: "#71717a",
-      border: "rgba(0, 0, 0, 0.12)",
+      surfaceRaised: "#ecfdf5",
+      header: "#064e3b",
+      footer: "#064e3b",
+      accent: "#059669",
+      accentSoft: "rgba(5, 150, 105, 0.16)",
+      onAccent: "#ffffff",
+      text: "#064e3b",
+      textMuted: "#334155",
+      border: "rgba(6, 78, 59, 0.12)",
+    },
+  },
+  {
+    id: "warm-terracotta",
+    name: "Warm Terracotta",
+    description: "Warm cream canvas with earthy terracotta accents",
+    swatch: { base: "#1c1917", accent: "#ea580c" },
+    tokens: {
+      surface: "#fffbeb",
+      surfaceRaised: "#fef3c7",
+      header: "#1c1917",
+      footer: "#1c1917",
+      accent: "#ea580c",
+      accentSoft: "rgba(234, 88, 12, 0.16)",
+      onAccent: "#ffffff",
+      text: "#1c1917",
+      textMuted: "#44403c",
+      border: "rgba(28, 25, 23, 0.12)",
     },
   },
 ] as const;
 
+export const DEFAULT_DUAL_THEMES: readonly EditorTheme[] = DEFAULT_PRESET_THEMES;
+
 /**
  * All themes supported by the engine.
- * The default two (Black & White, White & Black) lead the list,
- * followed by the 4 platform themes for full backwards compatibility.
+ * The default presets lead the list, followed by the 4 platform themes.
  */
 export const EDITOR_THEMES: readonly EditorTheme[] = [
-  ...DEFAULT_DUAL_THEMES,
+  ...DEFAULT_PRESET_THEMES,
   {
     id: "academic-blue",
     name: "Academic Navy",
@@ -396,6 +439,24 @@ export function getMatchingPaletteId(
   const normPrimary = normalizeHex(primaryColor);
   const normSecondary = normalizeHex(secondaryColor);
 
+  if (
+    normPrimary === "#2563EB" &&
+    (normSecondary === "#0F172A" || normSecondary === "#F8FAFC" || normSecondary === "#FFFFFF")
+  ) {
+    return "ocean-navy";
+  }
+  if (
+    normPrimary === "#059669" &&
+    (normSecondary === "#064E3B" || normSecondary === "#ECFDF5" || normSecondary === "#FFFFFF")
+  ) {
+    return "forest-emerald";
+  }
+  if (
+    normPrimary === "#EA580C" &&
+    (normSecondary === "#1C1917" || normSecondary === "#FEF3C7" || normSecondary === "#FFFBEB")
+  ) {
+    return "warm-terracotta";
+  }
   if (normPrimary === "#000000" && normSecondary === "#FFFFFF") {
     return "black-white";
   }
