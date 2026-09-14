@@ -48,10 +48,25 @@ export function SectionAddStudio() {
   const typeName = state?.typeName || "Hero Banner";
   const typeId = state?.typeId || "hero";
 
-  const [variantName, setVariantName] = useState(`${typeName} Variant`);
   const [existingNames, setExistingNames] = useState<string[]>(
     (state as { existingNames?: string[] } | undefined)?.existingNames ?? [],
   );
+  const [variantName, setVariantName] = useState(() => {
+    const passedNames = (state as { existingNames?: string[] } | undefined)?.existingNames ?? [];
+    const cleanCategory = (typeId || "header").toLowerCase();
+    const baseVariant = `${typeName} Variant`;
+    const initialFinal = `${typeName} [${cleanCategory}] - ${baseVariant}`;
+    if (
+      passedNames.length > 0 &&
+      passedNames.some((n) => n.toLowerCase() === initialFinal.toLowerCase())
+    ) {
+      const uniqueFinal = getUniqueSectionName(initialFinal, passedNames);
+      return uniqueFinal.includes(" - ")
+        ? uniqueFinal.split(" - ").slice(1).join(" - ")
+        : `${typeName} Variant 2`;
+    }
+    return baseVariant;
+  });
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [code, setCode] = useState(DEFAULT_STARTER_CODE);
   const [fileName, setFileName] = useState<string | null>(null);

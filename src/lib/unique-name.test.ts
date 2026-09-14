@@ -54,4 +54,26 @@ describe("getUniqueSectionName", () => {
       "Test Section 2",
     );
   });
+
+  it("handles 10+ sequential additions cleanly", () => {
+    const names: string[] = [];
+    for (let i = 1; i <= 12; i++) {
+      const unique = getUniqueSectionName("Hero", names);
+      names.push(unique);
+    }
+    assert.deepEqual(names, [
+      "Hero",
+      "Hero 2",
+      "Hero 3",
+      "Hero 4",
+      "Hero 5",
+      "Hero 6",
+      "Hero 7",
+      "Hero 8",
+      "Hero 9",
+      "Hero 10",
+      "Hero 11",
+      "Hero 12",
+    ]);
+  });
 });

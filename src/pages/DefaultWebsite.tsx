@@ -968,8 +968,17 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
     const { pageSlug, index, section } = editingSection;
     const currentConfig = config;
 
+    const rawTitle = section.title?.trim() || "Section";
+    const allOtherTitles = (currentConfig.pages || []).flatMap((p) =>
+      (p.sections || [])
+        .filter((s) => s.id !== section.id)
+        .map((s) => s.title),
+    );
+    const uniqueTitle = getUniqueSectionName(rawTitle, allOtherTitles);
+
     const sanitizedSection = {
       ...section,
+      title: uniqueTitle,
       code: cleanCanvasWrapperFromCode(section.code),
     };
 
