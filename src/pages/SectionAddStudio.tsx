@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Upload, Save, ArrowLeft, Eye, FileCode, CheckCircle, AlertCircle } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { AddSectionButton } from "@/components/AddSectionButton";
 import { api } from "@/api/client";
+import type { TemplateRow } from "@/api/types";
 import { normalizeSectionCode } from "@/lib/section-runtime";
 import { previewDocument } from "@/lib/preview-document";
+import { getUniqueSectionName } from "@/lib/unique-name";
 
 const DEFAULT_STARTER_CODE = `<!-- Section Component: Hero Banner -->
 <section style="background: #ffffff; color: #0f172a; padding: 80px 24px 60px 24px; text-align: center; font-family: system-ui, sans-serif; width: 100%; box-sizing: border-box; border-bottom: 1px solid #e2e8f0;">
@@ -47,6 +49,9 @@ export function SectionAddStudio() {
   const typeId = state?.typeId || "hero";
 
   const [variantName, setVariantName] = useState(`${typeName} Variant`);
+  const [existingNames, setExistingNames] = useState<string[]>(
+    (state as { existingNames?: string[] } | undefined)?.existingNames ?? [],
+  );
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [code, setCode] = useState(DEFAULT_STARTER_CODE);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -58,6 +63,34 @@ export function SectionAddStudio() {
   const [error, setError] = useState<string | null>(null);
   const [previewWidth, setPreviewWidth] = useState<string>("100%");
   const [viewMode, setViewMode] = useState<"code" | "preview" | "split">("code");
+
+  // Fetch existing templates on mount to ensure variantName is unique right away
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await api.get<{ templates: TemplateRow[] }>("/api/v1/admin/templates");
+        if (cancelled || !res?.templates) return;
+        const names = res.templates.map((t) => t.name);
+        setExistingNames(names);
+        const cleanCategory = (typeId || "header").toLowerCase();
+        const baseVariant = `${typeName} Variant`;
+        const initialFinal = `${typeName} [${cleanCategory}] - ${baseVariant}`;
+        if (names.some((n) => n.toLowerCase() === initialFinal.toLowerCase())) {
+          const uniqueFinal = getUniqueSectionName(initialFinal, names);
+          const derivedVariant = uniqueFinal.includes(" - ")
+            ? uniqueFinal.split(" - ").slice(1).join(" - ")
+            : `${typeName} Variant 2`;
+          setVariantName(derivedVariant);
+        }
+      } catch {
+        // Non-blocking; proceed with default variantName
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [typeId, typeName]);
 
   // Compute preview code: if full HTML doc, extract styles + body for clean preview
   const previewCode = (() => {
@@ -182,10 +215,23 @@ export function SectionAddStudio() {
 
     const cleanCategory = (typeId || 'header').toLowerCase();
     const customTitle = variantName.trim() || `Variant ${Date.now().toString().slice(-4)}`;
-    const finalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
+    const baseFinalName = `${typeName} [${cleanCategory}] - ${customTitle}`;
+
+    let currentExistingNames = existingNames;
+    try {
+      const res = await api.get<{ templates: TemplateRow[] }>("/api/v1/admin/templates");
+      if (res?.templates) {
+        currentExistingNames = res.templates.map((t) => t.name);
+        setExistingNames(currentExistingNames);
+      }
+    } catch {
+      // Use existingNames from state
+    }
+
+    const uniqueFinalName = getUniqueSectionName(baseFinalName, currentExistingNames);
 
     const payload = {
-      name: finalName,
+      name: uniqueFinalName,
       category: cleanCategory,
       description: `Admin section for ${typeName}`,
       code: cleanCode,

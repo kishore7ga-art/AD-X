@@ -26,6 +26,7 @@ import { SectionThumbnailPreview } from "@/components/SectionThumbnailPreview";
 import { QuickSectionPreviewModal } from "@/components/QuickSectionPreviewModal";
 import { PLATFORM_SECTION_CATEGORIES } from "@/constants/categories";
 import { resolveCategory } from "@/lib/sections/categories";
+import { getUniqueSectionName } from "@/lib/unique-name";
 
 const STUDIO_PALETTES = [
   {
@@ -388,10 +389,13 @@ export function Templates() {
     setModalError(null);
     setIsCreating(true);
 
+    const existingNames = (templates || []).map((t) => t.name);
+    const uniqueName = getUniqueSectionName(newName.trim(), existingNames);
+
     try {
       if (selectedFiles.length > 0) {
         const formData = new FormData();
-        formData.append("name", newName.trim());
+        formData.append("name", uniqueName);
         if (newDescription.trim()) {
           formData.append("description", newDescription.trim());
         }
@@ -410,7 +414,7 @@ export function Templates() {
         await api.postForm("/api/v1/admin/templates", formData);
       } else {
         await api.post("/api/v1/admin/templates", {
-          name: newName.trim(),
+          name: uniqueName,
           description: newDescription.trim() || undefined,
           thumbnailUrl: newThumbnailUrl.trim() || undefined,
           isPublished: newIsPublished,
@@ -1564,7 +1568,11 @@ export function Templates() {
         onClose={() => setShowAddSectionModal(false)}
         onSelectSectionType={(selected: { id: string; name: string }) => {
           navigate("/sections/new", {
-            state: { typeId: selected.id, typeName: selected.name },
+            state: {
+              typeId: selected.id,
+              typeName: selected.name,
+              existingNames: (templates || []).map((t) => t.name),
+            },
           });
         }}
       />

@@ -11,6 +11,7 @@ import {
   type SectionDevicePreset,
 } from "@/lib/section-runtime";
 import { previewDocument } from "@/lib/preview-document";
+import { getUniqueSectionName } from "@/lib/unique-name";
 
 /** The device ladder, as the preview's toggle. */
 const DEVICE_TOGGLES: { group: SectionDevicePreset["group"]; label: string }[] = [
@@ -985,22 +986,28 @@ const FALLBACK_DEFAULT_CONFIG: DefaultWebsiteConfig = {
   }
 
   async function handleAddSectionSubmit() {
-    if (!newTitle.trim()) return;
+    const rawTitle = newTitle.trim();
+    if (!rawTitle) return;
 
     const currentConfig = config || FALLBACK_DEFAULT_CONFIG;
     const targetPage = currentConfig.pages.find((p) => matchesSlug(p.slug, activeSlug)) || currentConfig.pages[0];
     const targetSlug = targetPage?.slug || activeSlug;
     const currentSections = targetPage?.sections || [];
 
+    const allExistingTitles = (currentConfig.pages || []).flatMap((p) =>
+      (p.sections || []).map((s) => s.title),
+    );
+    const uniqueTitle = getUniqueSectionName(rawTitle, allExistingTitles);
+
     const newSec: DefaultWebsiteSection = {
       id: `def-${Date.now()}`,
-      title: newTitle.trim(),
+      title: uniqueTitle,
       sectionType: newType,
       code:
         newCode.trim() ||
         `<section style="padding: 60px 24px; background: #09090b; color: #ffffff; text-align: center; border-radius: 12px; font-family: system-ui, sans-serif;">
-  <h2 style="font-size: 28px; font-weight: 800;">${newTitle}</h2>
-  <p style="color: #a1a1aa; margin-top: 8px;">Configured default section box for ${newTitle}</p>
+  <h2 style="font-size: 28px; font-weight: 800;">${uniqueTitle}</h2>
+  <p style="color: #a1a1aa; margin-top: 8px;">Configured default section box for ${uniqueTitle}</p>
 </section>`,
       sortOrder: currentSections.length,
     };
