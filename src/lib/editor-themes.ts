@@ -374,6 +374,9 @@ export function normalizeHex(hex: string): string {
   if (/^#[0-9a-fA-F]{3}$/.test(clean)) {
     clean = `#${clean[1]}${clean[1]}${clean[2]}${clean[2]}${clean[3]}${clean[3]}`;
   }
+  if (!/^#[0-9a-fA-F]{6}$/.test(clean)) {
+    return "#000000";
+  }
   return clean.toUpperCase();
 }
 
@@ -889,6 +892,7 @@ export function applyThemeTokens(
   target.style.setProperty("--xite-surface-raised", tokens.light2);
   target.style.setProperty("--xite-text", tokens.dark2);
   target.style.setProperty("--xite-text-muted", tokens.dark1);
+  target.style.setProperty("--xite-bg", tokens.light1);
 }
 
 /**
@@ -1007,6 +1011,11 @@ export function customThemeCss(scope: string, tokens: EditorThemeTokens | ColorT
     `  --xite-secondary: ${secondary};`,
     `  --xite-on-secondary: ${onSecondary};`,
     `  --xite-secondary-border: ${secondaryBorder};`,
+    `  --xite-surface: ${tokenMap.light1};`,
+    `  --xite-surface-raised: ${tokenMap.light2};`,
+    `  --xite-text: ${tokenMap.dark2};`,
+    `  --xite-text-muted: ${tokenMap.dark1};`,
+    `  --xite-bg: ${tokenMap.light1};`,
   ].join("\n");
 
   return `${scope}[data-xite-theme][data-xite-theme] {\n${declarations}\n}`;
@@ -1015,12 +1024,16 @@ export function customThemeCss(scope: string, tokens: EditorThemeTokens | ColorT
 /* ── Color Palette Algorithms & Harmonies ────────────────────────────────── */
 
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  if (!hex || typeof hex !== "string") return { r: 0, g: 0, b: 0 };
   let clean = hex.replace("#", "").trim();
   if (clean.length === 3) {
     clean = clean.split("").map((c) => c + c).join("");
   }
+  if (!/^[0-9a-fA-F]{6}$/.test(clean)) {
+    return { r: 0, g: 0, b: 0 };
+  }
   const num = parseInt(clean, 16);
-  if (isNaN(num)) return { r: 15, g: 23, b: 42 };
+  if (isNaN(num)) return { r: 0, g: 0, b: 0 };
   return {
     r: (num >> 16) & 255,
     g: (num >> 8) & 255,
@@ -1093,7 +1106,7 @@ export function hslToHex(h: number, s: number, l: number): string {
     return val.toString(16).padStart(2, "0");
   };
 
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
 }
 
 export function getRelativeLuminance(hex: string): number {
