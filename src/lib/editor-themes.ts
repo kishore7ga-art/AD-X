@@ -1246,6 +1246,234 @@ export function calculateOppositeContrast(hex: string): ContrastColorResult {
   };
 }
 
+/**
+ * Determines whether a given color (hex, rgb, rgba) is perceptually dark (luminance < 0.35).
+ */
+export function isDarkColor(color: string): boolean {
+  if (!color || typeof color !== "string") return false;
+  const trimmed = color.trim().toLowerCase();
+  if (trimmed === "transparent" || trimmed === "rgba(0, 0, 0, 0)") return false;
+
+  if (trimmed.startsWith("#")) {
+    return getRelativeLuminance(trimmed) < 0.35;
+  }
+
+  const match = trimmed.match(/rgba?\(\s*(\d+)\s*[, ]\s*(\d+)\s*[, ]\s*(\d+)/i);
+  if (match) {
+    const r = Number(match[1]);
+    const g = Number(match[2]);
+    const b = Number(match[3]);
+    const linear = (c: number) => {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    const lum = 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+    return lum < 0.35;
+  }
+
+  return false;
+}
+
+/**
+ * Emits accessibility and color harmony CSS rules ensuring:
+ * 1. Buttons get high-contrast text computed via WCAG opposite contrast from the accent color.
+ * 2. Dark sections (hero with dark photo, dark navbar/header, dark containers) guarantee crisp white text and links.
+ * 3. Any element explicitly customized by the user with [data-xite-user-override] or [data-xite-user-color] is protected from theme overrides.
+ */
+export function generateHarmoniousContrastCss(
+  scope: string,
+  tokens?: ColorTokenMap | EditorThemeTokens | null,
+): string {
+  let primary = "var(--xite-accent, #2563eb)";
+  let onPrimary = "var(--xite-on-accent, #ffffff)";
+  let primaryBorder = "var(--xite-accent-border, transparent)";
+
+  if (tokens) {
+    const isColorMap = "light1" in tokens;
+    const themeTokens: EditorThemeTokens = isColorMap
+      ? colorTokenMapToThemeTokens(tokens as ColorTokenMap)
+      : (tokens as EditorThemeTokens);
+    const tokenMap: ColorTokenMap = isColorMap
+      ? (tokens as ColorTokenMap)
+      : themeTokensToColorTokenMap(tokens as EditorThemeTokens);
+
+    const primColor = themeTokens.primary || themeTokens.accent || tokenMap.accent;
+    if (primColor) {
+      primary = primColor;
+      const contrast = calculateOppositeContrast(primColor);
+      onPrimary = contrast.textColor;
+      primaryBorder = contrast.borderColor;
+    }
+  }
+
+  const unoverridden = ":not([data-xite-user-override]):not([data-xite-user-color])";
+
+  return `
+/* ── Automatic Color Harmony & Accessible Contrast ── */
+
+/* 1. Primary CTA Buttons */
+${scope} :is(
+  button.btn-primary,
+  a.btn-primary,
+  [class*="btn-primary"],
+  [class*="ai-btn-primary"],
+  .lit-btn-enquire,
+  [class*="btn-enquire"],
+  [class*="action-btn"].primary,
+  .btn-primary-action,
+  [data-xite-variant="solid"]
+)${unoverridden} {
+  background-color: ${primary} !important;
+  color: ${onPrimary} !important;
+  border-color: ${primaryBorder} !important;
+}
+
+${scope} :is(
+  button.btn-primary,
+  a.btn-primary,
+  [class*="btn-primary"],
+  [class*="ai-btn-primary"],
+  .lit-btn-enquire,
+  [class*="btn-enquire"],
+  [class*="action-btn"].primary,
+  .btn-primary-action,
+  [data-xite-variant="solid"]
+)${unoverridden} :is(span, p, strong, b, em)${unoverridden} {
+  color: ${onPrimary} !important;
+}
+
+/* 2. Re-scope custom properties inside Dark Sections (Hero, Dark Navbar, Dark Backgrounds) */
+${scope} :is(
+  .ai-hero,
+  [class*="ai-hero"],
+  .lit-header,
+  header.lit-header,
+  [class*="lit-header"],
+  .dark-section,
+  [data-theme="dark"],
+  section[style*="background: #0"],
+  section[style*="background: rgb(0"],
+  section[style*="background-color: #0"],
+  section[style*="background-color: rgb(0"],
+  section[style*="background: #1"],
+  section[style*="background: rgb(1"],
+  section[style*="background-color: #1"],
+  section[style*="background-color: rgb(1"],
+  section[style*="background: #2"],
+  section[style*="background: rgb(2"],
+  header[style*="background: #0"],
+  header[style*="background: rgb(0"],
+  header[style*="background-color: #0"],
+  header[style*="background-color: rgb(0"],
+  header[style*="background: #1"],
+  header[style*="background: rgb(1"],
+  header[style*="background-color: #1"],
+  header[style*="background-color: rgb(1"],
+  header[style*="background: #2"],
+  header[style*="background: rgb(2"]
+) {
+  --xite-text: #FFFFFF;
+  --xite-text-muted: rgba(255, 255, 255, 0.85);
+  --theme-dark-1: rgba(255, 255, 255, 0.85);
+  --theme-dark-2: #FFFFFF;
+}
+
+/* Headings inside dark sections */
+${scope} :is(
+  .ai-hero,
+  [class*="ai-hero"],
+  .lit-header,
+  header.lit-header,
+  [class*="lit-header"],
+  .dark-section,
+  [data-theme="dark"]
+) :is(
+  h1, h2, h3, h4, h5, h6,
+  .ai-hero-title,
+  [class*="hero-title"],
+  .lit-brand-text,
+  [class*="brand-text"],
+  [class*="logo-text"]
+)${unoverridden} {
+  color: #FFFFFF !important;
+}
+
+${scope} :is(
+  .ai-hero,
+  [class*="ai-hero"],
+  .lit-header,
+  header.lit-header,
+  [class*="lit-header"],
+  .dark-section,
+  [data-theme="dark"]
+) :is(
+  h1, h2, h3, h4, h5, h6,
+  .ai-hero-title,
+  [class*="hero-title"]
+)${unoverridden} :is(span, b, strong)${unoverridden} {
+  color: #FFFFFF !important;
+}
+
+/* Accent emphasis inside dark hero headlines (e.g. em tag) */
+${scope} :is(.ai-hero, [class*="ai-hero"]) :is(h1, h2, .ai-hero-title)${unoverridden} em${unoverridden} {
+  color: var(--xite-accent-soft, #93c5fd) !important;
+  font-style: normal;
+}
+
+/* Paragraphs and descriptions inside dark sections */
+${scope} :is(.ai-hero, [class*="ai-hero"], .dark-section, [data-theme="dark"]) :is(
+  p,
+  .ai-hero-desc,
+  [class*="hero-desc"],
+  [class*="hero-subtitle"],
+  .ai-dock-hint
+)${unoverridden} {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* Nav links in dark headers */
+${scope} :is(.lit-header, header.lit-header, [class*="lit-header"], header[class*="header"]) :is(
+  .lit-nav-link,
+  [class*="nav-link"],
+  nav a:not([class*="btn"]):not([class*="button"]):not([id*="Btn"])
+)${unoverridden} {
+  color: #FFFFFF !important;
+  opacity: 0.9 !important;
+}
+
+${scope} :is(.lit-header, header.lit-header, [class*="lit-header"], header[class*="header"]) :is(
+  .lit-nav-link,
+  [class*="nav-link"],
+  nav a:not([class*="btn"]):not([class*="button"]):not([id*="Btn"])
+)${unoverridden}:hover {
+  color: var(--xite-accent, ${primary}) !important;
+  opacity: 1 !important;
+}
+
+/* Header buttons & pill badges on dark headers */
+${scope} :is(.lit-header, header.lit-header, [class*="lit-header"]) :is(
+  .lit-btn-programs,
+  .lit-btn-contact,
+  button[id*="Programs"],
+  a[href*="contact"]
+)${unoverridden} {
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Secondary buttons & dock pills in dark heroes */
+${scope} :is(.ai-hero, [class*="ai-hero"]) :is(
+  .ai-btn-secondary,
+  [class*="btn-secondary"],
+  .ai-dock-pill
+)${unoverridden} {
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  background-color: transparent !important;
+}
+`.trim();
+}
+
 export type HarmonyMode = "complementary" | "analogous" | "triadic" | "monochromatic" | "split";
 
 /**
