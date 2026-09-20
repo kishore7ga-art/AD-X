@@ -1,10 +1,38 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, Inbox, Layers, Users as UsersIcon } from "lucide-react";
+import {
+  Activity,
+  Inbox,
+  Layers,
+  Users as UsersIcon,
+  AlertTriangle,
+  Sparkles,
+} from "lucide-react";
 
 import { api, ApiError } from "@/api/client";
 import { Shell } from "@/components/Shell";
 import { StatTile } from "@/components/StatTile";
+
+type AiUsageData = {
+  currentSpendUsd: number;
+  budgetMonthlyUsd: number;
+  period: string;
+  isBudgetExceeded: boolean;
+  spendByType: {
+    initial_generation: number;
+    swap: number;
+    reference_expansion: number;
+  };
+  recentJobs: Array<{
+    jobId: string;
+    type: string;
+    collegeId?: string;
+    status: string;
+    costUsd: number;
+    completedAt?: string;
+    errorMessage?: string;
+  }>;
+};
 
 /**
  * The Super Admin's landing screen.
@@ -70,6 +98,8 @@ function relative(iso: string | null): string {
 
 export function Dashboard() {
   const [data, setData] = useState<Overview | null>(null);
+  const [aiUsage, setAiUsage] = useState<AiUsageData | null>(null);
+  const [jobStatusFilter, setJobStatusFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,9 +108,13 @@ export function Dashboard() {
 
     async function load() {
       try {
-        const payload = await api.get<Overview>("/api/v1/admin/overview");
+        const [payload, aiData] = await Promise.all([
+          api.get<Overview>("/api/v1/admin/overview"),
+          api.get<AiUsageData>("/api/v1/admin/ai/usage").catch(() => null),
+        ]);
         if (!cancelled) {
           setData(payload);
+          if (aiData) setAiUsage(aiData);
           setError(null);
         }
       } catch (cause) {
@@ -189,6 +223,217 @@ export function Dashboard() {
               tone="lilac"
             />
           </section>
+
+          {/* ─── AI Usage & Budget Widget (Spec §5) ─────────────────────── */}
+          {aiUsage && (() => {
+            const spendPercent = Math.min(
+              100,
+              Math.round((aiUsage.currentSpendUsd / (aiUsage.budgetMonthlyUsd || 1)) * 100)
+            );
+            const isWarning = spendPercent >= 90 || aiUsage.isBudgetExceeded;
+
+            return (
+              <section className="rounded-xl border border-night-line bg-white p-5 space-y-5">
+                <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-night-line pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-lg bg-purple-50 text-purple-700 border border-purple-200">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-bold text-chalk">AI Usage &amp; Monthly Budget</h2>
+                      <p className="text-xs text-chalk-dim">
+                        Monthly spend accounting ledger guarding against runaway OpenAI API costs.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-xs font-mono font-bold text-chalk">
+                    Billing Period: <span className="text-accent">{aiUsage.period}</span>
+                  </div>
+                </header>
+
+                {/* Warning banner if >= 90% or budget exceeded */}
+                {isWarning && (
+                  <div className="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2.5 font-medium">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>
+                      {aiUsage.isBudgetExceeded
+                        ? `Monthly AI budget of $${aiUsage.budgetMonthlyUsd.toFixed(2)} USD is exceeded ($${aiUsage.currentSpendUsd.toFixed(2)} spent). Generation is halted platform-wide until next period or limit increase.`
+                        : `Warning: Platform has reached ${spendPercent}% of its monthly AI budget ($${aiUsage.currentSpendUsd.toFixed(2)} / $${aiUsage.budgetMonthlyUsd.toFixed(2)} USD). Generation requests will be rejected if budget is exhausted.`}
+                    </span>
+                  </div>
+                )}
+
+                {/* Budget Progress Bar */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-chalk">
+                      Current Spend:{" "}
+                      <span className="font-mono font-bold text-chalk">
+                        ${aiUsage.currentSpendUsd.toFixed(4)} USD
+                      </span>
+                    </span>
+                    <span className="font-mono text-chalk-dim">
+                      Monthly Cap: ${aiUsage.budgetMonthlyUsd.toFixed(2)} USD ({spendPercent}%)
+                    </span>
+                  </div>
+
+                  <div className="w-full h-3 rounded-full bg-night border border-night-line overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        spendPercent >= 90
+                          ? "bg-red-500"
+                          : spendPercent >= 75
+                            ? "bg-amber-500"
+                            : "bg-emerald-500"
+                      }`}
+                      style={{ width: `${Math.min(100, Math.max(1, spendPercent))}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Spend by Generation Type */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-3.5 rounded-lg border border-night-line bg-night/60">
+                    <div className="text-[11px] font-bold text-chalk-dim uppercase tracking-wider">
+                      Initial Site Generations
+                    </div>
+                    <div className="text-base font-bold font-mono text-chalk mt-1">
+                      ${(aiUsage.spendByType?.initial_generation || 0).toFixed(4)}
+                    </div>
+                    <div className="text-[11px] text-chalk-dim mt-0.5">Full site builds</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-lg border border-night-line bg-night/60">
+                    <div className="text-[11px] font-bold text-chalk-dim uppercase tracking-wider">
+                      Section Swaps
+                    </div>
+                    <div className="text-base font-bold font-mono text-chalk mt-1">
+                      ${(aiUsage.spendByType?.swap || 0).toFixed(4)}
+                    </div>
+                    <div className="text-[11px] text-chalk-dim mt-0.5">Component regenerations</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-lg border border-night-line bg-night/60">
+                    <div className="text-[11px] font-bold text-chalk-dim uppercase tracking-wider">
+                      Reference Expansion
+                    </div>
+                    <div className="text-base font-bold font-mono text-chalk mt-1">
+                      ${(aiUsage.spendByType?.reference_expansion || 0).toFixed(4)}
+                    </div>
+                    <div className="text-[11px] text-chalk-dim mt-0.5">Self-expanding candidate jobs</div>
+                  </div>
+                </div>
+
+                {/* Recent Generation Jobs Table */}
+                <div className="space-y-2 pt-2 border-t border-night-line">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h3 className="text-xs font-bold text-chalk">Recent AI Generation Jobs</h3>
+                    <div className="flex items-center gap-2.5">
+                      <label className="text-[11px] text-chalk-dim">Status:</label>
+                      <select
+                        value={jobStatusFilter}
+                        onChange={(e) => setJobStatusFilter(e.target.value)}
+                        className="text-xs bg-white border border-night-line rounded-md px-2 py-1 text-chalk font-medium focus:outline-none focus:ring-1 focus:ring-accent"
+                      >
+                        <option value="all">All Statuses</option>
+                        <option value="complete">Complete</option>
+                        <option value="failed">Failed</option>
+                        <option value="processing">Processing</option>
+                        <option value="pending">Pending</option>
+                      </select>
+                      <span className="text-[11px] text-chalk-dim font-mono">
+                        {(() => {
+                          const filtered = (aiUsage.recentJobs || []).filter((j) => {
+                            if (jobStatusFilter === "all") return true;
+                            return j.status.toLowerCase() === jobStatusFilter.toLowerCase();
+                          });
+                          return `${filtered.length} of ${aiUsage.recentJobs?.length || 0}`;
+                        })()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {(() => {
+                    const filteredJobs = (aiUsage.recentJobs || []).filter((j) => {
+                      if (jobStatusFilter === "all") return true;
+                      return j.status.toLowerCase() === jobStatusFilter.toLowerCase();
+                    });
+
+                    if (filteredJobs.length === 0) {
+                      return (
+                        <p className="text-xs text-chalk-dim py-3">
+                          No {jobStatusFilter !== "all" ? `"${jobStatusFilter}"` : ""} AI generation jobs recorded.
+                        </p>
+                      );
+                    }
+
+                    return (
+                      <div className="rounded-lg border border-night-line overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-night border-b border-night-line text-[11px] font-bold uppercase text-chalk-dim">
+                            <tr>
+                              <th className="px-3 py-2">Job ID</th>
+                              <th className="px-3 py-2">Type</th>
+                              <th className="px-3 py-2">College / Tenant</th>
+                              <th className="px-3 py-2">Status</th>
+                              <th className="px-3 py-2">Cost (USD)</th>
+                              <th className="px-3 py-2">Timestamp</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-night-line">
+                            {filteredJobs.slice(0, 10).map((job) => (
+                              <tr key={job.jobId} className="hover:bg-night/50">
+                                <td className="px-3 py-2.5 font-mono text-[11px] text-chalk-dim">
+                                  {job.jobId.slice(0, 8)}...
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  <span className="font-semibold text-chalk">
+                                    {job.type === "generate_site" || job.type === "generate-site"
+                                      ? "Site Generation"
+                                      : job.type === "swap" || job.type === "swap_section" || job.type === "swap-section"
+                                        ? "Section Swap"
+                                        : "Reference Expansion"}
+                                  </span>
+                                </td>
+                                <td className="px-3 py-2.5 font-mono text-[11px] text-chalk-dim">
+                                  {job.collegeId ? job.collegeId.slice(0, 10) : "Platform"}
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  {job.status === "complete" ? (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                      Complete
+                                    </span>
+                                  ) : job.status === "failed" ? (
+                                    <span
+                                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200"
+                                      title={job.errorMessage}
+                                    >
+                                      Failed: {job.errorMessage?.slice(0, 25) || "Error"}...
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                                      {job.status}
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-3 py-2.5 font-mono font-medium text-chalk">
+                                  ${((job as any).costUsd ?? (job as any).estimatedCostUsd ?? 0).toFixed(4)}
+                                </td>
+                                <td className="px-3 py-2.5 text-[11px] text-chalk-dim">
+                                  {job.completedAt ? relative(job.completedAt) : "just now"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </section>
+            );
+          })()}
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             {/* Library usage — the column that used to be a hardcoded zero. */}

@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { Dashboard } from "@/pages/Dashboard";
 import { DefaultWebsite } from "@/pages/DefaultWebsite";
 import { Login } from "@/pages/Login";
+import { ReferenceLibrary } from "@/pages/ReferenceLibrary";
 import { Requests } from "@/pages/Requests";
 import { SectionAddStudio } from "@/pages/SectionAddStudio";
 import { TemplateEdit } from "@/pages/TemplateEdit";
@@ -40,6 +41,14 @@ export function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reference-library"
+            element={
+              <ProtectedRoute>
+                <ReferenceLibrary />
               </ProtectedRoute>
             }
           />

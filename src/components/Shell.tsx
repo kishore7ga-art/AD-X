@@ -19,6 +19,7 @@ import {
   FileText,
   LifeBuoy,
   Activity,
+  BookOpen,
 } from "lucide-react";
 
 import { useAuth } from "@/auth/AuthContext";
@@ -60,6 +61,9 @@ export function Shell({
           <nav className="mt-2 flex flex-col gap-0.5 px-3">
             <Rail to="/dashboard" icon={<LayoutDashboard className="h-[17px] w-[17px]" />}>
               Dashboard
+            </Rail>
+            <Rail to="/reference-library" icon={<BookOpen className="h-[17px] w-[17px]" />}>
+              Reference Library
             </Rail>
             <Rail to="/templates" icon={<Layers className="h-[17px] w-[17px]" />}>
               Templates &amp; Sections
